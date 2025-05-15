@@ -2,6 +2,7 @@
 /img/
 /vendor/
 /var/
+error_log
 
 # Ignore all .zip files in the current directory only
 /*.zip
