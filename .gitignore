@@ -1,0 +1,7 @@
+# Ignore folders
+/img/
+/vendor/
+/var/
+
+# Ignore all .zip files in the current directory only
+/*.zip
