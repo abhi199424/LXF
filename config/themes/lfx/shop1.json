@@ -1,0 +1,1 @@
+{"parent":"classic","name":"lfx","display_name":"Lfx","version":"1.0.0","author":{"name":"Abhijjith G","email":"abhi199424@gmail.com"},"assets":{"use_parent_assets":true,"css":{"all":[{"id":"style","path":"assets\/css\/style.css","priority":200}]},"js":{"all":[{"id":"script","path":"assets\/js\/script.js"}]}}}
