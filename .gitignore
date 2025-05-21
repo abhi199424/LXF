@@ -3,6 +3,7 @@
 /vendor/
 /var/
 error_log
+.htaccess
 
 # Ignore all .zip files in the current directory only
 /*.zip
