@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>minicart</name>
+    <displayName><![CDATA[Mini Cart]]></displayName>
+    <version><![CDATA[1.0.0]]></version>
+    <description><![CDATA[Showing a list of cart products]]></description>
+    <author><![CDATA[DevAb]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>0</need_instance>
+</module>
