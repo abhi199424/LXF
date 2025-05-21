@@ -1,0 +1,9 @@
+Hola {firstname} {lastname},
+
+Te recordamos que tienes {rewards} en tu cuenta de recompensas que se puede transformar en un vale de descuento para su próxima compra.{expire}
+
+Si ya no desea recibir este correo electrónico, puede desactivar la opción desde esta página.
+
+
+{shop_name}
+{shop_url}

@@ -1,0 +1,9 @@
+Ciao {firstname} {lastname},
+
+Ti ricordiamo che hai {rewards} net tuo account delle ricompense che puoi convertire in un voucher per il prossimo acquisto.{expire}
+
+Se non desideri più ricevere questa email, puoi disattivare l'opzione da questa pagina.
+
+
+{shop_name}
+{shop_url}

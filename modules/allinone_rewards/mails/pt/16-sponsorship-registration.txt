@@ -1,0 +1,6 @@
+Parabéns {sponsor_firstname} {sponsor_lastname} !
+
+Seu amigo {sponsored_firstname} {sponsored_lastname} acabou de se registar em {shop_name}!
+
+{shop_name}
+

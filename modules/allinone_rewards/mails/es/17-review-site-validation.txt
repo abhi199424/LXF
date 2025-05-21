@@ -1,0 +1,9 @@
+Felicitaciones {customer_firstname} {customer_lastname} !
+
+Su reseña de su pedido {order_reference} ha sido validada.
+Una recompensa de {customer_reward} ahora está disponible en su cuenta de recompensas.
+
+
+
+{shop_name}
+{shop_url}

@@ -1,0 +1,8 @@
+Congratulations {customer_firstname} {customer_lastname} !
+
+Thanks to your registration, a {customer_reward} reward is now available in your rewards account.
+
+
+
+{shop_name}
+{shop_url}

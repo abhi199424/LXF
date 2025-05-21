@@ -1,0 +1,8 @@
+Hola,
+
+Su solicitud de pago por vale de {value} ha sido procesada.
+Puede seguir sus recompensas en su cuenta de recompensas.
+
+
+{shop_name}
+{shop_url}

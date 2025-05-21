@@ -1,0 +1,9 @@
+Hi {firstname} {lastname},
+
+We remind you that you have {rewards} in your rewards account that you can transform into a voucher for your next purchases.{expire}
+
+If you no longer wish to receive this email, you can deactivate the option from this page.
+
+
+{shop_name}
+{shop_url}

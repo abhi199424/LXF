@@ -1,0 +1,10 @@
+Olá {sponsored_firstname} {sponsored_lastname},
+
+Seu amigo {firstname} {lastname} quer que você se torne um patrocinador em {shop_name}Sua mensagem :
+{message}
+
+É muito fácil se inscrever. Apenas clique aqui!
+{link}
+
+{shop_name}
+

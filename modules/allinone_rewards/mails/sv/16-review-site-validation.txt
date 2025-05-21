@@ -1,0 +1,9 @@
+Congratulations {customer_firstname} {customer_lastname} !
+
+Your review of your {order_reference} order has been validated.
+A {customer_reward} reward is now available in your rewards account.
+
+
+
+{shop_name}
+{shop_url}

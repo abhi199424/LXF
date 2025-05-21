@@ -1,0 +1,8 @@
+Congratulazioni {customer_firstname} {customer_lastname} !
+
+A seguito della tua iscrizione alla nostra newsletter, un premio di {customer_reward} è ora disponibile nel tuo account premi.
+
+
+
+{shop_name}
+{shop_url}

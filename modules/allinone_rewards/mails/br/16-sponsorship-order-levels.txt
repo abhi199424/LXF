@@ -1,0 +1,8 @@
+Parabéns {sponsor_firstname} {sponsor_lastname} !
+
+Um de seus amigos patrocinados indiretos fez um pedido em {shop_name}!
+
+Para agradecer, quando seu pedido for validado, você receberá {sponsor_reward} em sua conta de recompensas.
+
+{shop_name}
+

@@ -1,0 +1,9 @@
+Congratulazioni {customer_firstname} {customer_lastname} !
+
+La tua recensione del tuo ordine {order_reference} è stata valida.
+Un premio di {customer_reward} è ora disponibile nel tuo account premi.
+
+
+
+{shop_name}
+{shop_url}

@@ -1,0 +1,9 @@
+Félicitations {customer_firstname} {customer_lastname} !
+
+Votre avis concernant le produit "{product}" a été validé.
+Une récompense de {customer_reward} est maintenant disponible dans votre compte récompenses.
+
+
+
+{shop_name}
+{shop_url}
