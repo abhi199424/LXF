@@ -4,6 +4,7 @@
 /var/
 error_log
 .htaccess
+themes/lfx/assets/cache
 
 # Ignore all .zip files in the current directory only
 /*.zip
