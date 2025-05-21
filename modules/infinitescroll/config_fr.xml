@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>infinitescroll</name>
+    <displayName><![CDATA[Scroll Infini Premium]]></displayName>
+    <version><![CDATA[1.1.17]]></version>
+    <description><![CDATA[Am&eacute;liorez la navigation de vos clients en supprimant la pagination au profit du d&eacute;filement infini.]]></description>
+    <author><![CDATA[Studio Kiwik]]></author>
+    <tab><![CDATA[front_office_features]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+</module>

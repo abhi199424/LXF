@@ -1,0 +1,13 @@
+.infinitescroll-bottom-message{
+ display: block;
+ width: 100%;
+ padding: 10px 13px;
+ border: 1px solid;
+}
+.infinitescroll-bottom-message.infinitescroll-load-more{
+	text-align: center;
+}
+
+.infinitescroll-bottom-message a:hover{
+	opacity: 0.9;
+}
