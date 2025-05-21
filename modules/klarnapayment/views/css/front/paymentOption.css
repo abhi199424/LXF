@@ -1,0 +1,132 @@
+/**
+ * NOTICE OF LICENSE
+ *
+ * @author    Klarna Bank AB www.klarna.com
+ * @copyright Copyright (c) permanent, Klarna Bank AB
+ * @license   ISC
+ * @see       /LICENSE
+ *
+ * International Registered Trademark & Property of Klarna Bank AB
+ */
+.klarnapayment-generic-error {
+    display: none;
+}
+
+.klarnapayment-error {
+    display: none;
+}
+
+.disabled-radio-button {
+    background: #bfbfbf;
+    cursor: not-allowed;
+}
+
+.klarnapayment-loading {
+    background-color: rgba(255, 255, 255, 0.8);
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+}
+
+.klarnapayment-loading:after {
+    -webkit-animation: rotation 750ms linear infinite;
+    animation: rotation 750ms linear infinite;
+
+    border-radius: 50%;
+    border-top: 3px solid #6a6a6a;
+    border-right: 3px solid transparent;
+    box-sizing: border-box;
+
+    border-top-color: black;
+    content: '';
+    display: block;
+    height: 4rem;
+    width: 4rem;
+
+    position: absolute;
+    top: calc(50% - 24px);
+    left: calc(50% - 24px);
+    z-index: 110;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.klarnapayment-loading-spinner-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.klarnapayment-loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.klarnapayment-loading-spinner:after {
+    content: "";
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 4px solid #006cff;
+    border-radius: 100%;
+    animation: klarnapayment-loading-spinner--rotate .7s linear infinite
+}
+
+@keyframes klarnapayment-loading-spinner--rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.klarnapayment-disabled, .klarnapayment-disabled:hover {
+    color: #ddd;
+    background: #f6f6f6;
+    opacity: 1;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.klarnapayment-coc-text {
+    text-rendering: geometricprecision;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 17px;
+    color: rgb(95, 97, 99)
+}
+
+.klarnapayment-coc-text-block {
+    margin-left: 8px;
+    display: none;
+}
+
+.klarnapayment-coc-href-text {
+    color: rgb(14, 14, 15);
+    text-decoration-line: underline;
+    text-rendering: geometricprecision;
+}
+
+

@@ -1,0 +1,332 @@
+/**
+ * NOTICE OF LICENSE
+ *
+ * @author    Klarna Bank AB www.klarna.com
+ * @copyright Copyright (c) permanent, Klarna Bank AB
+ * @license   ISC
+ * @see       /LICENSE
+ *
+ * International Registered Trademark & Property of Klarna Bank AB
+ */
+@font-face {
+  font-family: Klarna;
+  src: url("../../../fonts/KlarnaText-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: KlarnaHeadline;
+  font-weight: bold;
+  src: url("../../../fonts/KlarnaText-Bold.otf") format("opentype");
+}
+
+button.form-btn{
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  color: #FFFFFF !important;
+}
+button.form-btn:active,
+button.form-btn:hover,
+button.form-btn:focus{
+  background-color: #2f2f2f !important;
+  border-color: #2f2f2f !important;
+  -webkit-box-shadow: none !important;
+}
+
+.custom-checkbox {
+  accent-color: #000000;
+}
+
+.credential-info{
+  background-color: #E3EAFD !important;
+  border-color: #E3EAFD !important;
+}
+
+.credential-info .alert-text{
+  color: #384359;
+}
+
+.credential-info .credential-title{
+  color: #000000;
+}
+
+.bootstrap .alert.alert-info::before{
+  color: #0725E4;
+}
+
+.credential-info .alert-text .link-href{
+  color: #174EEF;
+}
+
+.environment-selector .environment-text .environment-switch{
+  accent-color: #000000;
+}
+
+.environment-selector .environment-text{
+  padding: 10px;
+  color: #384359;
+  font-family: Klarna, sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.environment-selector {
+  margin-bottom: 20px;
+}
+
+.no-margin-form-group > div {
+  margin-left: 0 !important;
+}
+
+.klarna-image-wrapper-container {
+  padding-left: 10% !important;
+}
+
+.min-max-label {
+  display: flex;
+  float: left;
+}
+
+.bootstrap label.control-label {
+  font-family: Klarna, sans-serif;
+  text-align: left !important;
+  font-size: 14px;
+  font-weight: 500;
+  color: #363a41;
+}
+
+.bootstrap .fixed-width-xl {
+  width: 100% !important;
+}
+
+.bootstrap .fixed-width-lg {
+  width: 100% !important;
+}
+
+.klarna-admin-form-group {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.image-wrapper img {
+  width: 100%;
+}
+
+.klarna-admin-image-form-group > .control-label {
+  display: none !important;
+}
+.osm-img {
+  width: 100%;
+}
+.osm-img-wrapper {
+  margin-top: 5px;
+}
+.kec-image-wrapper {
+  width: 40%;
+  display: inline-block;
+  margin-top: 20px;
+}
+.kp-image-wrapper {
+  width: 25%;
+  display: inline-block;
+  margin-top: 20px;
+}
+.siwk-image-wrapper {
+  width: 40%;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.kp-image-form-group > div,
+.kec-image-form-group > div,
+.siwk-image-form-group > div {
+  text-align: center;
+}
+
+.adminklarnapaymentsettings #main #content form .panel-heading i {
+  float: left;
+  margin-top: 9px;
+  margin-left: 10px;
+  font-weight: 600;
+  color: #363a41;
+  font-size: 18px;
+}
+
+#cdc-container {
+  min-height: 390px;
+}
+
+#cdc-container {
+  min-height: 390px;
+}
+
+
+@media (max-width: 1200px) {
+  .kec-image-wrapper,
+  .kp-image-wrapper,
+  .siwk-image-wrapper{
+    width: 60%;
+  }
+  .image-wrapper img {
+    width: 60%;
+  }
+  .bootstrap .col-lg-8 .image-wrapper {
+    text-align: end;
+    padding-right: 20px;
+    width: max-content;
+  }
+  .bootstrap .col-lg-8 .klarna-admin-input {
+    width: 300px;
+  }
+  .bootstrap .col-lg-8 .help-block {
+    width: 300px;
+  }
+  .bootstrap .col-lg-8 .fixed-width-xl {
+    width: 300px !important;
+  }
+  .bootstrap .fixed-width-lg {
+    width: 300px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .klarna-admin-image-form-group {
+    display: none;
+  }
+}
+
+.klarna-font {
+  font-family: KlarnaHeadline, sans-serif;
+}
+
+.image-preview-label {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px;
+  height: fit-content;
+  font-size: 20px;
+  text-align: center;
+}
+
+#content.bootstrap .panel .panel-heading {
+  padding: 4px;
+  font-family: KlarnaHeadline, sans-serif;
+  text-align: center;
+  height: fit-content;
+  font-size: 30px;
+  font-weight: 600;
+  color: #363a41;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.klarna-admin-checkbox {
+  accent-color: #000000;
+  transform: scale(1.3);
+}
+
+.klarna-admin-checkbox:checked + label::before {
+  border-radius: 100% !important;
+}
+
+.klarna-admin-checkbox-form-group {
+  font-family: Klarna, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #363a41;
+}
+
+.klarna-admin-checkbox-form-group > div:first-child{
+  margin-left: 0;
+}
+
+.checkbox {
+  margin-left: 5px;
+}
+
+/* < PS 1.7.8 */
+
+.col-lg-12 {
+  max-width: 100% !important;
+
+}
+
+.row {
+  display: contents !important;
+}
+
+.form-wrapper {
+  padding-bottom: 45px !important;
+}
+
+#content.bootstrap .panel-heading {
+  line-height: 1.2em !important;
+  text-transform: none;
+}
+
+.bootstrap .panel .panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.klarna-credential-trigger:hover {
+  cursor: pointer;
+}
+
+span.klarna-credential-trigger > i.icon-chevron-down,
+span.klarna-credential-trigger > i.icon-chevron-up {
+  font-size: 12px;
+}
+
+i.icon-chevron-down {
+  cursor: pointer;
+}
+
+i.icon-chevron-up {
+  cursor: pointer;
+}
+
+.bootstrap .col-lg-8 {
+  width: 100%;
+}
+
+.credentials-container {
+  width: 100% !important;
+}
+
+.klarna-input-wrapper {
+  margin: 0 !important;
+}
+
+.form-wrapper {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 100% !important;
+  width: 75% !important;
+}
+
+.klarna-siwk-title > label {
+  font-weight: 600 !important;
+  font-size: 17px !important;
+}
+
+.copy-icon-button:hover {
+  cursor: pointer;
+}
+
+.parent-container {
+  position: relative;
+}
+
+.copy-icon-button {
+  position: absolute;
+  right: 18px;
+  top: 8px;
+}
+
+.osm-infopage-spacing {
+  margin-bottom: 5px !important;
+}

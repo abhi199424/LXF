@@ -1,0 +1,16 @@
+.idea
+vendor
+.php_cs.cache
+coverage
+/node_modules
+.env
+cypress.env.json
+cypress.config.js
+cypress.config.js
+cypress.env.json
+config*.xml
+ngrok
+cypress/screenshots
+cypress/videos
+var/cache/*
+!var/cache/index.php

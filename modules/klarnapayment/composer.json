@@ -1,0 +1,71 @@
+{
+    "name": "invertus/klarnapayment",
+    "type": "prestashop-module",
+    "authors": [
+        {
+            "name": "Invertus",
+            "email": "help@invertus.eu"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Invertus/Knapsack.git"
+        }
+    ],
+    "require": {
+        "php": "7.1.0",
+        "ext-json": "*",
+        "apimatic/jsonmapper": "^3.0",
+        "apimatic/unirest-php": "^3.0",
+        "firebase/php-jwt": "v6.4.0",
+        "invertus/knapsack": "^10.0",
+        "league/container": "3.4.1",
+        "prestashop/decimal": "^1.4",
+        "psr/simple-cache": "^1.0",
+        "rakit/validation": "^1.4",
+        "prestashop/autoindex": "^v1.0.0",
+        "prestashop/prestashop-accounts-installer": "^1.0",
+        "prestashop/module-lib-service-container": "^2.0",
+        "prestashop/module-lib-mbo-installer": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "KlarnaPayment\\Module\\": "src/",
+            "KlarnaPayment\\Vendor\\League\\Container\\": "vendor\/league\/container\/src\/",
+            "KlarnaPayment\\Vendor\\Rakit\\": "vendor\/rakit\/validation\/src\/",
+            "KlarnaPayment\\Vendor\\Psr\\Container\\": "vendor\/psr\/container\/src\/"
+        },
+        "classmap": [
+            "src/",
+            "klarnapayment.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "KlarnaPayment\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "7.1.0"
+        },
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "optimize-autoloader": true,
+        "prepend-autoloader": false,
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        }
+    },
+    "require-dev": {
+        "bamarni/composer-bin-plugin": "^1.5",
+        "friendsofphp/php-cs-fixer": "^2.19",
+        "invertus/prestashop-models": "^1.0",
+        "phpunit/phpunit": "^7.5",
+        "prestashop/header-stamp": "^v1.7",
+        "prestashop/php-dev-tools": "^3.16"
+    },
+    "author": "Klarna Bank AB",
+    "license": "ISC"
+}

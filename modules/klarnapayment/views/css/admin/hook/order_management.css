@@ -1,0 +1,74 @@
+/**
+ * NOTICE OF LICENSE
+ *
+ * @author    Klarna Bank AB www.klarna.com
+ * @copyright Copyright (c) permanent, Klarna Bank AB
+ * @license   ISC
+ * @see       /LICENSE
+ *
+ * International Registered Trademark & Property of Klarna Bank AB
+ */
+.button-container {
+    margin-bottom: 8px;
+}
+
+.error-text {
+    color: red;
+    margin: 5px 5px 0 0;
+}
+
+.action-container {
+    min-height: 100px;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+.outline-black {
+    box-shadow: 0 0 0 0.5pt black;
+}
+
+.order-management-content {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.modal-content-wrapper{
+    padding: 20px;
+}
+
+.modal-body-wrapper {
+    padding-top: 20px;
+}
+
+.modal-wrapper .action-btn {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-wrapper .btn-display .action-toggle-button {
+    cursor: pointer;
+}
+
+.modal-wrapper .btn-display {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+@media (max-width: 767px) {
+    .order-management-content .container {
+        padding-left: 0.9375rem;
+        padding-right: 0.9375rem;
+    }
+}

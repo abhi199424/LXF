@@ -1,0 +1,115 @@
+/**
+ * NOTICE OF LICENSE
+ *
+ * @author    Klarna Bank AB www.klarna.com
+ * @copyright Copyright (c) permanent, Klarna Bank AB
+ * @license   ISC
+ * @see       /LICENSE
+ *
+ * International Registered Trademark & Property of Klarna Bank AB
+ */
+.sign-in-wrapper {
+    display: flex;
+    margin: 10px 0;
+    justify-content: center;
+}
+
+.sign-in-wrapper #container {
+    width: 100%;
+}
+
+.sign-in-wrapper #container klarna-identity-button {
+    width: 100%;
+    max-width: 400px;
+}
+
+#siwk-login-success-notification {
+    position: fixed; /* Change to fixed to stay visible on scroll */
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px 25px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    font-size: 17px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(-10px);
+}
+
+#siwk-login-error-notification {
+    position: fixed; /* Change to fixed to stay visible on scroll */
+    top: 20px;
+    right: 20px;
+    background-color: #F44336;
+    color: white;
+    padding: 20px 25px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    font-size: 17px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(-10px);
+}
+
+@media (max-width: 768px) {
+    #siwk-login-success-notification {
+        top: 10px;
+        right: 10px;
+        padding: 15px 20px;
+        font-size: 15px;
+        max-width: 90%;
+    }
+
+    #siwk-login-error-notification {
+        top: 10px;
+        right: 10px;
+        padding: 15px 20px;
+        font-size: 15px;
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    #siwk-login-success-notification {
+        top: 10px;
+        right: 10px;
+        padding: 10px 15px;
+        font-size: 14px;
+        max-width: 90%;
+    }
+
+    #siwk-login-error-notification {
+        top: 10px;
+        right: 10px;
+        padding: 10px 15px;
+        font-size: 14px;
+        max-width: 90%;
+    }
+}
+
+#siwk-login-success-notification.show {
+    display: inline-block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#siwk-login-error-notification.show {
+    display: inline-block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.klarnapayment-sign-in-with-klarna-personal-information {
+    padding-top: 15px;
+    text-align: center !important;
+}
+
+#siwk-container {
+    text-align: center !important;
+}
