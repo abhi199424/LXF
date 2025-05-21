@@ -12995,3 +12995,13 @@ span.cart-products-count{
 35% {
     transform: translateY(0);
 }
+}
+
+
+.cart_button.mobile_cart_button{
+	display: none;
+}
+
+.most_viewed_products .p_box .btm_sec .cart_button.mobile_cart_button{
+display: none;
+}

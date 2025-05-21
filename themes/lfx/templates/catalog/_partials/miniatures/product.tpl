@@ -323,7 +323,24 @@
               {if $cartProduct.id_product == $product.id}
                 {assign var=productQuantity value=$cartProduct.quantity}
               {/if}
-            {/foreach}            
+            {/foreach}  
+            <div class="cart_button mobile_cart_button">
+      <form action="{$urls.pages.cart}" method="post" class="RefreshForm">
+        <input type="hidden" name="token" value="{$static_token}">
+        <input type="hidden" name="id_product" value="{$product.id}">
+        <input type="hidden" name="id_customization" value="{$product.id_customization}">
+        <button
+        class="btn btn-primary add-to-cart newimgbuttonaddtocart"
+        data-button-action="add-to-cart"
+        type="submit"
+        {if !$product.add_to_cart_url}
+        disabled
+        {/if}
+        >
+        <img class="cart" src="{$urls.child_img_url}shopping-cart.png" alt="#" style="width: 30px">+ Ajouter
+        </button>
+      </form>
+    </div>          
         </div>
 
         <div class="product_btmsec">

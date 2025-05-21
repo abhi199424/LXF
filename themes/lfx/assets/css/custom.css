@@ -2548,6 +2548,10 @@ a#MagicZoomPlusImageMainImage{
 }
 
 
+
+
+
+
 }
 
 
@@ -2944,6 +2948,28 @@ a#MagicZoomPlusImageMainImage{
 }
 
 
+.cart-head-main li:nth-child(2) {
+    width: 472px;
+    padding-left: 245px;
+}
+
+
+
+.c_aid_faq_content li a{
+    font-size: 14px;
+}
+
+.c_aid_faq_content li img{
+    max-width: 40px;
+    max-height: 40px;
+}
+
+.cc_body_middle{
+    background-size: cover;
+    background-position: center right;
+}
+
+
 }
 
 
@@ -3212,13 +3238,23 @@ a#MagicZoomPlusImageMainImage{
     padding-top: 10px;
 }
 
-#cart .product-line-grid-left{
+#cart .product-line-grid-left.col-md-3.col-xs-4{
     width: 80px;
 }
 
     #cart .product-line-grid-body {
         width: 310px;
     }
+
+    .cart-head-main li:nth-child(2) {
+        width: 320px;
+        padding-left: 145px;
+    }
+        .cart-head-main li:nth-child(3) {
+        width: 110px;
+        padding-left: 0px;
+    }
+
 
 
 
@@ -3696,6 +3732,23 @@ a#MagicZoomPlusImageMainImage{
     .product-line-info.couleur{
         padding-bottom: 0px;
     }
+
+        .cart-head-main li:nth-child(2) {
+        width: 370px;
+        padding-left: 135px;
+    }
+
+.cart-head-main li:nth-child(3) {
+        width: 100px;
+        padding-left: 0px;
+    }
+
+    .cart-head-main li:last-child {
+    width: 100px;
+    padding-left: 0px;
+}
+
+
 
 
 
@@ -4284,11 +4337,59 @@ a#MagicZoomPlusImageMainImage{
 }
 
 .cart_button{
-    display: block !important;
+    display: none !important;
 }
 
 #product #wrapper .breadcrumb{
     display: none !important;
+}
+
+.cart-head-main li:nth-child(2) {
+        width: 270px;
+        padding-left: 75px;
+    }
+
+.cart_button.mobile_cart_button{
+    display: block !important;
+}
+
+
+.cart_button.mobile_cart_button {
+    text-transform: none !important;
+    font-size: 16px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: #fff;
+    border-radius: 40px;
+    border: 0;
+    width: 110px;
+    height: 39px;
+    font-weight: 400;
+    /* text-indent: -111111px; */
+    border: 0px !important;
+    position: static;
+}
+
+button.btn.btn-primary.add-to-cart{
+    font-size: 13px;
+    font-weight: 400;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    line-height: 36px;
+}
+
+.most_viewed_products .p_box .btm_sec button.btn.btn-primary.add-to-cart{
+    width: 110px;
+        color: #FFF;
+        text-indent: 0px !important;
+}
+
+.most_viewed_products .p_box .cart_button.mobile_cart_button{
+    background: transparent !important;
 }
 
 
@@ -5266,6 +5367,60 @@ body#product main section#wrapper div div div#content-wrapper section#main div d
         width: 355px;
     }
 
+.cart-head-main{
+    flex-wrap: wrap;
+}
+
+.cart-head-main li{
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.cart-head-main li:nth-child(2) {
+    width: 350px;
+    padding-left: 206px;
+}
+.card-block.cart-summary-totals .cart-summary-line.cart-total{
+    margin-bottom: 0px;
+}
+
+
+.cc_bnnr{
+    background-size: cover;
+    background-position: center center;
+}
+
+.cc_body_middle{
+    background-image: url(../img/LXF-cc-mob-bg.jpg);
+    padding-top: 360px;
+}
+
+.cc_bnnr .cc_bnnr_heading, .cc_body_middle h2, .c_aid_faqsection .c_aid_faq_title{
+    font-size: 27px;
+}
+
+.c_aid_faqsection .c_aid_faq_subtitle{
+    font-size: 18px;
+}
+
+.c_aid_faq_content{
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.c_aid_faq_content li:last-child{
+    grid-column: auto;
+    margin: inherit;
+    width: inherit;
+}
+
+.c_aid_faq_content li:last-child a{
+    margin: inherit;
+}
+
+.footersearchformcont #search_widget form i{
+    display: none;
+}
+
 }
 
 
@@ -5459,7 +5614,7 @@ body#product main section#wrapper div div div#content-wrapper section#main div d
     }*/
      #category .p_box .btm_sec {
          margin-top: 13px;
-         display: block;
+/*         display: block;*/
     }
      #cart .panier_sec {
          padding-bottom: 30px;
@@ -5725,9 +5880,9 @@ body#product main section#wrapper div div div#content-wrapper section#main div d
      .most_viewed_products .product-miniature{
          margin: 0px;
     }
-     .most_viewed_products .p_box .btm_sec{
+/*     .most_viewed_products .p_box .btm_sec{
          flex-wrap: wrap;
-    }
+    }*/
      .product_btmsec .left_cont p {
          font-size: 14px;
          line-height: 15px;
@@ -5975,6 +6130,22 @@ span.read-more-toggle {
 #product button.btn.btn-primary.add-to-cart{
     font-size: 18px !important;
 }
+
+
+.cart-top-headactions{
+    display: none;
+}
+
+#cart .product-line-grid-left.col-md-3.col-xs-4 {
+    width: 90px;
+}
+
+
+.c_aid_faq_content{
+    grid-template-columns: 1fr 1fr;
+}
+
+
 
 
 }
@@ -6451,6 +6622,54 @@ span.read-more-toggle {
 
 .cart__item{
     padding-left: 25px;
+}
+
+
+.cc_body_middle{
+            background-image: url(../img/LXF-cc-mob-bg.jpg);
+        padding-top: 310px;
+        background-color: #333;
+        background-size: 100%;
+        background-repeat: no-repeat;
+        background-position: center top;
+        border-radius: 0px;
+        padding-left: 0px;
+        padding-right: 0px;
+}
+
+#cms #wrapper .container{
+    padding: 0px;
+}
+
+.c_aid_faqsection{
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.c_aid_faq_content li a{
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 13px;
+}
+
+.cc_body_middle_conut a{
+    height: 36px;
+}
+
+.cc_bnnr .cc_bnnr_heading, .cc_body_middle h2, .c_aid_faqsection .c_aid_faq_title {
+        font-size: 23px;
+    }
+
+
+.cc_body_top h2{
+    font-size: 20px;
+}
+.cc_body_middle p{
+    padding-right: 15px;
+}
+
+.cc_bnnr h5, .c_aid_faqsection .c_aid_faq_subtitle{
+    font-size: 16px;
 }
 
 }

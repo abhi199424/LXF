@@ -223,7 +223,7 @@
             <div class="copyright">
 
               <div class="copyright-left">© 2025 LXF FRANCE - Tous droits réservés</div>
-              <div class="copyright-right">Paiement 100% Sécurisé - <a href="#">Conditions générales de vente</a> - <a href="#">Mentions légales</a> - <a href="#">Données personnelles et cookies</a>  -  <a href="#">Plan du site</a></div>
+              <div class="copyright-right">Paiement 100% Sécurisé - <a href="https://lxfstore.fr/conditions-generales-8">Conditions générales de vente</a> - <a href="https://lxfstore.fr/mentions-legales-6">Mentions légales</a> - <a href="https://lxfstore.fr/cookie-policy-10">Données personnelles et cookies</a>  -  <a href="#">Plan du site</a></div>
 
             </div>
 
