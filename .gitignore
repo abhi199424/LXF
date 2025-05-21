@@ -2,7 +2,7 @@
 /img/
 /vendor/
 /var/
-themes/lfx/assets/cache
+/themes/lfx/assets/cache
 
 # Ignore specific files
 error_log
