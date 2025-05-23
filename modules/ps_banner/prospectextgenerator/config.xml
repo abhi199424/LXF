@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>prospectextgenerator</name>
+	<displayName><![CDATA[Product SpecText Generator]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[Adds custom text based on category or product.]]></description>
+	<author><![CDATA[DevAbhi]]></author>
+	<tab><![CDATA[administration]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>
