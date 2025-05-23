@@ -61,7 +61,7 @@
               disabled
             {/if}
           >
-            <img class="cart_icon" src="{$urls.child_img_url}cart_icon.png" alt="#">
+            <img class="cart_icon" src="{$urls.child_img_url}cart_icon.svg" alt="#">
             {l s='Ajouter au panier' d='Shop.Theme.Actions'}
           </button>
         </div>

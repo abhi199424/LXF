@@ -29,8 +29,6 @@
   </div>
 {/block}
 
-
-
 {block name='header_nav'}
   <nav class="header-nav">
     <div class="container">
@@ -97,7 +95,7 @@
     <div class="container">
         <div class="row main">
             <div class="col_header_left">         
-                  <a class="main_menu smenu smenu_mobile" href="#."><img src="{$urls.child_img_url}menu_icon.png" alt=""></a>     
+                  <a class="main_menu smenu smenu_mobile" href="#."><img src="{$urls.child_img_url}menu_icon.svg" alt=""></a>     
                   <a href="/centre-d-aide-12" class="nav_centre_d_aide">Centre d'aide</a>
             </div>
             <!-- <div class="col_Search">
@@ -113,7 +111,7 @@
 
                     <div class="search-container" id="searchBox">
                       <!-- <input type="text" class="search-input" placeholder="Rechercher"> -->
-                      <button class="search-button" id="toggleSearch">
+                      <button type="button" class="search-button" id="toggleSearch">
                             <img src="/img/magnifying-glass.svg" width="20px" height="auto">
                         </button>
                     </div>
@@ -130,7 +128,7 @@
 <div class="navbar_menusec">
     <div class="container">
         <div class="row">
-          <a class="main_menu smenu" href="#."><img src="{$urls.child_img_url}menu_icon.png" alt=""></a>
+          <a class="main_menu smenu" href="#."><img src="{$urls.child_img_url}menu_icon.svg" alt=""></a>
           {hook h='displayTop'}
         </div>
     </div>

@@ -102,7 +102,7 @@
                   <div class="Featureitems">
 
                       <div class="Featureitem">
-                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-1.png"></div>
+                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-1.svg"></div>
                           <div class="FeatureitemContent">
                           <h3><a href="#">Livraison gratuite.</a></h3>
                           <p>à partir de 29€ sur les pièces détachées</p>
@@ -110,7 +110,7 @@
                       </div>
 
                       <div class="Featureitem">
-                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-2.png"></div>
+                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-2.svg"></div>
                           <div class="FeatureitemContent">
                           <h3><a href="#">Retrait possible en entrepôt.</a></h3>
                           <p>Récupérez votre produit sous 2H.</p>
@@ -118,14 +118,14 @@
                       </div>
 
                       <div class="Featureitem">
-                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-3.png"></div>
+                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-3.svg"></div>
                           <div class="FeatureitemContent">
                           <h3><a href="#">Paiement 100% sécurisé.</a></h3>
                         </div>
                       </div>
 
                       <div class="Featureitem">
-                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-4.png"></div>
+                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-4.svg"></div>
                           <div class="FeatureitemContent">
                           <h3><a href="#">Retrait possible en entrepôt.</a></h3>
                           <p>Récupérez votre produit sous 2H.</p>

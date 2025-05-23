@@ -26,7 +26,7 @@
   <div class="user-info">
     {if $logged}
       <a class="dropdown-toggle" href="javascript:void(0)" role="button" data-toggle="dropdown" aria-expanded="false">
-        <img src="{$urls.child_img_url}profile_icon.png" alt="customericon"><br>
+        <img src="{$urls.child_img_url}profile_icon.svg" alt="customericon"><br>
         <span class="se_connecter">{$customerName}</span>
       </a>
         <div class="dropdown-menu" aria-labelledby="dropdownAccount">
@@ -59,7 +59,7 @@ Mon compte</a>
 
     {else}
       <a class="dropdown-toggle" href="javascript:void(0)" role="button" data-toggle="dropdown" aria-expanded="false">
-        <img src="{$urls.child_img_url}profile_icon.png" alt="customericon"><br>
+        <img src="{$urls.child_img_url}profile_icon.svg" alt="customericon"><br>
         <span class="se_connecter">Se connecter</span>
       </a>
         <div class="dropdown-menu" aria-labelledby="dropdownAccount">
