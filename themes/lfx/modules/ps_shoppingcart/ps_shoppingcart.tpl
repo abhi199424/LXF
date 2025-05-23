@@ -9,7 +9,7 @@
              href="{$cart_url}">
         {/if}
         
-          <img src="{$urls.child_img_url}cart_icon.png" alt="cart icon"><br>
+          <img src="{$urls.child_img_url}cart_icon.svg" alt="cart icon"><br>
           <span class="mon_panier_link">Mon panier</span>
           <span class="cart-products-count">{$cart.products_count}</span>
         

@@ -1,32 +1,6 @@
-{**
- * Copyright since 2007 PrestaShop SA and Contributors
- * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Academic Free License 3.0 (AFL-3.0)
- * that is bundled with this package in the file LICENSE.md.
- * It is also available through the world-wide-web at this URL:
- * https://opensource.org/licenses/AFL-3.0
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@prestashop.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to https://devdocs.prestashop.com/ for more information.
- *
- * @author    PrestaShop SA and Contributors <contact@prestashop.com>
- * @copyright Since 2007 PrestaShop SA and Contributors
- * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
- *}
-<div id="blockcart-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-<div class="cart_pop_container modal-fact" style="opacity: 1; display: block;transform: unset;">
 <div class="pop-mini-load">
-  <div class="overly-mini-cart-pop" style="display: none;"></div>
-  <img class="loader-mini" src="/modules/minicart/loader.gif" style="display: none;"/>
+  <div class="overly-mini-cart-pop"></div>
+  <img class="loader-mini" src="/modules/minicart/loader.gif"/>
 </div>
 <button type="button" class="close" data-dismiss="modal" aria-label="{l s='Close' d='Shop.Theme.Global'}">
   <img style="width: 25px; margin-right: 20px;" src="/modules/minicart/views/img/close-icon.svg">
@@ -133,8 +107,6 @@
       <a href="{$base_url}" class="btn btn-dark-outline">Continuer vos achats</a>
       <a href="{$cart_url}" class="btn btn-primary"><img src="/themes/lfx/assets/img/check.png" alt="cart-btn" class="btn-ticker"> Voir le panier</a>
    </div>
-</div>
-</div>
 </div>
 
 {literal}

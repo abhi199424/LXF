@@ -93,6 +93,22 @@ class Minicart extends Module
         return $this->display(__FILE__, 'views/templates/hook/minicart.tpl');
     }
 
+    public function hookDisplayMinicartInner()
+    {
+        $data = (new CartPresenter())->present(Context::getContext()->cart);
+
+        $product = null;
+        foreach ($data['products'] as $p) {
+            $product = $p;
+        }
+        $this->smarty->assign([
+            'product' => $product,
+            'cart' => $data,
+            'cart_url' => $this->getCartSummaryURL(),
+        ]);
+        return $this->display(__FILE__, 'views/templates/hook/minicartinner.tpl');
+    }
+
     public function hookDisplayMinicartcount()
     {
         $data = (new CartPresenter())->present(Context::getContext()->cart);

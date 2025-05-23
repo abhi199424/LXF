@@ -319,7 +319,7 @@ function initializeInfiniteScrollPlugin() {
 		}
 		
 		if (page != kiwik.infinitescroll.CURRENT_PAGE) {
-			window.history.pushState(page, false, kiwik.infinitescroll.getFriendlyUrl({'page': page}));
+			//window.history.pushState(page, false, kiwik.infinitescroll.getFriendlyUrl({'page': page}));
 			if (typeof ga !== "undefined") {
 				var friendly_url = kiwik.infinitescroll.getFriendlyUrl({'page': page});
 				friendly_url = friendly_url.replace(kiwik.infinitescroll.SHOP_BASE_URI, '/');

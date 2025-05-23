@@ -52,3 +52,20 @@
 a.color.selected-combination {
     border: 2px solid black;
 }
+.overly-mini-cart-pop {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+    outline: 0;
+    background: rgba(0, 0, 0, .7);
+}
+img.loader-mini {
+    z-index: 1051;
+    position: absolute;
+    top: 30%;
+    left: 45%;
+    width: 60px;
+}

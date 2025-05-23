@@ -24,11 +24,21 @@
  *}
 <div id="blockcart-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 <div class="cart_pop_container modal-fact" style="opacity: 1; display: block;transform: unset;">
+<div class="pop-mini-load">
+  <div class="overly-mini-cart-pop" style="display: none;"></div>
+  <img class="loader-mini" src="/modules/minicart/loader.gif" style="display: none;"/>
+</div>
 <button type="button" class="close" data-dismiss="modal" aria-label="{l s='Close' d='Shop.Theme.Global'}">
   <img style="width: 25px; margin-right: 20px;" src="/modules/minicart/views/img/close-icon.svg">
 </button>
 <div class="cart_pop_heading">
-   Mon panier ({$cart.products|count})
+  {if $cart.products|count > 1}
+       Mon panier {$cart.products|count} articles
+  {else if $cart.products|count == 1}
+       Mon panier {$cart.products|count} article
+  {else}
+       Mon panier ({$cart.products|count})
+  {/if}
 </div>
 {if $cart.products}
 <div class="upcart-products-section">
@@ -38,10 +48,10 @@
       <div class="upcart-products-section-item">
          <div class="delete-icon">
              <a
-                 class                       = "remove-from-cart"
+                 class                       = "remove-from-cart-mini"
                  rel                         = "nofollow"
-                 href                        = "{$prd.remove_from_cart_url}"
-                 data-link-action            = "delete-from-cart"
+                 href                        = "javascript:void(0);"
+                 data-link-action            = "delete-from-cart-mini"
                  data-id-product             = "{$prd.id_product|escape:'javascript'}"
                  data-id-product-attribute   = "{$prd.id_product_attribute|escape:'javascript'}"
                  data-id-customization   	  = "{$prd.id_customization|escape:'javascript'}"
@@ -67,19 +77,18 @@
                 <span class="value">{$value}</span>
               </div>
             {/foreach}
+            <div class="qnty_item_screen_placeholder"></div>
             <div class="qnty_item_section">
                  <div class="product-qtycont">
                      <div class="qty-container">
                          <div class="qty-box">
                              <input
-                                 class="js-cart-line-product-quantity"
-                                 data-down-url="{$prd.down_quantity_url}"
-                                 data-up-url="{$prd.up_quantity_url}"
-                                 data-update-url="{$prd.update_quantity_url}"
-                                 data-product-id="{$prd.id_product}"
+                                 class="js-cart-line-product-quantity-mini"
+                                 data-id-product="{$prd.id_product}"
+                                 data-id-product-attribute ="{$prd.id_product_attribute}"
                                  type="number"
                                  value="{$prd.quantity}"
-                                 name="product-quantity-spin"
+                                 name="product-quantity-spin-mini"
                              />
                          </div>
                      </div>
@@ -120,7 +129,7 @@
  {if $total_discount}
      <div class="discount-text-ecs">{l s='Économisez' d='Shop.Theme.Catalog'} {Tools::displayPrice($total_discount)}</div>
  {/if}
-   <div class="bottom_total_amount">Sous- total: <span style="color: #d10404">{$cart.totals.total_including_tax.value}</span></div>
+   <div class="bottom_total_amount">Total: <span style="color: #d10404">{$cart.subtotals.products['value']}</span></div>
    <div class="cart-popup-bottom-btn_group">
       <a href="{$base_url}" class="btn btn-dark-outline">Continuer vos achats</a>
       <a href="{$cart_url}" class="btn btn-primary"><img src="/themes/lfx/assets/img/check.png" alt="cart-btn" class="btn-ticker"> Voir le panier</a>
@@ -133,13 +142,13 @@
   <script>
     $(document).ready(function () {
         setTimeout(function () {
-          $('.js-cart-line-product-quantity').each(function () {
+          $('.js-cart-line-product-quantity-mini').each(function () {
             if (!$(this).parent().hasClass('bootstrap-touchspin')) {
               $(this).TouchSpin({
                 verticalbuttons: true,
                 buttondown_class: 'btn btn-touchspin js-touchspin-down',
                 buttonup_class: 'btn btn-touchspin js-touchspin-up',
-                min: 1
+                min: 0
               });
             }
           });
