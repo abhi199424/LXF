@@ -98,7 +98,6 @@ $(document).ready(function () {
                                 $('.cart_pop_container').html(res.cart);
                                 $('.cart-products-count').text(res.cart_count);
                                 setTimeout(function () {
-                                    console.log('Mini cart updated.');
                                     $('.overly-mini-cart-pop').hide();
                                     $('.loader-mini').hide();
                                 }, 1000);
@@ -123,27 +122,72 @@ $(document).ready(function () {
         }
         
     }
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // Quantity increase
-    $(document).on('click', '.btn-touchspin.bootstrap-touchspin-up', function () {
-        const $input = $(this).closest('.input-group').find('.js-cart-line-product-quantity-mini');
-        updateMiniCart($input, 'up');
-    });
+    if (isMobile) {
+        function safeUpdateMiniCart($input, op) {
+            // Slight delay to handle scroll conflicts on mobile
+            setTimeout(() => {
+                updateMiniCart($input, op);
+            }, 80);
+        }
 
-    // Quantity decrease
-    $(document).on('click', '.btn-touchspin.bootstrap-touchspin-down', function () {
-        const $input = $(this).closest('.input-group').find('.js-cart-line-product-quantity-mini');
-        updateMiniCart($input, 'down');
-    });
+        // Use pointerup + click for full compatibility
+        const miniCartEvents = ['pointerup', 'click'];
 
-    // On blur/input change
-    $(document).on('blur', '.js-cart-line-product-quantity-mini', function () {
-        updateMiniCart($(this), 'input');
-    });
+        // Bind event handlers
+        miniCartEvents.forEach(evt => {
+            // Quantity up
+            document.body.addEventListener(evt, function (e) {
+                if (e.target.closest('.btn-touchspin.bootstrap-touchspin-up')) {
+                    const $input = $(e.target).closest('.input-group').find('.js-cart-line-product-quantity-mini');
+                    safeUpdateMiniCart($input, 'up');
+                }
+            });
 
-    // Remove item
-    $(document).on('click', '.remove-from-cart-mini', function () {
-        updateMiniCart($(this), 'delete');
-    });
+            // Quantity down
+            document.body.addEventListener(evt, function (e) {
+                if (e.target.closest('.btn-touchspin.bootstrap-touchspin-down')) {
+                    const $input = $(e.target).closest('.input-group').find('.js-cart-line-product-quantity-mini');
+                    safeUpdateMiniCart($input, 'down');
+                }
+            });
+
+            // Remove from cart
+            document.body.addEventListener(evt, function (e) {
+                if (e.target.closest('.remove-from-cart-mini')) {
+                    const $target = $(e.target).closest('.remove-from-cart-mini');
+                    safeUpdateMiniCart($target, 'delete');
+                }
+            });
+        });
+
+        // Blur event for input remains the same
+        $(document).on('blur', '.js-cart-line-product-quantity-mini', function () {
+            updateMiniCart($(this), 'input');
+        });
+    } else {
+        // Quantity increase
+        $(document).on('click', '.btn-touchspin.bootstrap-touchspin-up', function () {
+            const $input = $(this).closest('.input-group').find('.js-cart-line-product-quantity-mini');
+            updateMiniCart($input, 'up');
+        });
+
+        // Quantity decrease
+        $(document).on('click', '.btn-touchspin.bootstrap-touchspin-down', function () {
+            const $input = $(this).closest('.input-group').find('.js-cart-line-product-quantity-mini');
+            updateMiniCart($input, 'down');
+        });
+
+        // On blur/input change
+        $(document).on('blur', '.js-cart-line-product-quantity-mini', function () {
+            updateMiniCart($(this), 'input');
+        });
+
+        // Remove item
+        $(document).on('click', '.remove-from-cart-mini', function () {
+            updateMiniCart($(this), 'delete');
+        });
+    }
 });
 
