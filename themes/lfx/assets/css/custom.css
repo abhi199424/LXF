@@ -1700,7 +1700,7 @@
      outline: 0;
      box-shadow: none;
 }
- body#checkout .form-control {
+ body#checkout #content-wrapper .form-control {
      width: 100%;
      height: 44px;
      border: 1px solid #dde1e1;
@@ -3151,7 +3151,7 @@ div#loyaltyModal .modal-header .modal-title{
      form#customer-form {
          padding: 40px 30px !important;
     }
-     body#checkout .form-control {
+     body#checkout #content-wrapper .form-control {
          height: 52px;
     }
      div#delivery-address {
@@ -4216,7 +4216,7 @@ div#loyaltyModal .modal-header .modal-title{
      body#checkout .row .col-md-3, body#checkout .row .col-md-6, body#checkout .row .col-md-3 {
          font-size: 16px !important;
     }
-     body#checkout .form-control {
+     body#checkout #content-wrapper .form-control {
          height: 49px;
     }
      .input-group .input-group-btn > .btn[data-action="show-password"] {
@@ -5514,13 +5514,16 @@ body#product main section#wrapper div div div#content-wrapper section#main div d
 }
 
 
-body#product figure.mz-figure img{
+/*body#product figure.mz-figure img{
     transform: scale(1.2) !important;
-}
+}*/
 
 .qnty_item_screen_placeholder{
     display: none;
 }
+
+
+
 
 
 }
@@ -6929,10 +6932,10 @@ body#checkout .form-firstname, body#checkout .form-lastname{
 }
 
 .cart-popup-bottom{
-    padding-left: 25px;
-    padding-right: 25px;
-    max-height: 180px;
-    height: 180px;
+            padding-left: 25px;
+        padding-right: 25px;
+        max-height: 190px;
+        height: 190px;
 }
 
 /*.bootstrap-touchspin{
@@ -7039,7 +7042,7 @@ body#checkout .form-firstname, body#checkout .form-lastname{
             font-size: 17px;
     }
     .cart-popup-bottom{
-        padding-top: 22px;
+        padding-top: 12px;
         padding-bottom: 22px;
     }
     .product-line-info.couleur{
@@ -7080,7 +7083,19 @@ body#checkout .form-firstname, body#checkout .form-lastname{
     padding-left: 20px;
 }
 
+/*body#product figure.mz-figure img {
+        transform: scale(1.7) !important;
+    }
+*/
+    #product button.btn.btn-primary.add-to-cart{
+        font-size: 15px;
+    }
 
+
+    body#product main section#wrapper div div div#content-wrapper section#main div div div#sidebar div div a#MagicZoomPlusImageMainImage:not(.mz-no-rt-width-css) > .mz-figure:not(.mz-no-rt-width-css) > img{
+        width: 170% !important;
+        margin-left: -35% !important;
+    }
 
 }
 
@@ -7714,7 +7729,7 @@ button.close {
      form#customer-form {
          padding: 25px 6px 35px 5px !important;
     }
-     body#checkout .form-control {
+     body#checkout #content-wrapper .form-control {
          height: 45px;
     }
      body#checkout section.checkout-step .not-allowed, body#checkout section.checkout-step.-unreachable .step-title {

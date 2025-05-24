@@ -12284,7 +12284,7 @@ div#loyaltyModal .modal-body p {
 }
 
 
-#module-absconnection-display .form-control {
+#module-absconnection-display .login_rgt_content .form-control {
     height: 50px;
     border: 1px #d9dde1 solid;
     border-radius: 12px;
