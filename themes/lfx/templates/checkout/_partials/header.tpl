@@ -23,6 +23,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  *}
 {*{block name='header_banner'}
+
   <div class="header-banner">
     {hook h='displayBanner'}
   </div>
@@ -53,6 +54,7 @@
     </div>
   </nav>
 {/block}
+
 
 {block name='header_top'}
   <div class="header-top">
@@ -89,22 +91,35 @@
 {hook h='displayID1Customhtml3'}    
 
 <div class="navbar_sec">
-    <p class="main_logo">{renderLogo}</p>
+    <!-- <p class="main_logo">{renderLogo}</p> -->
     <div class="container">
         <div class="row main">
-            <div class="col-lg-6 left">
-              <a class="main_menu smenu" href="#"><img src="{$urls.child_img_url}menu_icon.png" alt="">Menu</a>
+            <div class="col_header_left">         
+                  <a class="main_menu smenu smenu_mobile" href="#."><img src="{$urls.child_img_url}menu_icon.svg" alt=""></a>     
+                  <a href="/centre-d-aide-12" class="nav_centre_d_aide">Centre d'aide</a>
             </div>
-            <div class="col-lg-6 right">
-                <div class="row">
-                    <div class="seach_box">
-                        {hook h='displaySearch'}
+            <!-- <div class="col_Search">
+               
+            </div> -->
+            <div class="col_header_m">
+               <div class="h-logo">{renderLogo}</div>
+            </div>
+            <div class="col_header_right">
+             <!--  <div class="seach_box">
+                  {hook h='displaySearch'}
+              </div> -->
+
+                    <div class="search-container" id="searchBox">
+                      <!-- <input type="text" class="search-input" placeholder="Rechercher"> -->
+                      <button type="button" class="search-button" id="toggleSearch">
+                            <img src="/img/magnifying-glass.svg" width="20px" height="auto">
+                        </button>
                     </div>
-                    <ul>
-                      {hook h='displayNav2' mod='ps_shoppingcart'}
+              
+                    <ul>                      
                       {hook h='displayNav2' mod='ps_customersignin'}
+                      {hook h='displayNav2' mod='ps_shoppingcart'}   
                     </ul>
-                </div>
             </div>
         </div>
     </div>
@@ -113,6 +128,7 @@
 <div class="navbar_menusec">
     <div class="container">
         <div class="row">
+          <a class="main_menu smenu" href="#."><img src="{$urls.child_img_url}menu_icon.svg" alt=""></a>
           {hook h='displayTop'}
         </div>
     </div>
@@ -121,21 +137,4 @@
 
 
 
-  <nav class="navbar-menu">
-    <div class="smenu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        <div class="menu-listing">
-      <div class="sidebar_menu">
-                  <ul>
-                    <li><a href="https://shop.lxf-motors.fr/10-motocross">Motocross</a></li>
-                    <li><a href="https://shop.lxf-motors.fr/11-quads">Quads</a></li>
-                    <li><a href="https://shop.lxf-motors.fr/12-velos">Velos</a></li>
-                    <li><a href="https://shop.lxf-motors.fr/13-vehicules-de-loisirs">Vehicules de loisirs</a></li>
-                    <li><a href="https://shop.lxf-motors.fr/14-accessoires">Accessoires</a></li>  
-                  </ul>
-              </div>
-        </div>
-    </nav>  
+

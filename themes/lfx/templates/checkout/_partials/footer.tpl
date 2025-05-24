@@ -57,67 +57,203 @@
 {block name='hook_footer_before'}
   {hook h='displayFooterBefore'}
 {/block}
-<section class="footer_sec">
-   <div class="container">
-      <div class="row main">
-         <div class="footer_top">
-            <div class="region_sec box">
-               <div class="heading">
-                  <h5>Région</h5>
-               </div>
-               <div class="country">
-                  <h6><img class="flag" src="{$urls.child_img_url}france_flag.png" alt="#">Site 100% Français</h6>
-               </div>
-            </div>
+
+
+
+
+    <div class="___new_searchcont">
+      <div class="container">
             <div class="row">
-               <div class="box newsletter">
-                  <div class="heading">
-                     <h5>Newsletter</h5>
-                  </div>
-                  <p>Souscrivez à la Newsletter pour recevoir en exclusivité les dernières actualités.</p>
-                  <div class="button">
-                     <a href="#">S'abonner</a>
-                  </div>
-               </div>
-               <div class="box contact">
-                  <div class="heading">
-                     <h5>Contact</h5>
-                  </div>
-                  <p>Avez-vous des questions ?</p>
-                  <div class="button">
-                     <a href="#">Formulaire de contact</a>
-                  </div>
-               </div>
-               <div class="box social">
-                  <div class="heading">
-                     <h5>Réseaux sociaux</h5>
-                  </div>
-                  <p>Contactez-nous via les réseaux sociaux.</p>
-                  <ul class="footer_social">
-                     <li><a href="#"><img class="insta" src="{$urls.child_img_url}instagram.png"></a></li>
-                     <li><a href="#"><img class="linkedin" src="{$urls.child_img_url}linkedin.png"></a></li>
-                  </ul>
-               </div>
-               <div class="box payment">
-                  <div class="heading">
-                     <h5>Moyens de paiement</h5>
-                  </div>
-                  <p>Choisissez votre option préférée</p>
-                  <div class="payment_platforms">
-                     <img src="{$urls.child_img_url}payment_options.png" alt="#">
-                  </div>
-               </div>
-                {block name='hook_footer'}
-                  {hook h='displayFooter'}
-                {/block}
-         </div>
-         <div class="copyright">
-            <div class="row">
-               <p class="copyright_txt">© 2024 LXF en France. </p>
-               <p>*Le Lorem Ipsum est simplement du faux texte employé dans la composition et la mise en page avant impression. Le Lorem Ipsum est le faux texte standard de l'imprimerie depuis les années 1500, quand un imprimeur anonyme assembla ensemble des morceaux de texte pour réaliser un livre spécimen de polices de texte. Il n'a pas fait que survivre cinq siècles, mais s'est aussi adapté à la bureautique informatique, sans que son contenu n'en soit modifié. Il a été popularisé dans les années 1960 grâce à la vente de feuilles Letraset contenant des passages du Lorem Ipsum, et, plus récemment, par son inclusion dans des applications de mise en page de texte, comme Aldus PageMaker.</p>
-               <div class="footer_logo"><a href="#"><img src="{$urls.child_img_url}footer_logo.png" alt="#"></a></div>
+                <div class="col-lg-12">
+
+                      <div class="sec_heading title">
+                        <h2>Que cherchez-vous ?</h2>
+                      </div>
+
+                      <div class="footersearchform">
+
+                        <div class="footersearchformcont">
+                        {hook h='displaySearch'}
+                      </div>
+
+                        {hook h='displayID1Customhtml8'}
+
+                      </div>
+
+                </div>
             </div>
-         </div>
       </div>
-   </div>
-</section>
+    </div>
+
+    <a href="#nav-top" class="navFooterBackToTop">
+      <span class="navFooterBackToTopText">
+        {l s='Retour en haut' d='Shop.Theme.Global'}
+      </span>
+    </a>
+
+    <div class="FeatureDescription">
+
+      <div class="container">
+
+          <div class="row">
+
+              <div class="col-lg-12">
+
+                  <div class="Featureitems">
+
+                      <div class="Featureitem">
+                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-1.svg"></div>
+                          <div class="FeatureitemContent">
+                          <h3><a href="#">Livraison gratuite.</a></h3>
+                          <p>à partir de 29€ sur les pièces détachées</p>
+                        </div>
+                      </div>
+
+                      <div class="Featureitem">
+                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-2.svg"></div>
+                          <div class="FeatureitemContent">
+                          <h3><a href="#">Retrait possible en entrepôt.</a></h3>
+                          <p>Récupérez votre produit sous 2H.</p>
+                        </div>
+                      </div>
+
+                      <div class="Featureitem">
+                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-3.svg"></div>
+                          <div class="FeatureitemContent">
+                          <h3><a href="#">Paiement 100% sécurisé.</a></h3>
+                        </div>
+                      </div>
+
+                      <div class="Featureitem">
+                          <div class="FeatureitemIcon"><img src="{$urls.img_url}f-icon-4.svg"></div>
+                          <div class="FeatureitemContent">
+                          <h3><a href="#">Retrait possible en entrepôt.</a></h3>
+                          <p>Récupérez votre produit sous 2H.</p>
+                        </div>
+                      </div>
+
+                  </div>
+
+              </div>
+
+          </div>
+
+      </div>
+
+    </div>
+
+    <div class="FeatureNewsletter">
+
+      <div class="container">
+
+          <div class="row">
+
+            <div class="col-lg-6">
+
+              <div class="FeatureNewsletterLeft">
+                  <h2><span>10€ DE RÉDUCTION</span> OFFERTS SUR VOTRE<br>1ÈRE COMMANDE</h2>
+
+                  <p class="FeatureNewsletterLeft_bb">BIENVENUE SUR LXF-MOTORS.FR</p>
+                  <p>Rejoignez-nous en vous inscrivant à la newsletter lxf-motors.fr</p>
+              </div>
+
+
+            </div>
+            <div class="col-lg-6">
+              <div class="FeatureNewsletterRight">
+                  <h3>Adresse e-mail</h3>
+                  {hook h='displayFooterAfter'}
+                  <p class="FeatureNewslettersmall">Merci de vous référer á notre politique de protection des données pour savoir comment LXF traite vos données. Vous pouvez vous désinscrire gratuitement et á tout moment.'</p>
+                  <hr>
+                  <p class="FeatureNewrightslettertext"><b>Conditions d' utilisation des codes promotionnels</b><br>Le bon de réduction est offert uniquement lors de la toute premiére inscription et ne pourra étre utilisé qu'une seule fois, pour une commande d' un montant minimum de 80€. Cette offre peut ne pas s'appliquer á tous nos produits et exclut les paiements par cartes cadeaux LXF.</p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="FooterContainer">
+
+      <div class="container">
+
+            <div class="footernavlinks row">
+              {hook h='displayFooter'}
+            </div>
+
+            <div class="FooterSocialContact row">
+
+             
+
+                <ul class="payment-method">
+
+                    <li><img src="{$urls.img_url}cb-picto.svg" alt=""></li>
+                    <li><img src="{$urls.img_url}visa-picto.svg" alt=""></li>
+                    <li><img src="{$urls.img_url}paypal-picto.svg" alt=""></li>
+                    <li><img src="{$urls.img_url}apple-picto.svg" alt=""></li>
+                    <li><img src="{$urls.img_url}gpay-picto.svg" alt=""></li>
+
+                    <li><img src="{$urls.img_url}Klarna_Logo_black.svg.png" alt=""></li>
+
+                </ul>
+
+              
+
+                  <ul class="socialmedialinks">
+                      <li><a href="#"><img src="{$urls.img_url}instagram-brands.svg" width="20"></a></li>
+                      <li><a href="#"><img src="{$urls.img_url}facebook-f-brands.svg" width="20"></a></li>
+                      <li><a href="#"><img src="{$urls.img_url}youtube-brands.svg" width="20"></a></li>
+                  </ul>
+
+
+            </div>
+
+            <div class="copyright-toppart">
+                <h4>Livraison dans les pays suivants :</h4>
+
+                <div class="footer_languagetop"><span><img src="{$urls.img_url}france-flag-png-xl.png">France métropolitaine & Corse</span> <span class="belgique_flug"><img src="{$urls.img_url}Belgique.png"> Belgique</span></div>
+
+            </div>
+
+            <div class="copyright">
+
+              <div class="copyright-left">© 2025 LXF FRANCE - Tous droits réservés</div>
+              <div class="copyright-right">Paiement 100% Sécurisé - <a href="https://lxfstore.fr/conditions-generales-8">Conditions générales de vente</a> - <a href="https://lxfstore.fr/mentions-legales-6">Mentions légales</a> - <a href="https://lxfstore.fr/cookie-policy-10">Données personnelles et cookies</a>  -  <a href="#">Plan du site</a></div>
+
+            </div>
+
+      </div>
+
+
+
+
+
+    </div>
+
+
+
+<script>
+window.axeptioSettings = {
+  clientId: "67c31e44e544fdc8c65b5a59",
+  cookiesVersion: "lxf b2c -fr-EU",
+  googleConsentMode: {
+    default: {
+      analytics_storage: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      wait_for_update: 500
+    }
+  }
+};
+(function(d, s) {
+  var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
+  e.async = true; e.src = "//static.axept.io/sdk.js";
+  t.parentNode.insertBefore(e, t);
+})(document, "script");
+</script>
