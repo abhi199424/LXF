@@ -1,0 +1,15 @@
+.OwT button {
+    width: 22px;
+    height: 22px;
+    position: absolute;
+    top: 50%;
+    margin-top: -11px;
+    font-size: 60px!important;
+    color: white!important;
+}
+.OwT button.owl-prev {
+    left: 0;
+}
+.OwT button.owl-next {
+    right: 0;
+}
