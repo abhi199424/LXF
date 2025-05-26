@@ -23,7 +23,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  *}
 <nav class="pagination">
-  <div class="col-md-4">
+  <div class="col-md-4 product-count" data-count="{$pagination.total_items}">
     {block name='pagination_summary'}
       {l s='Showing %from%-%to% of %total% item(s)' d='Shop.Theme.Catalog' sprintf=['%from%' => $pagination.items_shown_from ,'%to%' => $pagination.items_shown_to, '%total%' => $pagination.total_items]}
     {/block}
@@ -62,3 +62,10 @@
   </div>
 
 </nav>
+{literal}
+<script type="text/javascript">
+   var label_showing = {/literal}"{l s='Showing' d='Shop.Theme.Catalog'}";{literal}
+   var label_of = {/literal}"{l s='of' d='Shop.Theme.Catalog'}";{literal}
+
+  </script>
+{/literal}
