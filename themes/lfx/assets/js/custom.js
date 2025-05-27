@@ -32,6 +32,7 @@ $(function(){
         });
     });
 
+
     $('#_desktop_user_info .dropdown-toggle').click(function (e) {
         e.stopPropagation();
         const $menu = $('#_desktop_user_info .dropdown-menu');
@@ -257,18 +258,18 @@ autoplayTimeout:4000,
         },
         1024:{
           items: 1,
-          stagePadding: 200,
+          stagePadding: 170,
         },
         1300:{
-          stagePadding: 250,
+          stagePadding: 220,
           items: 1,
         },
         1500:{
-          stagePadding: 320,
+          stagePadding: 290,
           items: 1,
         },
         1700:{
-          stagePadding: 450,
+          stagePadding: 420,
           items: 1,
         }
         
