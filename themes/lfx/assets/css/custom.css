@@ -1362,6 +1362,7 @@
      color: #000;
      font-weight: 400;
      width: 120px;
+     text-align: center;
 }
  #cart .product-line-info.product-price .product-discount {
      order: 2;
@@ -2964,7 +2965,7 @@ a#MagicZoomPlusImageMainImage{
 
 .cart-head-main li:nth-child(2) {
     width: 472px;
-    padding-left: 245px;
+    padding-left: 260px;
 }
 
 
@@ -3281,7 +3282,7 @@ div#loyaltyModal .modal-header .modal-title{
 
     .cart-head-main li:nth-child(2) {
         width: 320px;
-        padding-left: 145px;
+        padding-left: 163px;
     }
         .cart-head-main li:nth-child(3) {
         width: 110px;
@@ -3770,7 +3771,7 @@ div#loyaltyModal .modal-header .modal-title{
 
         .cart-head-main li:nth-child(2) {
         width: 370px;
-        padding-left: 135px;
+        padding-left: 152px;
     }
 
 .cart-head-main li:nth-child(3) {
@@ -4383,7 +4384,7 @@ div#loyaltyModal .modal-header .modal-title{
 
 .cart-head-main li:nth-child(2) {
         width: 270px;
-        padding-left: 75px;
+        padding-left: 87px;
     }
 
 .cart_button.mobile_cart_button{
@@ -5415,7 +5416,7 @@ body#product main section#wrapper div div div#content-wrapper section#main div d
 
 .cart-head-main li:nth-child(2) {
     width: 350px;
-    padding-left: 206px;
+    padding-left: 217px;
 }
 .card-block.cart-summary-totals .cart-summary-line.cart-total{
     margin-bottom: 0px;
@@ -6474,7 +6475,9 @@ body#checkout .form-firstname, body#checkout .form-lastname{
 }
 
 
-
+.section-padding{
+    background-image: url(/img/body_middle_bg_mobile.jpg);
+}
 
 
 }

@@ -6357,9 +6357,9 @@ body#cart #wrapper {
 
     height: 100vh;
 
-/*    transform: translateX(-100%);*/
+    transform: translateX(-110%);
 
-    transition: 0.4s;
+    transition: 0.5s;
 
     bottom: 16px;
 
@@ -6372,7 +6372,7 @@ body#cart #wrapper {
     z-index: 9999;
 
     background: rgba(0, 0, 0, 0.5);
-    display: none;
+    display: block;
 
     border-radius: 7px;
 
@@ -6428,9 +6428,10 @@ body#cart #wrapper {
     -moz-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
     box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 10%);
     padding-left: 22px;*/
-    display: block;
-    opacity: 1;
-
+/*    display: block;
+    opacity: 1;*/
+    transform: translateX(0);
+    transition: 0.5s;
 }
 
 
@@ -7084,7 +7085,7 @@ background: linear-gradient(132deg,rgba(245, 248, 249, 1) 0%, rgba(255, 255, 255
 
 .most_viewed_products .vehicle_type{
 
-    bottom: 26px;
+/*    bottom: 26px;*/
 
     left: 26px;
 
@@ -7111,6 +7112,7 @@ background: linear-gradient(132deg,rgba(245, 248, 249, 1) 0%, rgba(255, 255, 255
 	align-items: center;*/
 
 	font-weight: 700;
+	line-height: 17px;
 
 }
 
@@ -7133,7 +7135,7 @@ float: left;
 	font-size: 12px;
 	font-weight: 400;
 	margin-left: 24px;
-	margin-top: 4px;
+	margin-top: 0px;
 }
 
 .vehicle_type.vehicle_type_gas img{
@@ -8018,7 +8020,7 @@ font-size: 14px;
   line-height: 25px;
   margin-bottom: 16px;
   font-weight: 300;
-  background-image: url(https://shop.lxf-motors.fr/img/download-1.png);
+  background-image: url(/img/download-1.png);
   background-size: 20px;
   background-repeat: no-repeat;
   padding-left: 30px;
@@ -13000,7 +13002,7 @@ span.empty-cart-text {
 
 .cart-head-main li:nth-child(2){
 	width: 500px;
-    padding-left: 316px;
+    padding-left: 327px;
 }
 
 .cart-head-main li:nth-child(3){
@@ -13131,3 +13133,53 @@ img.loader-mini{
 	z-index: -1;
 	margin-bottom: -40px;
 }
+
+.label-tt-un{
+	display: none;
+}
+
+
+.cart-summary-line.cart-total{
+	margin-bottom: 0px;
+}
+
+
+
+#product-progress-bar-container{
+	height: 2px !important;
+	max-width: 367px  !important;
+	width: 90%  !important;
+	background-color: #cccccc  !important;
+	margin-bottom: 10px;
+	margin-left: auto;
+    margin-right: auto;
+}
+#product-progress-bar{
+	background-color: #0abab5 !important;
+}
+
+#product-items-count{
+	max-width: 367px  !important;
+	width: 90%  !important;
+	margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-size: 12px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

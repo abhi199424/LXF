@@ -44,7 +44,7 @@ class Chtmlmanager extends Module implements WidgetInterface
 
         parent::__construct();
 
-        $this->displayName = $this->l('CHTML Manager');
+        $this->displayName = $this->l("Délai et dépôt d'expédition");
         $this->description = $this->l('Custom HTML for product details');
 
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);

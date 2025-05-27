@@ -44,7 +44,7 @@ class Utilisationreco extends Module implements WidgetInterface
 
         parent::__construct();
 
-        $this->displayName = $this->l('Utilisation Recommandation');
+        $this->displayName = $this->l('Recommandations');
         $this->description = $this->l('Custom technical HTML for product section');
 
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);

@@ -245,14 +245,30 @@ function initializeInfiniteScrollPlugin() {
 		});
 	}
 
-	kiwik.infinitescroll.displayLoadMoreLabelToBottom = function(options) {
+	kiwik.infinitescroll.displayLoadMoreLabelToBottom = function (options) {
 		var page = typeof options === 'object' && typeof options['page'] !== 'undefined' ? options['page'] : 1;
 
 		kiwik.infinitescroll.log('kiwik.infinitescroll.displayLoadMoreLabelToBottom()');
 
 		if (kiwik.infinitescroll.page_cache[page] != undefined && kiwik.infinitescroll.page_cache[page].loaded) {
+
+			var total = $('nav.pagination .product-count').attr('data-count');
+			var pagination = kiwik.infinitescroll.page_cache[page].pagination;
+			if (typeof pagination == 'undefined' || typeof pagination.total_items == 'undefined') {
+				var page1 = kiwik.infinitescroll.page_cache[1].pagination;				
+				if (typeof page1 != 'undefined' && typeof page1.total_items != 'undefined') {
+					//Instead of 'page1.total_items; - (if)' and 'pagination.total_items; - (else)' used filter response pagination count from data-count attr//
+					total = total;
+				}
+			} else {
+				total = total;				
+			}
+				
+			
+			renderProductCount(total);
+
 			var $products = kiwik.infinitescroll.page_cache[page].products
-			var page_one_is_loaded_and_identical = kiwik.infinitescroll.isEqualToPageOne({'page':page}) && kiwik.infinitescroll.page_cache[1].loaded == true;
+			var page_one_is_loaded_and_identical = kiwik.infinitescroll.isEqualToPageOne({ 'page': page }) && kiwik.infinitescroll.page_cache[1].loaded == true;
 			var page_is_empty = $products.length == 0;
 			if (page_one_is_loaded_and_identical || page_is_empty) {
 				kiwik.infinitescroll.hideLoadMoreLabelToBottom();
@@ -261,13 +277,13 @@ function initializeInfiniteScrollPlugin() {
 			}
 		}
 
-		if($('.infinitescroll-load-more-bottom').length == 0){
+		if ($('.infinitescroll-load-more-bottom').length == 0) {
 			$('.infinitescroll-loader').hide();
-			$(kiwik.infinitescroll.LIST_SELECTOR).after(
-				'<div class="infinitescroll-bottom-message infinitescroll-load-more-bottom" style="clear:both; color:'+kiwik.infinitescroll.POLICE_BUTTON+'; background-color:'+kiwik.infinitescroll.BACKGROUND_BUTTON+'; border: 2px solid '+kiwik.infinitescroll.BORDER_BUTTON+' ">'+
-				'<a href="#" onclick="$(\'.infinitescroll-load-more-bottom\').remove();kiwik.infinitescroll.acceptedToLoadMoreProductsToBottom++;$(window).trigger(\'scroll.infinitescroll\');return false;" style="color:'+kiwik.infinitescroll.POLICE_BUTTON+';">'+kiwik.infinitescroll.LABEL_LOADMORE+' <i class="icon-level-down"></i></a></div>'
+			$('#products').after(
+				'<div class="infinitescroll-bottom-message infinitescroll-load-more-bottom" style="clear:both; color:' + kiwik.infinitescroll.POLICE_BUTTON + '; background-color:' + kiwik.infinitescroll.BACKGROUND_BUTTON + '; border: 2px solid ' + kiwik.infinitescroll.BORDER_BUTTON + ' ">' +
+				'<a href="#" onclick="$(\'.infinitescroll-load-more-bottom\').remove();kiwik.infinitescroll.acceptedToLoadMoreProductsToBottom++;$(window).trigger(\'scroll.infinitescroll\');return false;" style="color:' + kiwik.infinitescroll.POLICE_BUTTON + ';">' + kiwik.infinitescroll.LABEL_LOADMORE + '</a></div>'
 			);
-		}	
+		}
 	}
 	kiwik.infinitescroll.hideLoadMoreLabelToBottom = function(options) {
 		kiwik.infinitescroll.log('kiwik.infinitescroll.hideLoadMoreLabelToBottom()');	
@@ -907,3 +923,42 @@ function initializeInfiniteScrollPlugin() {
 $(function(){
 	initializeInfiniteScrollPlugin();
 });
+
+function renderProductCount(total) {
+    console.log(total);
+    $('#product-items-count, #product-progress-bar-container').remove();
+
+    if (typeof total !== 'undefined') {
+        const displayed = $('#products article.product-miniature').length;
+        const percentage = Math.min(100, Math.round((displayed / total) * 100));
+
+        $('<p>', { id: 'product-items-count' })
+            .html(label_showing + ' ' + displayed + ' ' + label_of + ' ' + total)
+            .insertAfter($('#products'));
+
+        const progressContainer = $('<div>', { 
+            id: 'product-progress-bar-container',
+            css: {
+                width: '100%',
+                backgroundColor: '#e0e0e0',
+                borderRadius: '4px',
+                marginTop: '10px',
+                height: '20px',
+                overflow: 'hidden'
+            }
+        });
+
+        const progressBar = $('<div>', {
+            id: 'product-progress-bar',
+            css: {
+                width: percentage + '%',
+                height: '100%',
+                backgroundColor: '#4caf50',
+                transition: 'width 0.3s ease'
+            }
+        });
+
+        progressContainer.append(progressBar);
+        $('#products').after(progressContainer);
+    }
+}
