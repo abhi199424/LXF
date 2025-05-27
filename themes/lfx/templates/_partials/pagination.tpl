@@ -64,8 +64,8 @@
 </nav>
 {literal}
 <script type="text/javascript">
-   var label_showing = {/literal}"{l s='Showing' d='Shop.Theme.Catalog'}";{literal}
-   var label_of = {/literal}"{l s='of' d='Shop.Theme.Catalog'}";{literal}
+   var label_showing = {/literal}"{l s='Vous avez vu' d='Shop.Theme.Catalog'}";{literal}
+   var label_of = {/literal}"{l s='articles sur' d='Shop.Theme.Catalog'}";{literal}
 
   </script>
 {/literal}

@@ -139,6 +139,31 @@
               </div>
           </div>
           {/if}
+          <!-- Seventh Item -->
+
+          {capture name="sparepartspec_content"}
+              {widget name='sparepartspec' id_product=$product.id}
+          {/capture}
+          
+          {assign var="sparepartspec_output" value=$smarty.capture.sparepartspec_content|trim}
+          {if $sparepartspec_output != ''}
+          <div class="card">
+              <div class="card-header" id="headingSeventh">
+                  <h5 class="mb-0">
+                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseSeventh" aria-expanded="false" aria-controls="collapseSeventh">
+                      {l s="Spare Part Spec" d='Shop.Theme.Catalog'}
+                      </button>
+                  </h5>
+              </div>
+
+              <div id="collapseSeventh" class="collapse" aria-labelledby="headingSeventh" data-parent="#proAccordian">
+                  <div class="card-body">
+                    {widget name='sparepartspec' id_product=$product.id}
+                  </div>
+              </div>
+          </div>
+          {/if}
+          
           <!-- Fourth Item -->
 
           {capture name="prospecgeohtml_content"}
@@ -212,30 +237,7 @@
               </div>
           </div>
           {/if}
-          <!-- Seventh Item -->
-
-          {capture name="sparepartspec_content"}
-              {widget name='sparepartspec' id_product=$product.id}
-          {/capture}
           
-          {assign var="sparepartspec_output" value=$smarty.capture.sparepartspec_content|trim}
-          {if $sparepartspec_output != ''}
-          <div class="card">
-              <div class="card-header" id="headingSeventh">
-                  <h5 class="mb-0">
-                      <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseSeventh" aria-expanded="false" aria-controls="collapseSeventh">
-                      {l s="Spare Part Spec" d='Shop.Theme.Catalog'}
-                      </button>
-                  </h5>
-              </div>
-
-              <div id="collapseSeventh" class="collapse" aria-labelledby="headingSeventh" data-parent="#proAccordian">
-                  <div class="card-body">
-                    {widget name='sparepartspec' id_product=$product.id}
-                  </div>
-              </div>
-          </div>
-          {/if}
         </div>
 
         </div>
