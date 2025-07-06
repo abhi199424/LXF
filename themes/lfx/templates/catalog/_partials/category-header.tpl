@@ -22,6 +22,7 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  *}
+{if Context::getContext()->getDevice() != 4}
 <div id="js-product-list-header">
     {if $listing.pagination.items_shown_from == 1}
         <div class="sec_heading title">
@@ -60,3 +61,4 @@
 
 
 </div>
+{/if}

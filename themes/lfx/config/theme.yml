@@ -12,6 +12,11 @@ assets:
       - id: style
         path: assets/css/style.css
         priority: 200
+
+    category:
+    - id: parts
+      path: assets/css/parts.css
+      priority: 199
   js:
     all:
       - id: script

@@ -151,7 +151,7 @@
               <div class="card-header" id="headingSeventh">
                   <h5 class="mb-0">
                       <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseSeventh" aria-expanded="false" aria-controls="collapseSeventh">
-                      {l s="Spare Part Spec" d='Shop.Theme.Catalog'}
+                      {l s="Dimensions" d='Shop.Theme.Catalog'}
                       </button>
                   </h5>
               </div>

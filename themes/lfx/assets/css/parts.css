@@ -1,0 +1,225 @@
+.PartsContainer .text-center{
+	text-align: center;
+}
+.PartsTop{
+	padding-top: 35px;
+	max-width: 775px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+
+    .search-container {
+      width: 450px;
+      position: relative;
+      margin: 50px auto;
+    }
+
+    .search-input {
+      border-radius: 40px;
+    padding-left: 50px;
+    padding-right: 25px;
+    height: 48px;
+    border: 1px #000 solid;
+    display: block;
+    line-height: 28px;
+    color: #000;
+    background-image: url(__search-icon.svg);
+    background-repeat: no-repeat;
+    background-position: 15px 13px;
+    width: 440px;
+    background-size: 20px;
+    }
+
+    .search-input:focus {
+      border-color: #000;
+      box-shadow: 0 0 0px rgba(0,123,255,0.5);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #888;
+      pointer-events: none;
+    }
+.PartsCont {
+    display: flex;
+    padding-top: 30px;
+    padding-bottom: 60px;
+}
+
+.PartPicturemain{
+	width: 340px;
+	flex: 0 0 340px;
+	padding-right: 30px;
+	max-width: 340px;
+}
+
+.PartPicturemain img{
+	max-width: 100%;
+	height: auto;
+}
+
+.PartContitems{
+	flex: 1;
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.PartContitem{
+	width: 33.33%;
+	padding-left: 15px;
+	padding-right: 15px;
+  margin-bottom: 18px;
+}
+
+.PartContitemcont{
+	background-color: #f2f2f2;
+  padding: 20px 40px;
+  border-radius: 10px;
+  position: relative;
+}
+
+
+.PartContitemcont .PartContitem_number{
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: #11b9b5;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9;
+  right: 5px;
+  top: 5px;
+  color: #FFF;
+  text-align: center;
+  font-weight: 700;
+}
+
+.PartsContainerHeading{
+  font-size: 30px;
+  text-transform: uppercase;
+  color: #000;
+  padding-bottom: 24px;
+  font-weight: 700;
+  border-bottom: 1px #cccccc solid;
+}
+
+
+.PartContitemtopHeading h3{
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.PartContitemtopHeading h5{
+  font-size: 12px;
+  color: #211e22;
+  opacity: .8;
+}
+
+.PartContitemcont .product-price-and-shipping .regular-price{
+  font-size: 22px;
+  color: #ff040d;
+  font-weight: 700;
+}
+
+.PartContitemcont .product-price-and-shipping .price{
+  font-size: 15px;
+  color: #4f4f4f;
+  text-decoration: line-through;
+  margin-left: 10px;
+}
+
+.PartContitemcont .stock-cart-section{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.PartContitemcont .product-add-to-cart{
+  margin-left: 25px;
+  margin-top: 17px;
+}
+
+.PartContitemcont .product-quantity #quantity_wanted{
+  height: 36px;
+}
+
+.PartContitemcont button.btn.btn-touchspin.bootstrap-touchspin-up, .PartContitemcont button.btn.btn-touchspin.bootstrap-touchspin-down{
+  height: 36px;
+}
+
+.PartContitemcont  button.btn.btn-touchspin.bootstrap-touchspin-down {
+    margin-top: -36px;
+}
+
+.PartContitemcont .qty .bootstrap-touchspin:hover{
+  box-shadow: none;
+}
+
+.PartContitemcont .qty .bootstrap-touchspin:hover{
+  box-shadow: none !important;
+}
+
+.PartContitemcont button.btn.btn-primary.add-to-cart{
+  margin-bottom: 0px;
+  font-size: 14px;
+  height: 36px;
+  border-radius: 0px;
+  border-radius: 9px;
+  font-weight: 400;
+  text-transform: none;
+}
+
+
+.PartContitemcont button.btn.btn-primary.add-to-cart img.cart_icon{
+  width: 16px;
+  height: auto;
+  margin-top: -5px;
+}
+
+.PartContitemcont .qty .bootstrap-touchspin{
+  height: 36px;
+}
+
+.PartContitemcont .product-quantity #quantity_wanted{
+  border: 0px;
+}
+
+
+
+.PartContitemtopPicture{
+  width: 145px;
+  height: 96px;
+  background-color: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+}
+
+.PartContitemtopPicture img{
+  max-width: 140px;
+  max-height: 90px;
+  mix-blend-mode: darken;
+  background-color: #f2f2f2;
+}
+
+.PartContitemtop{
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.PartsContainer input.form-control.text-center.quantity-input {
+    padding: 0;
+    width: 40px;
+}
+.PartsContainer .search-container {
+    width: 100%;
+}
+.PartsContainer .search-input {
+    border: 1px solid black;
+}

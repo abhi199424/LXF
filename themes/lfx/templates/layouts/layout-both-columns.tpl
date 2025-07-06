@@ -40,16 +40,19 @@
       {hook h='displayAfterBodyOpeningTag'}
     {/block}
 
-    <main>
-      {block name='product_activation'}
-        {include file='catalog/_partials/product-activation.tpl'}
-      {/block}
-
-      <header id="header">
+          <header id="header">
         {block name='header'}
           {include file='_partials/header.tpl'}
         {/block}
       </header>
+
+    <main>
+      {if $smarty.get.ret == 'rr'}
+        {widget name='partsstructformation' category=$category}
+      {else}
+      {block name='product_activation'}
+        {include file='catalog/_partials/product-activation.tpl'}
+      {/block}
 
       <section id="wrapper">
         {block name='notifications'}
@@ -113,7 +116,7 @@
           {include file="_partials/footer.tpl"}
         {/block}
       </footer>
-
+    {/if}
     </main>
 
     {block name='javascript_bottom'}

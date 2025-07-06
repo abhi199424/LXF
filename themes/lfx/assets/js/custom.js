@@ -1,37 +1,68 @@
 $(function(){
     //customer reg placeholder
-    $('#customer-form input[type="text"], #customer-form input[type="email"], #customer-form input[type="password"]').each(function () {
-        var input = $(this);
-        var inputId = input.attr('id');
-        
-        if (inputId) {
-        var label = $('label[for="' + inputId + '"]');
-        var labelText = label.text().trim();
-        
-        if (labelText) {
-            input.attr('placeholder', labelText);
-            label.hide();
-        }
-        }
-    });
-    //login form placeholder
-    $(document).ready(function () {
-        $('#login-form input[type="text"], #login-form input[type="email"], #login-form input[type="password"]').each(function () {
-            var $input = $(this);
-            var inputId = $input.attr('id');
-
+    if(prestashop.page.page_name != 'checkout') {
+        $('#customer-form input[type="text"], #customer-form input[type="email"], #customer-form input[type="password"]').each(function () {
+            var input = $(this);
+            var inputId = input.attr('id');
+            
             if (inputId) {
-            var $label = $('label[for="' + inputId + '"]');
-            var labelText = $label.text().trim();
-
+            var label = $('label[for="' + inputId + '"]');
+            var labelText = label.text().trim();
+            
             if (labelText) {
-                $input.attr('placeholder', labelText);
-                $label.hide();
+                input.attr('placeholder', labelText);
+                label.hide();
             }
             }
         });
-    });
+        //login form placeholder
+        $(document).ready(function () {
+            $('#login-form input[type="text"], #login-form input[type="email"], #login-form input[type="password"]').each(function () {
+                var $input = $(this);
+                var inputId = $input.attr('id');
 
+                if (inputId) {
+                var $label = $('label[for="' + inputId + '"]');
+                var labelText = $label.text().trim();
+
+                if (labelText) {
+                    $input.attr('placeholder', labelText);
+                    $label.hide();
+                }
+                }
+            });
+        });
+    }
+
+    if(prestashop.page.page_name == 'checkout') {
+        function applyPlaceholders(formSelector) {
+            $(`${formSelector} input[type="text"], ${formSelector} input[type="email"], ${formSelector} input[type="password"]`).each(function () {
+                var $input = $(this);
+                var inputId = $input.attr('id');
+
+                if (inputId) {
+                    var $label = $('label[for="' + inputId + '"]');
+                    var labelText = $label.text().trim();
+
+                    if (labelText && !$input.attr('placeholder')) {
+                        $input.attr('placeholder', labelText);
+                    }
+
+                    $label.hide();
+                }
+            });
+        }
+
+        applyPlaceholders('#customer-form');
+        applyPlaceholders('#login-form');
+
+        $('input[placeholder]').each(function () {
+            var text = $(this).attr('placeholder');
+            var unique = [...new Set(text.trim().split(/\s+/))];
+            $(this).attr('placeholder', unique.join(' '));
+        });
+    }
+    
 
     $('#_desktop_user_info .dropdown-toggle').click(function (e) {
         e.stopPropagation();
@@ -565,3 +596,28 @@ $('.accordion .card-header h5').click(function () {
     }, 1200);
 });
 
+
+
+$(document).ready(function () {
+  // Add class on page load
+  $('#headingOne').addClass('factive');
+
+  // Remove class on click
+  $('.btn.btn-link').on('click', function () {
+    $('#headingOne').removeClass('factive');
+  });
+
+    $('.btn-increase').click(function() {
+        var $input = $(this).closest('.input-group').find('.quantity-input');
+        var currentVal = parseInt($input.val()) || 1;
+        $input.val(currentVal + 1);
+    });
+
+    $('.btn-decrease').click(function() {
+        var $input = $(this).closest('.input-group').find('.quantity-input');
+        var currentVal = parseInt($input.val()) || 1;
+        if (currentVal > 1) {
+            $input.val(currentVal - 1);
+        }
+    });
+});
