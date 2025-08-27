@@ -49,7 +49,7 @@ class allinone_rewards extends Module
 	{
 		$this->name = 'allinone_rewards';
 		$this->tab = 'advertising_marketing';
-		$this->version = '7.0.0';
+		$this->version = '7.0.1';
 		$this->author = 'Prestaplugins';
 		$this->need_instance = 1;
 		$this->ps_versions_compliancy = ['min' => '1.5.0.1', 'max' => _PS_VERSION_];

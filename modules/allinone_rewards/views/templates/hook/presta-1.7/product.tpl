@@ -1,33 +1,32 @@
-{if $display}
+{*
+* All-in-one Rewards Module
+*
+* @category  Prestashop
+* @category  Module
+* @author    Yann BONNAILLIE - ByWEB
+* @copyright 2012-2025 Yann BONNAILLIE - ByWEB
+* @license https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
+*}
 {if !$ajax_loyalty}
-	<!-- MODULE allinone_rewards -->
-	<script type="text/javascript">
-		var url_allinone_loyalty = "{url entity='module' name='allinone_rewards' controller='loyalty'}";
-	</script>
-	<!-- Entire clickable block -->
-	<div 
-		id="loyalty" 
-		class="point-reward-sec align_justify reward_alert_message" 
-		{if !$display}style="display: none"{/if}
-		data-toggle="modal" 
-  		data-target="#loyaltyModal"
-		style="cursor: pointer;"
-	>
-	<!-- END : MODULE allinone_rewards -->
-	{/if}
-	{if $display}
-		{if $display_credits}
-			{l s='Buying this product you will collect ' mod='allinone_rewards'} <b><span id="loyalty_credits">{$credits|escape:'htmlall':'UTF-8'}</span></b> {l s=' with our loyalty program.' mod='allinone_rewards'}
-			{l s='Your cart will total' mod='allinone_rewards'} <b><span id="total_loyalty_credits">{$total_credits|escape:'htmlall':'UTF-8'}</span></b>.
+<!-- MODULE allinone_rewards -->
+<script type="text/javascript">
+	var url_allinone_loyalty = "{url entity='module' name='allinone_rewards' controller='loyalty'}";
+</script>
+<div id="loyalty" class="align_justify reward_alert_message" {if !$display}style="display: none"{/if}>
+<!-- END : MODULE allinone_rewards -->
+{/if}
+{if $display}
+	{if $display_credits}
+		{l s='Buying this product you will collect ' mod='allinone_rewards'} <b><span id="loyalty_credits">{$credits|escape:'htmlall':'UTF-8'}</span></b> {l s=' with our loyalty program.' mod='allinone_rewards'}
+		{l s='Your cart will total' mod='allinone_rewards'} <b><span id="total_loyalty_credits">{$total_credits|escape:'htmlall':'UTF-8'}</span></b>.
+	{else}
+		{if isset($no_pts_discounted) && $no_pts_discounted == 1}
+			{l s='No reward credits for this product because there\'s already a discount.' mod='allinone_rewards'}
 		{else}
-			{if isset($no_pts_discounted) && $no_pts_discounted == 1}
-				{l s='No reward credits for this product because there\'s already a discount.' mod='allinone_rewards'}
-			{else}
-				{l s='Your basket must contain at least %s of products in order to get loyalty rewards.' sprintf=[$minimum] mod='allinone_rewards'}
-			{/if}
+			{l s='Your basket must contain at least %s of products in order to get loyalty rewards.' sprintf=[$minimum] mod='allinone_rewards'}
 		{/if}
 	{/if}
-	{if !$ajax_loyalty}
-	</div>
 {/if}
+{if !$ajax_loyalty}
+</div>
 {/if}

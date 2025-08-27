@@ -1292,7 +1292,8 @@ class RewardsCorePlugin extends RewardsGenericPlugin
 				return;
 			}
 
-			if (!self::$_is_loading && Validate::isLoadedObject($this->context->cart) && Validate::isLoadedObject($product = new Product((int)Configuration::getGlobalValue('REWARDS_ID_DEFAULT_GIFT_PRODUCT'))) && $product->active) {
+			// test que le currency est bien défini, sinon cela renvoie parfois une notice lors de l'init de la classe Cart
+			if (isset($this->context->currency) && !self::$_is_loading && Validate::isLoadedObject($this->context->cart) && Validate::isLoadedObject($product = new Product((int)Configuration::getGlobalValue('REWARDS_ID_DEFAULT_GIFT_PRODUCT'))) && $product->active) {
 				// to avoid infinite loop caused by addCartRule
 				self::$_is_loading = true;
 

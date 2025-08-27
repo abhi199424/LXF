@@ -28,9 +28,8 @@ class RewardsTemplateModel extends ObjectModel
 
 	static private function _loadConfiguration($id_template, $force=false)
 	{
-		if (!Cache::isStored('aior_templates_config') || $force){
+		if (!Cache::isStored('aior_templates_config_'.$id_template) || $force){
 			$cache = array();
-			$cache[$id_template] = array();
 			$query = 'SELECT r.`name`, rl.`id_lang`, IF(rl.`id_lang` IS NULL, r.`value`, rl.`value`) AS value
 					FROM `'._DB_PREFIX_.'rewards_template_config` r
 					LEFT JOIN `'._DB_PREFIX_.'rewards_template_config_lang` rl ON (r.`id_template_config` = rl.`id_template_config`)
@@ -39,12 +38,12 @@ class RewardsTemplateModel extends ObjectModel
 			if (is_array($rows)) {
 				foreach ($rows as $row) {
 					$lang = ($row['id_lang']) ? $row['id_lang'] : 0;
-					$cache[$id_template][$lang][$row['name']] = $row['value'];
+					$cache[$lang][$row['name']] = $row['value'];
 				}
 			}
-			Cache::store('aior_templates_config', $cache);
+			Cache::store('aior_templates_config_'.$id_template, $cache);
 		}
-		return Cache::retrieve('aior_templates_config');
+		return Cache::retrieve('aior_templates_config_'.$id_template);
 	}
 
 	static private function _getIdByName($id_template, $key)
@@ -59,13 +58,13 @@ class RewardsTemplateModel extends ObjectModel
 	static private function _hasKey($id_template, $key, $id_lang)
 	{
 		$cache = self::_loadConfiguration($id_template);
-		return isset($cache[$id_template][$id_lang]) && array_key_exists($key, $cache[$id_template][$id_lang]);
+		return isset($cache[$id_lang]) && array_key_exists($key, $cache[$id_lang]);
 	}
 
 	static public function get($id_template, $key, $id_lang=0)
 	{
 		$cache = self::_loadConfiguration($id_template);
-		return self::_hasKey($id_template, $key, $id_lang) ? $cache[$id_template][$id_lang][$key] : false;
+		return self::_hasKey($id_template, $key, $id_lang) ? $cache[$id_lang][$key] : false;
 	}
 
 	static public function updateValue($id_template, $key, $values, $html = false)
@@ -150,7 +149,7 @@ class RewardsTemplateModel extends ObjectModel
 
 		if ($this->add()) {
 			$done = array();
-			foreach($cache[$id_template] as $id_lang => $tabs) {
+			foreach($cache as $id_lang => $tabs) {
 				foreach($tabs as $key => $value) {
 					if (!isset($done[$key])) {
 						$result = Db::getInstance()->insert('rewards_template_config', array(
@@ -228,7 +227,7 @@ class RewardsTemplateModel extends ObjectModel
 			$rows = Db::getInstance()->executeS($query);
 			if (is_array($rows)) {
 				foreach ($rows as $row)
-					$cache_customer[$id_customer][$row['plugin']] = $row['id_template'];
+					$cache_customer[$row['plugin']] = $row['id_template'];
 			}
 
 			$query = 'SELECT DISTINCT t.`id_template`, t.`plugin`, t.`name`
@@ -238,8 +237,8 @@ class RewardsTemplateModel extends ObjectModel
 			$rows = Db::getInstance()->executeS($query);
 			if (is_array($rows)) {
 				foreach ($rows as $row) {
-					if (!isset($cache_customer[$id_customer][$row['plugin']]))
-						$cache_customer[$id_customer][$row['plugin']] = $row['id_template'];
+					if (!isset($cache_customer[$row['plugin']]))
+						$cache_customer[$row['plugin']] = $row['id_template'];
 				}
 			}
 			Cache::store('aior_template_'.$id_customer, $cache_customer);
@@ -250,7 +249,7 @@ class RewardsTemplateModel extends ObjectModel
 	// retourne l'id template associé à un client pour un plugin donné, s'il existe
 	static public function getIdTemplate($plugin, $id_customer) {
 		$cache = self::_loadTemplatesForCustomer($id_customer);
-		return isset($cache[$id_customer][$plugin]) ? (int)$cache[$id_customer][$plugin] : 0;
+		return isset($cache[$plugin]) ? (int)$cache[$plugin] : 0;
 	}
 
 	static public function getCustomersForFilter($plugin, $filter) {

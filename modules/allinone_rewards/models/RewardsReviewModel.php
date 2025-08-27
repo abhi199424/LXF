@@ -41,7 +41,7 @@ class RewardsReviewModel extends ObjectModel
 		return Db::getInstance()->getRow($query);
 	}
 
-	static public function getValidatedReviews($api, $type='product', $id_template) {
+	static public function getValidatedReviews($api, $type, $id_template) {
 		$context = Context::getContext();
 
         $shopGroup = Shop::getGroupFromShop(Shop::getContextShopID(), false);
@@ -178,7 +178,7 @@ class RewardsReviewModel extends ObjectModel
 									}
 									// DO NOT REMOVE
 									// $this->l('You just got a new reward')
-									//$module->sendMail($id_lang, 'review-'.$type.'-validation', $module->l2('You just got a new reward', (int)Configuration::get('PS_LANG_DEFAULT'), 'rewardsreviewmodel'), $data, $customer->email, $customer->firstname.' '.$customer->lastname);
+									$module->sendMail($id_lang, 'review-'.$type.'-validation', $module->l2('You just got a new reward', (int)Configuration::get('PS_LANG_DEFAULT'), 'rewardsreviewmodel'), $data, $customer->email, $customer->firstname.' '.$customer->lastname);
 								}
 							}
 			            }

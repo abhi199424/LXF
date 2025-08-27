@@ -52,7 +52,9 @@ class RewardsAccountModel extends ObjectModel
 			if ($rows = Db::getInstance()->executeS($query)) {
 				$module = new allinone_rewards();
 				foreach ($rows as $row) {
-					Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'rewards_account` ra2 SET date_last_remind=NOW() WHERE id_customer='.(int)$row['id_customer']);
+					// si on utilise "je ne sais pas", on met à jour la date de dernier envoi immédiatement pour éviter les doublons
+					if (!Configuration::get('REWARDS_USE_CRON'))
+						Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'rewards_account` ra2 SET date_last_remind=NOW() WHERE id_customer='.(int)$row['id_customer']);
 
 					$id_template_core = (int)MyConf::getIdTemplate('core', $row['id_customer']);
 
@@ -75,7 +77,11 @@ class RewardsAccountModel extends ObjectModel
 						'{link_rewards}' => $context->link->getModuleLink('allinone_rewards', 'rewards', array(), true),
 						'{expire}' => $expire,
 					);
-					$module->sendMail($lang, 'rewards-reminder', $module->getL('reminder', $lang), $data, $row['email'], $row['firstname'].' '.$row['lastname']);
+					if ($module->sendMail($lang, 'rewards-reminder', $module->getL('reminder', $lang), $data, $row['email'], $row['firstname'].' '.$row['lastname'])) {
+						// si on est en mode cron, on ne met à jour la date d'envoi que si l'email a été envoyé avec succès
+						if (Configuration::get('REWARDS_USE_CRON'))
+							Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'rewards_account` ra2 SET date_last_remind=NOW() WHERE id_customer='.(int)$row['id_customer']);
+					}
 				}
 			}
 		}

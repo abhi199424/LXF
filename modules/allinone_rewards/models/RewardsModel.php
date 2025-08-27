@@ -502,17 +502,31 @@ class RewardsModel extends ObjectModel
 	public static function checkRewardsStates() {
 		$rewardStateValidation = new RewardsStateModel(RewardsStateModel::getValidationId());
 		// rewards waiting for the end of the return period or rewards not validated automatically (expeditor_inet for example)
-		// TODO : add the check of the date for rewards not validated automatically in case of return period activated
 		// TODO : update only the rewards from the customer available in the current shop, because configuration could be different on another shop
-		$query = '
-		SELECT r.id_reward
-		FROM `'._DB_PREFIX_.'rewards` r
-		JOIN `'._DB_PREFIX_.'orders` o ON (o.id_order = r.id_order'.Shop::addSqlRestriction(false, 'o').')
-		WHERE (
-			(r.id_reward_state='.(int)RewardsStateModel::getDefaultId().' AND o.current_state IN ('.implode(',', $rewardStateValidation->getValues()).'))
-			OR (r.id_reward_state = '.(int)RewardsStateModel::getReturnPeriodId().' AND o.current_state IN ('.implode(',', $rewardStateValidation->getValues()).'))
-		)';
 
+		// Fix rewards not changed automatically due to order's state change from bad modules (expeditor_inet for example)
+		$query = '
+			SELECT r.id_reward
+			FROM `'._DB_PREFIX_.'rewards` r
+			JOIN `'._DB_PREFIX_.'orders` o ON (o.id_order = r.id_order'.Shop::addSqlRestriction(false, 'o').')
+			WHERE r.id_reward_state='.(int)RewardsStateModel::getDefaultId().' AND o.current_state IN ('.implode(',', $rewardStateValidation->getValues()).')';
+		if ($rows = Db::getInstance()->executeS($query)) {
+			foreach ($rows as $row)	{
+				$reward = new RewardsModel((int)$row['id_reward']);
+				if (Configuration::get('REWARDS_WAIT_RETURN_PERIOD') && Configuration::get('PS_ORDER_RETURN') && (int)Configuration::get('PS_ORDER_RETURN_NB_DAYS') > 0)
+					$reward->id_reward_state = (int)RewardsStateModel::getReturnPeriodId();
+				else
+					$reward->id_reward_state = (int)RewardsStateModel::getValidationId();
+				$reward->save();
+			}
+		}
+
+		// Rewards with return period expired
+		$query = '
+			SELECT r.id_reward
+			FROM `'._DB_PREFIX_.'rewards` r
+			JOIN `'._DB_PREFIX_.'orders` o ON (o.id_order = r.id_order'.Shop::addSqlRestriction(false, 'o').')
+			WHERE r.id_reward_state='.(int)RewardsStateModel::getReturnPeriodId().' AND o.current_state IN ('.implode(',', $rewardStateValidation->getValues()).')';
 		// rewards which have been in return period since time > return period nb days
 		if (Configuration::get('REWARDS_WAIT_RETURN_PERIOD') && Configuration::get('PS_ORDER_RETURN') && (int)Configuration::get('PS_ORDER_RETURN_NB_DAYS') > 0) {
 			$query .= '
@@ -527,9 +541,7 @@ class RewardsModel extends ObjectModel
 				)
 			)';
 		}
-
-		$rows = Db::getInstance()->executeS($query);
-		if (is_array($rows)) {
+		if ($rows = Db::getInstance()->executeS($query)) {
 			foreach ($rows as $row)	{
 				$reward = new RewardsModel((int)$row['id_reward']);
 				$reward->id_reward_state = (int)RewardsStateModel::getValidationId();
@@ -544,8 +556,7 @@ class RewardsModel extends ObjectModel
 		JOIN `'._DB_PREFIX_.'customer` c ON (c.id_customer = r.id_customer'.Shop::addSqlRestriction(false, 'c').')
 		WHERE r.id_reward_state = '.(int)RewardsStateModel::getValidationId().'
 		AND date_end < NOW() AND date_end != \'0000-00-00 00:00:00\'';
-		$rows = Db::getInstance()->executeS($query);
-		if (is_array($rows)) {
+		if ($rows = Db::getInstance()->executeS($query)) {
 			foreach ($rows as $row)	{
 				$reward = new RewardsModel((int)$row['id_reward']);
 				$reward->id_reward_state = (int)RewardsStateModel::getCancelId();
