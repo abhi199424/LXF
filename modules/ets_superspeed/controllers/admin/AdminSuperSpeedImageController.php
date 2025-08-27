@@ -19,12 +19,15 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
+/**
+ * Class AdminSuperSpeedImageController
+ * @property Ets_superspeed $module;
+ */
 class AdminSuperSpeedImageController extends ModuleAdminController
 {
     public function __construct()
     {
        parent::__construct();
-       $this->context= Context::getContext();
        $this->bootstrap = true;
     }
     public function initContent()
@@ -47,25 +50,25 @@ class AdminSuperSpeedImageController extends ModuleAdminController
         $fields_form = array(
             'form' => array(
                 'legend' => array(
-                    'title' => $this->l('Image optimization'),
+                    'title' => $this->module->l('Image optimization', 'AdminSuperSpeedImageController'),
                     'icon' => 'icon-envelope'
                 ),
                 'input' => Ets_superspeed_defines::getInstance()->getFieldConfig('_config_images'),
                 'submit' => array(
-                    'title' => Configuration::getGlobalValue('ETS_SPEED_QUALITY_OPTIMIZE') == 100 ? $this->l('Restore original images') : $this->l('Optimize existing images'),
+                    'title' => Configuration::getGlobalValue('ETS_SPEED_QUALITY_OPTIMIZE') == 100 ? $this->module->l('Restore original images', 'AdminSuperSpeedImageController') : $this->module->l('Optimize existing images', 'AdminSuperSpeedImageController'),
                     'icon' => 'process-icon-cogs',
                 ),
                 'buttons' => array(
                     array(
                         'name' => 'btnSubmitLazyLoadImage',
                         'icon' => 'process-icon-save',
-                        'title' => $this->l('Save'),
+                        'title' => $this->module->l('Save', 'AdminSuperSpeedImageController'),
                         'class' => 'pull-right',
                     ),
                     array(
                         'name' => 'btnSubmitOldImageOptimize',
                         'icon' => 'process-icon-save',
-                        'title' => $this->l('Save'),
+                        'title' => $this->module->l('Save', 'AdminSuperSpeedImageController'),
                         'class' => 'pull-left',
                     )
                 ),

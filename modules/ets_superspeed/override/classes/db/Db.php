@@ -23,11 +23,11 @@ abstract class Db extends DbCore
 {
     public function query($sql)
     {
-        $context = Context::getContext();
-        if(isset($context->ss_total_sql))
-            $context->ss_total_sql++;
-        else
-            $context->ss_total_sql=1;
+        if (!class_exists('Ets_superspeed')) {
+            require_once(dirname(__FILE__) . '/../../../modules/ets_superspeed/ets_superspeed.php');
+        }
+        Ets_superspeed::$query_count++;
         return parent::query($sql);
     }
+
 }

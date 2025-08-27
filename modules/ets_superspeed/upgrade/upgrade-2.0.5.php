@@ -19,6 +19,14 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
-require_once __DIR__ . '/composer/autoload_real.php';
-
-return ComposerAutoloaderInita20edaa9388158687d42a504703a2a7b::getLoader();
+/**
+ * @param Ets_superspeed $module
+ */
+function upgrade_module_2_0_5($module)
+{
+    $module->removeOverride('Db');
+    $module->addOverride('Db');
+    $module->removeOverride('Dispatcher');
+    $module->addOverride('Dispatcher');
+    return true;
+}

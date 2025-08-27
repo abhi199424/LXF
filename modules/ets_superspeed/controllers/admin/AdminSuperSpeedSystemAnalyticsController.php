@@ -29,7 +29,6 @@ class AdminSuperSpeedSystemAnalyticsController extends ModuleAdminController
     public function __construct()
     {
        parent::__construct();
-       $this->context= Context::getContext();
        $this->bootstrap = true;
     }
     public function initContent()
@@ -39,15 +38,15 @@ class AdminSuperSpeedSystemAnalyticsController extends ModuleAdminController
         if(Tools::isSubmit('change_register_option') && ($id_module = (int)Tools::getValue('id_module')) && ($hook_name = Tools::getValue('hook_name')) && Validate::isHookName($hook_name))
         {
             $id_hook = Hook::getIdByName($hook_name);
-            if($id_hook && $id_module && Validate::isUnsignedId($id_hook) && Validate::isUnsignedId($id_module))
+            if($id_hook && Validate::isUnsignedId($id_module))
             {
-                Ets_superspeed_defines::changeRegisterHook($change_register_option,$hook_name,$id_module,$id_hook);
+                Ets_superspeed_defines::changeRegisterHook($change_register_option,$hook_name,$id_module,$id_hook, $this->context);
                 if(Tools::isSubmit('ajax'))
                 {
                     die(
                         json_encode(
                             array(
-                                'success' =>$change_register_option ? $this->l('Hook registered successfully. Clear cache to see changes in front office.'): $this->l('Hook unregistered'),
+                                'success' =>$change_register_option ? $this->module->l('Hook registered successfully. Clear cache to see changes in front office.', 'AdminSuperSpeedSystemAnalyticsController'): $this->module->l('Hook unregistered', 'AdminSuperSpeedSystemAnalyticsController'),
                                 'url'=> $this->context->link->getAdminLink('AdminSuperSpeedSystemAnalytics').'&change_register_option='.($change_register_option?'0':'1').'&id_module='.(int)$id_module.'&hook_name='.$hook_name,
                             )
                         )
@@ -62,12 +61,12 @@ class AdminSuperSpeedSystemAnalyticsController extends ModuleAdminController
                     die(
                         json_encode(
                             array(
-                                'error' => $this->l('Module or hook does not exist'),
+                                'error' => $this->module->l('Module or hook does not exist', 'AdminSuperSpeedSystemAnalyticsController'),
                             )
                         )
                     );
                 else   
-                    $this->context->controller->errors[] = $this->l('Module or hook does not exist');
+                    $this->context->controller->errors[] = $this->module->l('Module or hook does not exist', 'AdminSuperSpeedSystemAnalyticsController');
             }
         }
         if(Tools::isSubmit('paggination_ajax'))
@@ -87,7 +86,7 @@ class AdminSuperSpeedSystemAnalyticsController extends ModuleAdminController
             die(
                 json_encode(
                     array(
-                        'success' => $this->l('Updated successfully'),
+                        'success' => $this->module->l('Updated successfully', 'AdminSuperSpeedSystemAnalyticsController'),
                     )
                 )
             );
@@ -172,7 +171,7 @@ class AdminSuperSpeedSystemAnalyticsController extends ModuleAdminController
         $page = (int)Tools::getValue('page');
         if($page<1)
             $page =1;
-        $totalRecords = (int)Ets_superspeed_defines::getHookTimeByFilter($sql_filter,true);
+        $totalRecords = (int)Ets_superspeed_defines::getHookTimeByFilter($this->context->shop->id, $sql_filter,true);
         $paggination = new Ets_superspeed_pagination_class();
         $paggination->total = $totalRecords;
         $paggination->url = $this->context->link->getAdminLink('AdminSuperSpeedSystemAnalytics', true) . '&page=_page_' . (isset($filter) ? $this->module->getFilterValues($filter) : '') . '&Orderby=' . $orderby . '&OrderWay=' . $orderway;
@@ -184,9 +183,9 @@ class AdminSuperSpeedSystemAnalyticsController extends ModuleAdminController
         $start = (int)$paggination->limit * ((int)$page - 1);
         if ($start < 0)
             $start = 0;
-        $paggination->text = $this->l('Showing {start} to {end} of {total} ({pages} Pages)');
-        $paggination->style_links = $this->l('links');
-        $module_hooks = Ets_superspeed_defines::getHookTimeByFilter($sql_filter,false,$orderby,$orderway,$start,$paggination->limit);
+        $paggination->text = $this->module->l('Showing {start} to {end} of {total} ({pages} Pages)', 'AdminSuperSpeedSystemAnalyticsController');
+        $paggination->style_links = $this->module->l('links', 'AdminSuperSpeedSystemAnalyticsController');
+        $module_hooks = Ets_superspeed_defines::getHookTimeByFilter($this->context->shop->id, $sql_filter,false,$orderby,$orderway,$start,$paggination->limit);
         if ($module_hooks) {
             foreach ($module_hooks as $key=> &$module_hook) {
                 $module = Module::getInstanceById($module_hook['id_module']);

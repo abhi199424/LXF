@@ -19,6 +19,11 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
+
+/**
+ * class AdminSuperSpeedAjaxController
+ * @property Ets_superspeed $module
+ */
 class AdminSuperSpeedAjaxController extends ModuleAdminController
 {
     public function init()

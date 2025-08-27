@@ -36,16 +36,15 @@ class Ets_superspeed_compressor_image
     public function __construct()
     {
         $this->name = 'ets_superspeed';
-        $this->context = Context::getContext();
         if (version_compare(_PS_VERSION_, '1.7', '>='))
             $this->is17 = true;
         if (version_compare(_PS_VERSION_, '1.7', '<'))
             $this->is16 = true;
-        if (Module::isInstalled('ybc_blog') && Module::isEnabled('ybc_blog'))
+        if (Ets_superspeed_defines::getIDModuleByName('ybc_blog'))
             $this->isblog = true;
-        if ((Module::isInstalled('ps_imageslider') && Module::isEnabled('ps_imageslider')) || (Module::isInstalled('homeslider') && Module::isEnabled('homeslider')))
+        if ((Ets_superspeed_defines::getIDModuleByName('ps_imageslider')) || (Ets_superspeed_defines::getIDModuleByName('homeslider') ))
             $this->isSlide = true;
-        if ((Module::isInstalled('blockbanner') && Module::isEnabled('blockbanner')) || (Module::isInstalled('ps_banner') && Module::isEnabled('ps_banner')))
+        if ((Ets_superspeed_defines::getIDModuleByName('blockbanner')) || (Ets_superspeed_defines::getIDModuleByName('ps_banner')))
             $this->isBanner = true;
         if (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'google' || Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'php')
             $this->number_optimize = 5;
@@ -139,7 +138,7 @@ class Ets_superspeed_compressor_image
             $destination = $path . $name;
             $temp = $path . 'temp-' . $name;
         } else {
-            $name = Tools::stripslashes($type['name']);
+            $name = $type['name'];
             $source = $path . '-' . $name . '.jpg';
             $destination = $path . '-' . $name . '.jpg';
             $temp = $path . '-' . $name . '-temp.jpg';
@@ -264,12 +263,14 @@ class Ets_superspeed_compressor_image
         if ($image_type === 'upload' && file_exists($filePaths['source'])) {
             Ets_superspeed_defines::unlink($filePaths['source']);
         }
+        /** @var Ets_superspeed $module */
+        $module = Module::getInstanceByName('ets_superspeed');
         if (($script_optimize === 'google' || (int)Tools::getValue('continue_webp')) && in_array($mime_type, ['image/jpeg', 'image/png'])) {
             if (file_exists($filePaths['temp'])) {
                 Ets_superspeed_defines::unlink($filePaths['temp']);
             }
             die(json_encode([
-                'error' => $this->displayGoogleError(),
+                'error' => $module->displayGoogleError(),
                 'script_continue' => 'php',
             ]));
         }
@@ -277,7 +278,7 @@ class Ets_superspeed_compressor_image
             Ets_superspeed_defines::unlink($filePaths['temp']);
         }
         die(json_encode([
-            'error' => $this->_errors ? $this->displayError($this->_errors, true) : $this->displayError($this->l('errors'), true),
+            'error' => $this->_errors ? $module->displayError($this->_errors, true) : $module->displayError($this->l('errors'), true),
             'script_continue' => 'php',
         ]));
     }
@@ -458,108 +459,10 @@ class Ets_superspeed_compressor_image
                 'optimize_type' => Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') ? Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') : 'php',
             );
         }
-
-        ini_set('gd.jpeg_ignore_warning', 1);
-
-        // Validate and sanitize paths
-        $path = realpath($path) ?: $path;
-        $source = realpath($source) ?: $source;
-        $destination = realpath($destination) ?: $destination;
-        $temp = realpath($temp) ?: $temp;
-
-        // Ensure paths are within allowed directories
-        $allowedDir = realpath(_PS_ROOT_DIR_);
-        foreach ([$path, $source, $destination, $temp] as $dir) {
-            if (Tools::strpos($dir, $allowedDir) !== 0) {
-                $this->_errors[] = $this->l('Invalid file paths');
-                return false;
-            }
-        }
-
-        $temp2 = $path . 'temp2-' . $name;
-        Tools::copy($source, $temp2);
-
-        $image = @getimagesize($source);
-        $default = false;
-
-        if ($quality >= 100 || ($quality <= 80 && is_array($type) && isset($type['width']) && $type['width'] <= 260) || ($name == Configuration::get('PS_LOGO') && $quality <= 80)) {
-            if ($is_product) {
-                $destination_webp = str_replace('.jpg', '.webp', $destination);
-                if (file_exists($destination_webp)) {
-                    Ets_superspeed_defines::unlink($destination_webp);
-                }
-            }
-            if ($quality_old <= 80) {
-                if (file_exists($temp2)) Ets_superspeed_defines::unlink($temp2);
-                if (file_exists($temp)) Ets_superspeed_defines::unlink($temp);
-                return array(
-                    'file_size' => $file_size_old,
-                    'optimize_type' => Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') ? Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') : 'php',
-                );
-            }
-            $default = true;
-        }
-
-        if ($image) {
-            ini_set('gd.jpeg_ignore_warning', 1);
-            $widthImage = $image[0];
-            $heightImage = $image[1];
-
-            $imageCanves = imagecreatetruecolor($widthImage, $heightImage);
-            switch (Tools::strtolower($image['mime'])) {
-                case 'image/jpeg':
-                    $NewImage = imagecreatefromjpeg($source);
-                    break;
-                case 'image/png':
-                    $NewImage = imagecreatefrompng($source);
-                    break;
-                case 'image/gif':
-                    $NewImage = imagecreatefromgif($source);
-                    break;
-                default:
-                    if (file_exists($temp2)) Ets_superspeed_defines::unlink($temp2);
-                    return array(
-                        'file_size' => $file_size_old,
-                        'optimize_type' => Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') ? Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') : 'php',
-                    );
-            }
-
-            $white = imagecolorallocate($imageCanves, 255, 255, 255);
-            imagefill($imageCanves, 0, 0, $white);
-
-            if (imagecopyresampled($imageCanves, $NewImage, 0, 0, 0, 0, $widthImage, $heightImage, $widthImage, $heightImage)) {
-                if (imagejpeg($imageCanves, $destination, $default ? 80 : $quality)) {
-                    imagedestroy($imageCanves);
-
-                    if (Tools::copy($destination, $temp)) {
-                        $file_size = Tools::ps_round(@filesize($temp) / 1024, 2);
-                        if ($file_size > $file_size_old) {
-                            Tools::copy($temp2, $destination);
-                            $file_size = $file_size_old;
-                        }
-                        if (file_exists($temp)) Ets_superspeed_defines::unlink($temp);
-                        if (file_exists($temp2)) Ets_superspeed_defines::unlink($temp2);
-                        if (file_exists($path . 'fileType')) Ets_superspeed_defines::unlink($path . 'fileType');
-                        if ($is_product) {
-                            $destination_webp = str_replace('.jpg', '.webp', $destination);
-                            if (file_exists($destination_webp)) Ets_superspeed_defines::unlink($destination_webp);
-                        }
-                        return array(
-                            'file_size' => $file_size,
-                            'optimize_type' => Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') ? Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') : 'php',
-                        );
-                    }
-                }
-            }
-        }
-
-        if (file_exists($temp2)) Ets_superspeed_defines::unlink($temp2);
-        if (file_exists($temp)) Ets_superspeed_defines::unlink($temp);
-        if (file_exists($path . 'fileType')) Ets_superspeed_defines::unlink($path . 'fileType');
-        return array(
-            'file_size' => $file_size_old,
-            'optimize_type' => Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') ? Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') : 'php',
-        );
+        require_once(dirname(__FILE__) . '/OverrideUtil');
+        $class= 'Ets_superspeed_overrideUtil';
+        $method = 'compressByPhp';
+        return call_user_func_array(array($class, $method),array($path, $name, $source, $destination, $temp, $quality, $type, $file_size_old, $quality_old, $is_product));
     }
     public function png_has_transparency($filename)
     {
@@ -582,28 +485,11 @@ class Ets_superspeed_compressor_image
             return true;
         return false;
     }
-
-    public function displayError($errors, $popup = false)
-    {
-        $this->context->smarty->assign(
-            array(
-                'errors' => $errors,
-                'popup' => $popup
-            )
-        );
-        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name . '/views/templates/hook/error.tpl');
-    }
-
-    public function displayGoogleError()
-    {
-        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name . '/views/templates/hook/google.tpl');
-    }
-
     public function l($string)
     {
         return Translate::getModuleTranslation('ets_superspeed', $string, pathinfo(__FILE__, PATHINFO_FILENAME));
     }
-    public function optimizeNewImage($params)
+    public function optimizeNewImage($params, $context)
     {
         if (isset($params['id_image']) && ($id_image = (int)$params['id_image']) && $type_product = Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_IMAGE_PRODCUT_TYPE')) {
             $quality = ($quality = (int)Configuration::getGlobalValue('ETS_SPEED_QUALITY_OPTIMIZE')) > 0 ? $quality : 90;
@@ -624,8 +510,8 @@ class Ets_superspeed_compressor_image
                         $optimizied = (int)Db::getInstance()->getValue('SELECT id_image FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image` WHERE id_image ="' . (int)$id_image . '" AND type_image ="' . pSQL($type['name']) . '"', false);
                         if ($size_old = self::createImage($path, $type, $optimizied)) {
                             if (self::checkOptimizeImageResmush()) {
-                                $product_class = new Product($new_image->id_product, false, $this->context->language->id);
-                                $url_image = $this->context->link->getImageLink($product_class->link_rewrite, $new_image->id, $type['name']);
+                                $product_class = new Product($new_image->id_product, false, $context->language->id);
+                                $url_image = $context->link->getImageLink($product_class->link_rewrite, $new_image->id, $type['name']);
                             } else
                                 $url_image = null;
                             $quality_old = Db::getInstance()->getValue('SELECT quality FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image` WHERE id_image ="' . (int)$id_image . '" AND type_image ="' . pSQL($type['name']) . '"');
@@ -651,13 +537,13 @@ class Ets_superspeed_compressor_image
         $src_width = $src_height = 0;
         $error = 0;
         if (file_exists($path . '.jpg')) {
-            if (@file_exists($path . '-' . Tools::stripslashes($type['name']) . '.jpg') && $optimizied) {
-                Ets_superspeed_defines::unlink($path . '-' . Tools::stripslashes($type['name']) . '.jpg');
+            if (@file_exists($path . '-' . $type['name'] . '.jpg') && $optimizied) {
+                Ets_superspeed_defines::unlink($path . '-' . $type['name'] . '.jpg');
             }
-            if (!@file_exists($path . '-' . Tools::stripslashes($type['name']) . '.jpg')) {
+            if (!@file_exists($path . '-' . $type['name'] . '.jpg')) {
                 ImageManager::resize(
                     $path . '.jpg',
-                    $path . '-' . Tools::stripslashes($type['name']) . '.jpg',
+                    $path . '-' . $type['name'] . '.jpg',
                     $type['width'],
                     $type['height'],
                     'jpg',
@@ -671,13 +557,63 @@ class Ets_superspeed_compressor_image
                 );
             }
         }
-        if (file_exists($path . '-' . Tools::stripslashes($type['name']) . '.jpg'))
-            return Tools::ps_round(filesize($path . '-' . Tools::stripslashes($type['name']) . '.jpg') / 1024, 2);
+        if (file_exists($path . '-' . $type['name'] . '.jpg'))
+            return Tools::ps_round(filesize($path . '-' . $type['name'] . '.jpg') / 1024, 2);
         else
             return false;
     }
+    public function getPathForCreation($id_image_lang)
+    {
+        if (!$id_image_lang) {
+            return false;
+        }
+        $path = $this->getImgPath($id_image_lang);
+        $this->createImgFolder($id_image_lang);
+        return _PS_PRODL_IMG_DIR_ . $path;
+    }
+    public function getImgPath($id)
+    {
+        if (!$id) {
+            return false;
+        }
+        $path = $this->getImgFolder($id) . $id;
+        return $path;
+    }
+    public function getImgFolder($id)
+    {
+        if (!$id) {
+            return false;
+        }
+        return $this->getImgFolderStatic($id);
+    }
+    public function getImgFolderStatic($id)
+    {
+        if (!is_numeric($id)) {
+            return false;
+        }
+        $folders = str_split((string) $id);
 
-    public function optimizeProductImage($all_type = false)
+        return implode('/', $folders) . '/';
+    }
+    public function createImgFolder($id)
+    {
+        if (!$id) {
+            return false;
+        }
+        if (!file_exists(_PS_PRODL_IMG_DIR_ . $this->getImgFolder($id))) {
+            // Apparently sometimes mkdir cannot set the rights, and sometimes chmod can't. Trying both.
+            $success = @mkdir(_PS_PRODL_IMG_DIR_ . $this->getImgFolder($id), 0755, true);
+            $chmod = @chmod(_PS_PRODL_IMG_DIR_ . $this->getImgFolder($id), 0755);
+            // Create an index.php file in the new folder
+            if (($success || $chmod)
+                && !file_exists(_PS_PRODL_IMG_DIR_ . $this->getImgFolder($id) . 'index.php')
+                && file_exists(dirname(__FILE__).'/index.php')) {
+                return @copy(dirname(__FILE__).'/index.php', _PS_PRODL_IMG_DIR_ . $this->getImgFolder($id) . 'index.php');
+            }
+        }
+        return true;
+    }
+    public function optimizeProductImage($all_type, $context)
     {
         $quality = ($quality = Configuration::getGlobalValue('ETS_SPEED_QUALITY_OPTIMIZE')) ? $quality : 50;
         $optmize_script = Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT');
@@ -714,8 +650,8 @@ class Ets_superspeed_compressor_image
                                 $optimizied = (int)Db::getInstance()->getValue('SELECT id_image FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image` WHERE id_image = "' . (int)$image['id_image'] . '" AND type_image like "' . pSQL($type['name']) . '"', false);
                                 if ($size_old = self::createImage($path, $type, $optimizied)) {
                                     if (self::checkOptimizeImageResmush()) {
-                                        $product_class = new Product($image_obj->id_product,false, $this->context->language->id);
-                                        $url_image = $this->context->link->getImageLink($product_class->link_rewrite, $image_obj->id, $type['name']);
+                                        $product_class = new Product($image_obj->id_product,false, $context->language->id);
+                                        $url_image = $context->link->getImageLink($product_class->link_rewrite, $image_obj->id, $type['name']);
                                     } else
                                         $url_image = null;
                                     $quality_old = Db::getInstance()->getValue('SELECT quality FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image` WHERE id_image = ' . (int)$image['id_image'] . ' AND type_image="' . pSQL($type['name']) . '"');
@@ -733,17 +669,18 @@ class Ets_superspeed_compressor_image
                                     } else
                                         Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_product_image` SET quality ="' . (int)$quality . '",size_old="0",size_new ="0",optimize_type="' . ($optmize_script ? pSQL($optmize_script) : 'php') . '" WHERE id_image ="' . (int)$image['id_image'] . '" AND type_image ="' . pSQL($type['name']) . '"');
                                 }
-                                $this->_saveTotalImageOpimized($path . '-' . Tools::stripslashes($type['name']) . '.jpg');
+                                $this->_saveTotalImageOpimized($path . '-' . $type['name']. '.jpg');
                             } elseif (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'tynypng' && !Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image` WHERE quality="' . (int)$quality . '" AND id_image ="' . (int)$image['id_image'] . '" AND type_image ="' . pSQL($type['name']) . '"')) {
                                 Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_product_image` SET quality ="' . (int)$quality . '" WHERE id_image ="' . (int)$image['id_image'] . '" AND type_image ="' . pSQL($type['name']) . '"');
-                                $this->_saveTotalImageOpimized($path . '-' . Tools::stripslashes($type['name']) . '.jpg');
+                                $this->_saveTotalImageOpimized($path . '-' . $type['name']. '.jpg');
                             }
 
                         }
                     }
                 }
-                if (Module::isInstalled('ets_multilangimages') && Module::isEnabled('ets_multilangimages')) {
-                    $ets_MultiLangImage = Module::getInstanceByName('ets_multilangimages');
+                if (Ets_superspeed_defines::getIDModuleByName('ets_multilangimages') ) {
+                    /** @var Ets_superspeed $module */
+                    $module = Module::getInstanceByName('ets_superspeed');
                     $images = Db::getInstance()->executeS('
                     SELECT i.id_image_lang FROM `' . _DB_PREFIX_ . 'ets_image_lang` i
                     LEFT JOIN `' . _DB_PREFIX_ . 'ets_superspeed_product_image_lang` pi ON i.id_image_lang = pi.id_image_lang AND pi.type_image="' . pSQL($type['name']) . '"' . (string)$and_quality . '
@@ -751,7 +688,7 @@ class Ets_superspeed_compressor_image
                     if ($images) {
                         $ok = true;
                         foreach ($images as $image) {
-                            $path = $ets_MultiLangImage->getPathForCreation($image['id_image_lang']);
+                            $path = $this->getPathForCreation($image['id_image_lang']);
                             if (Tools::strpos($path, '..') !== false  || Tools::strpos($path, '\\') === 0) {
                                 throw new Exception('Invalid path detected.');
                             }
@@ -764,7 +701,7 @@ class Ets_superspeed_compressor_image
                                     $optimizied = (int)Db::getInstance()->getValue('SELECT id_image_lang FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image_lang` WHERE id_image_lang = "' . (int)$image['id_image_lang'] . '" AND type_image like "' . pSQL($type['name']) . '"', false);
                                     if ($size_old = self::createImage($path, $type, $optimizied)) {
                                         if (self::checkOptimizeImageResmush()) {
-                                            $url_image = $ets_MultiLangImage->getLangImageLink($image['id_image_lang'], $type['name']);
+                                            $url_image = $module->getLangImageLink($image['id_image_lang'], $type['name']);
                                         } else
                                             $url_image = null;
                                         $quality_old = Db::getInstance()->getValue('SELECT quality FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image_lang` WHERE id_image_lang = ' . (int)$image['id_image_lang'] . ' AND type_image="' . pSQL($type['name']) . '"');
@@ -782,10 +719,10 @@ class Ets_superspeed_compressor_image
                                         } else
                                             Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_product_image_lang` SET quality ="' . (int)$quality . '",size_old="0",size_new ="0",optimize_type="' . ($optmize_script ? pSQL($optmize_script) : 'php') . '" WHERE id_image_lang ="' . (int)$image['id_image_lang'] . '" AND type_image ="' . pSQL($type['name']) . '"');
                                     }
-                                    $this->_saveTotalImageOpimized($path . '-' . Tools::stripslashes($type['name']) . '.jpg');
+                                    $this->_saveTotalImageOpimized($path . '-' . $type['name'] . '.jpg');
                                 } elseif (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'tynypng' && !Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image_lang` WHERE quality="' . (int)$quality . '" AND id_image_lang ="' . (int)$image['id_image_lang'] . '" AND type_image ="' . pSQL($type['name']) . '"')) {
                                     Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_product_image_lang` SET quality ="' . (int)$quality . '" WHERE id_image_lang ="' . (int)$image['id_image_lang'] . '" AND type_image ="' . pSQL($type['name']) . '"');
-                                    $this->_saveTotalImageOpimized($path . '-' . Tools::stripslashes($type['name']) . '.jpg');
+                                    $this->_saveTotalImageOpimized($path . '-' . $type['name'] . '.jpg');
                                 }
 
                             }
@@ -845,54 +782,52 @@ class Ets_superspeed_compressor_image
             $types = Db::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'image_type` WHERE ' . pSQL($type_obj) . '=1 AND  name IN ("' . implode('","', array_map('pSQL', explode(',', Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_IMAGE_' . Tools::strtoupper($table) . '_TYPE')))) . '")');
         $ok = false;
         if ($types) {
-            if ($types) {
-                $ETS_SPEED_UPDATE_QUALITY = (int)Ets_superspeed::getQantityOptimize();
-                foreach ($types as $type) {
-                    if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
-                        $and_quality = ' AND pi.quality!=100';
-                    else
-                        $and_quality = ($optmize_script != 'tynypng' || $quality == 100 || !$ETS_SPEED_UPDATE_QUALITY ? ' AND pi.quality="' . (int)$quality . '"' : ' AND pi.quality!=100') . ($quality != 100 ? ' AND pi.optimize_type = "' . pSQL($optmize_script) . '"' : '');
-                    $objects = Db::getInstance()->executeS('
+            $ETS_SPEED_UPDATE_QUALITY = (int)Ets_superspeed::getQantityOptimize();
+            foreach ($types as $type) {
+                if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
+                    $and_quality = ' AND pi.quality!=100';
+                else
+                    $and_quality = ($optmize_script != 'tynypng' || $quality == 100 || !$ETS_SPEED_UPDATE_QUALITY ? ' AND pi.quality="' . (int)$quality . '"' : ' AND pi.quality!=100') . ($quality != 100 ? ' AND pi.optimize_type = "' . pSQL($optmize_script) . '"' : '');
+                $objects = Db::getInstance()->executeS('
                     SELECT o.id_' . bqSQL($table) . ' FROM ' . _DB_PREFIX_ . bqSQL($table) . ' o
                     LEFT JOIN `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` pi ON o.id_' . bqSQL($table) . ' = pi.id_' . bqSQL($table) . ' AND pi.type_image="' . pSQL($type['name']) . '" AND pi.id_' . bqSQL($table) . '!="" ' . (string)$and_quality . '
                     WHERE pi.id_' . bqSQL($table) . ' is NULL LIMIT 0 ,' . (int)$this->number_optimize);
-                    if ($objects) {
-                        $ok = true;
-                        foreach ($objects as $object) {
-                            $path_image = $path . $object['id_' . $table];
-                            if (Tools::strpos($path, '..') !== false || Tools::strpos($path, '\\') === 0) {
-                                throw new Exception('Invalid path detected.');
-                            }
-                            if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
-                                $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '" AND quality!=100';
-                            else
-                                $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"' . ($optmize_script != 'tynypng' || $quality == 100 ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
-                            if (!Db::getInstance()->getRow($sql)) {
-                                $optimizied = Db::getInstance()->getValue('SELECT id_' . bqSQL($table) . ' FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"', false);
-                                if ($size_old = self::createImage($path_image, $type, $optimizied)) {
-                                    if (self::checkOptimizeImageResmush())
-                                        $url_image = $this->getLinkTable($table) . $object['id_' . $table] . '-' . $type['name'] . '.jpg';
-                                    else
-                                        $url_image = null;
-                                    $quality_old = Db::getInstance()->getValue('SELECT quality FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '" AND optimize_type = "' . pSQL(Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT')) . '"');
+                if ($objects) {
+                    $ok = true;
+                    foreach ($objects as $object) {
+                        $path_image = $path . $object['id_' . $table];
+                        if (Tools::strpos($path, '..') !== false || Tools::strpos($path, '\\') === 0) {
+                            throw new Exception('Invalid path detected.');
+                        }
+                        if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
+                            $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '" AND quality!=100';
+                        else
+                            $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"' . ($optmize_script != 'tynypng' || $quality == 100 ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
+                        if (!Db::getInstance()->getRow($sql)) {
+                            $optimizied = Db::getInstance()->getValue('SELECT id_' . bqSQL($table) . ' FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"', false);
+                            if ($size_old = self::createImage($path_image, $type, $optimizied)) {
+                                if (self::checkOptimizeImageResmush())
+                                    $url_image = $this->getLinkTable($table) . $object['id_' . $table] . '-' . $type['name'] . '.jpg';
+                                else
+                                    $url_image = null;
+                                $quality_old = Db::getInstance()->getValue('SELECT quality FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '" AND optimize_type = "' . pSQL(Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT')) . '"');
+                                $compress = $this->compress($path_image, $type, $quality, $url_image, $quality_old);
+                                while ($compress === false)
                                     $compress = $this->compress($path_image, $type, $quality, $url_image, $quality_old);
-                                    while ($compress === false)
-                                        $compress = $this->compress($path_image, $type, $quality, $url_image, $quality_old);
-                                    if (!$optimizied) {
-                                        Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type['name']) . '","' . (int)$quality . '","' . (float)$size_old . '","' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '","' . pSQl($compress['optimize_type']) . '")');
-                                    } else
-                                        Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="' . (float)$size_old . '",size_new="' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '",optimize_type="' . pSQL($compress['optimize_type']) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"');
-                                    $this->_saveTotalImageOpimized($path . '-' . Tools::stripslashes($type['name']) . '.jpg');
-                                } else {
-                                    if (!$optimizied) {
-                                        Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type['name']) . '","' . (int)$quality . '","0","0","' . pSQl($optmize_script) . '")');
-                                    } else
-                                        Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="0",size_new="0",optimize_type="' . pSQL($optmize_script) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"');
-                                }
-                            } elseif (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'tynypng' && !Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE quality="' . (int)$quality . '" AND id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"')) {
-                                Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"');
-                                $this->_saveTotalImageOpimized($path . '-' . Tools::stripslashes($type['name']) . '.jpg');
+                                if (!$optimizied) {
+                                    Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type['name']) . '","' . (int)$quality . '","' . (float)$size_old . '","' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '","' . pSQl($compress['optimize_type']) . '")');
+                                } else
+                                    Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="' . (float)$size_old . '",size_new="' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '",optimize_type="' . pSQL($compress['optimize_type']) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"');
+                                $this->_saveTotalImageOpimized($path . '-' . $type['name'] . '.jpg');
+                            } else {
+                                if (!$optimizied) {
+                                    Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type['name']) . '","' . (int)$quality . '","0","0","' . pSQl($optmize_script) . '")');
+                                } else
+                                    Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="0",size_new="0",optimize_type="' . pSQL($optmize_script) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"');
                             }
+                        } elseif (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'tynypng' && !Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` WHERE quality="' . (int)$quality . '" AND id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"')) {
+                            Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type['name']) . '"');
+                            $this->_saveTotalImageOpimized($path . '-' . $type['name'] . '.jpg');
                         }
                     }
                 }
@@ -916,6 +851,7 @@ class Ets_superspeed_compressor_image
 
     public function getLinkTable($table, $type = '')
     {
+        /** @var Ets_superspeed $module */
         $module = Module::getInstanceByName('ets_superspeed');
         if ($table == 'category')
             return $module->getBaseLink() . '/img/c/';
@@ -958,52 +894,50 @@ class Ets_superspeed_compressor_image
         else
             $types = explode(',', Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_IMAGE_BLOG_' . Tools::strtoupper($table) . '_TYPE'));
         $ok = false;
-        if ($types) {
-            foreach ($types as $type) {
-                if ($type) {
-                    if ($type == 'thumb')
-                        $path .= 'thumb/';
-                    $ETS_SPEED_UPDATE_QUALITY = (int)Ets_superspeed::getQantityOptimize();
-                    if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
-                        $end_quality = ' AND quality!=100';
-                    else
-                        $end_quality = ($optmize_script != 'tynypng' || $quality == 100 || !$ETS_SPEED_UPDATE_QUALITY ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
-                    $objects = Db::getInstance()->executeS('SELECT bl.* FROM `' . _DB_PREFIX_ . 'ybc_blog_' . bqSQL($table) . '_lang` bl
+        foreach ($types as $type) {
+            if ($type) {
+                if ($type == 'thumb')
+                    $path .= 'thumb/';
+                $ETS_SPEED_UPDATE_QUALITY = (int)Ets_superspeed::getQantityOptimize();
+                if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
+                    $end_quality = ' AND quality!=100';
+                else
+                    $end_quality = ($optmize_script != 'tynypng' || $quality == 100 || !$ETS_SPEED_UPDATE_QUALITY ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
+                $objects = Db::getInstance()->executeS('SELECT bl.* FROM `' . _DB_PREFIX_ . 'ybc_blog_' . bqSQL($table) . '_lang` bl
                     LEFT JOIN `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` bli ON bl.' . bqSQL($type) . ' = bli.' . pSQL($type) . ' AND type_image="' . pSQL($type) . '" AND bli.id_' . bqSQL($table) . '=bl.id_' . bqSQL($table) . (string)$end_quality . '
                     WHERE bli.id_' . bqSQL($table) . ' is NULL AND bl.' . bqSQL($type) . '!="" LIMIT 0,' . (int)$this->number_optimize, true, false);
-                    if ($objects) {
-                        $ok = true;
-                        foreach ($objects as $object) {
-                            if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
-                                $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND quality!=100 AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '"';
-                            else
-                                $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '"' . ($optmize_script != 'tynypng' || $quality == 100 ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
-                            if (!Db::getInstance()->getRow($sql, false)) {
-                                $optimizied = Db::getInstance()->getValue('SELECT id_' . bqSQL($table) . ' FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '"', false);
-                                if ($size_old = Ets_superspeed_compressor_image::createBlogImage($path, $object[$type])) {
-                                    if (self::checkOptimizeImageResmush())
-                                        $url_image = $this->getLinkTable('blog_' . $table, $type) . $object[$type];
-                                    else
-                                        $url_image = null;
+                if ($objects) {
+                    $ok = true;
+                    foreach ($objects as $object) {
+                        if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
+                            $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND quality!=100 AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '"';
+                        else
+                            $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '"' . ($optmize_script != 'tynypng' || $quality == 100 ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
+                        if (!Db::getInstance()->getRow($sql, false)) {
+                            $optimizied = Db::getInstance()->getValue('SELECT id_' . bqSQL($table) . ' FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '"', false);
+                            if ($size_old = Ets_superspeed_compressor_image::createBlogImage($path, $object[$type])) {
+                                if (self::checkOptimizeImageResmush())
+                                    $url_image = $this->getLinkTable('blog_' . $table, $type) . $object[$type];
+                                else
+                                    $url_image = null;
+                                $compress = $this->compress($path, $object[$type], $quality, $url_image, false);
+                                while ($compress === false)
                                     $compress = $this->compress($path, $object[$type], $quality, $url_image, false);
-                                    while ($compress === false)
-                                        $compress = $this->compress($path, $object[$type], $quality, $url_image, false);
 
-                                    if (!$optimizied) {
-                                        Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type,`' . bqSQL($type) . '`) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type) . '","' . (int)$quality . '","' . (float)$size_old . '","' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '","' . pSQl($compress['optimize_type']) . '","' . pSQL($object[$type]) . '")');
-                                    } else
-                                        Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="' . (float)$size_old . '",size_new="' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '",optimize_type="' . pSQL($compress['optimize_type']) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND `' . bqSQL($type) . '` = "' . pSQL($object[$type]) . '"');
-                                    $this->_saveTotalImageOpimized($path . $object[$type]);
-                                } else {
-                                    if (!$optimizied) {
-                                        Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type,`' . (pSQL($type)) . '`) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type) . '","' . (int)$quality . '","0","0","' . pSQl($optmize_script) . '","' . pSQL($object[$type]) . '")');
-                                    } else
-                                        Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="0",size_new="0",optimize_type="' . pSQL($optmize_script) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '" ');
-                                }
-                            } elseif (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'tynypng' && !Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE quality="' . (int)$quality . '" AND id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '" ')) {
-                                Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '"');
+                                if (!$optimizied) {
+                                    Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type,`' . bqSQL($type) . '`) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type) . '","' . (int)$quality . '","' . (float)$size_old . '","' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '","' . pSQl($compress['optimize_type']) . '","' . pSQL($object[$type]) . '")');
+                                } else
+                                    Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="' . (float)$size_old . '",size_new="' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '",optimize_type="' . pSQL($compress['optimize_type']) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND `' . bqSQL($type) . '` = "' . pSQL($object[$type]) . '"');
                                 $this->_saveTotalImageOpimized($path . $object[$type]);
+                            } else {
+                                if (!$optimizied) {
+                                    Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type,`' . (pSQL($type)) . '`) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type) . '","' . (int)$quality . '","0","0","' . pSQl($optmize_script) . '","' . pSQL($object[$type]) . '")');
+                                } else
+                                    Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="0",size_new="0",optimize_type="' . pSQL($optmize_script) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '" ');
                             }
+                        } elseif (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'tynypng' && !Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE quality="' . (int)$quality . '" AND id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '" ')) {
+                            Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND ' . bqSQL($type) . ' = "' . pSQL($object[$type]) . '"');
+                            $this->_saveTotalImageOpimized($path . $object[$type]);
                         }
                     }
                 }
@@ -1036,53 +970,51 @@ class Ets_superspeed_compressor_image
         else
             $types = explode(',', Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_IMAGE_BLOG_' . Tools::strtoupper($table) . '_TYPE'));
         $ok = false;
-        if ($types) {
-            foreach ($types as $type) {
-                if ($type) {
-                    if ($type == 'thumb')
-                        $path .= 'thumb/';
-                    $ETS_SPEED_UPDATE_QUALITY = (int)Ets_superspeed::getQantityOptimize();
-                    if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
-                        $end_quality = ' AND quality!=100';
-                    else
-                        $end_quality = ($optmize_script != 'tynypng' || $quality == 100 || !$ETS_SPEED_UPDATE_QUALITY ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
-                    $objects = Db::getInstance()->executeS('SELECT bl.* FROM `' . _DB_PREFIX_ . 'ybc_blog_' . bqSQL($table) . '` bl
+        foreach ($types as $type) {
+            if ($type) {
+                if ($type == 'thumb')
+                    $path .= 'thumb/';
+                $ETS_SPEED_UPDATE_QUALITY = (int)Ets_superspeed::getQantityOptimize();
+                if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
+                    $end_quality = ' AND quality!=100';
+                else
+                    $end_quality = ($optmize_script != 'tynypng' || $quality == 100 || !$ETS_SPEED_UPDATE_QUALITY ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
+                $objects = Db::getInstance()->executeS('SELECT bl.* FROM `' . _DB_PREFIX_ . 'ybc_blog_' . bqSQL($table) . '` bl
                     LEFT JOIN `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` bli ON type_image="' . pSQL($type) . '" AND bli.id_' . bqSQL($table) . '=bl.id_' . bqSQL($table) .(string) $end_quality . '
                     WHERE bli.id_' . bqSQL($table) . ' is NULL LIMIT 0,' . (int)$this->number_optimize);
-                    if ($objects) {
-                        $ok = true;
+                if ($objects) {
+                    $ok = true;
 
-                        foreach ($objects as $object) {
-                            if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
-                                $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND quality!=100';
-                            else
-                                $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"' . ($optmize_script != 'tynypng' || $quality == 100 ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
-                            if (!Db::getInstance()->getRow($sql)) {
+                    foreach ($objects as $object) {
+                        if ($ETS_SPEED_UPDATE_QUALITY && $quality != 100)
+                            $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '" AND quality!=100';
+                        else
+                            $sql = 'SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"' . ($optmize_script != 'tynypng' || $quality == 100 ? ' AND quality="' . (int)$quality . '"' : ' AND quality!=100') . ($quality != 100 ? ' AND optimize_type = "' . pSQL($optmize_script) . '"' : '');
+                        if (!Db::getInstance()->getRow($sql)) {
 
-                                $optimizied = Db::getInstance()->getValue('SELECT id_' . bqSQL($table) . ' FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"', false);
-                                if ($size_old = Ets_superspeed_compressor_image::createBlogImage($path, $object[$type])) {
-                                    if (self::checkOptimizeImageResmush())
-                                        $url_image = $this->getLinkTable('blog_' . $table, $type) . $object[$type];
-                                    else
-                                        $url_image = null;
+                            $optimizied = Db::getInstance()->getValue('SELECT id_' . bqSQL($table) . ' FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"', false);
+                            if ($size_old = Ets_superspeed_compressor_image::createBlogImage($path, $object[$type])) {
+                                if (self::checkOptimizeImageResmush())
+                                    $url_image = $this->getLinkTable('blog_' . $table, $type) . $object[$type];
+                                else
+                                    $url_image = null;
+                                $compress = $this->compress($path, $object[$type], $quality, $url_image, false);
+                                while ($compress === false)
                                     $compress = $this->compress($path, $object[$type], $quality, $url_image, false);
-                                    while ($compress === false)
-                                        $compress = $this->compress($path, $object[$type], $quality, $url_image, false);
-                                    if (!$optimizied) {
-                                        Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type) . '","' . (int)$quality . '","' . (float)$size_old . '","' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '","' . pSQl($compress['optimize_type']) . '")');
-                                    } else
-                                        Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="' . (float)$size_old . '",size_new="' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '",optimize_type="' . pSQL($compress['optimize_type']) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"');
-                                    $this->_saveTotalImageOpimized($path . $object[$type]);
-                                } else {
-                                    if (!$optimizied) {
-                                        Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type) . '","' . (int)$quality . '","0","0","' . pSQl($optmize_script) . '")');
-                                    } else
-                                        Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="0",size_new="0",optimize_type="' . pSQL($optmize_script) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"');
-                                }
-                            } elseif (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'tynypng' && !Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE quality="' . (int)$quality . '" AND id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"')) {
-                                Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"');
+                                if (!$optimizied) {
+                                    Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type) . '","' . (int)$quality . '","' . (float)$size_old . '","' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '","' . pSQl($compress['optimize_type']) . '")');
+                                } else
+                                    Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="' . (float)$size_old . '",size_new="' . ($compress['file_size'] < $size_old ? (float)$compress['file_size'] : (float)$size_old) . '",optimize_type="' . pSQL($compress['optimize_type']) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"');
                                 $this->_saveTotalImageOpimized($path . $object[$type]);
+                            } else {
+                                if (!$optimizied) {
+                                    Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` (id_' . bqSQL($table) . ',type_image,quality,size_old,size_new,optimize_type) VALUES("' . (int)$object['id_' . $table] . '","' . pSQL($type) . '","' . (int)$quality . '","0","0","' . pSQl($optmize_script) . '")');
+                                } else
+                                    Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '",size_old="0",size_new="0",optimize_type="' . pSQL($optmize_script) . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"');
                             }
+                        } elseif (Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_SCRIPT') == 'tynypng' && !Db::getInstance()->getRow('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` WHERE quality="' . (int)$quality . '" AND id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"')) {
+                            Db::getInstance()->execute('UPDATE `' . _DB_PREFIX_ . 'ets_superspeed_blog_' . bqSQL($table) . '_image` SET quality="' . (int)$quality . '" WHERE id_' . bqSQL($table) . ' = ' . (int)$object['id_' . $table] . ' AND type_image="' . pSQL($type) . '"');
+                            $this->_saveTotalImageOpimized($path . $object[$type]);
                         }
                     }
                 }
@@ -1105,6 +1037,7 @@ class Ets_superspeed_compressor_image
 
     public function optimiziSlideImage($all_type = false)
     {
+        /** @var Ets_superspeed $module */
         $module = Module::getInstanceByName('ets_superspeed');
         if ($all_type || Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_IMAGE_HOME_SLIDE_TYPE')) {
             $limit = (int)Tools::getValue('limit_optimized', 0);
@@ -1173,13 +1106,14 @@ class Ets_superspeed_compressor_image
 
     public function optimiziOthersImage($all_type)
     {
+        /** @var Ets_superspeed $module */
         $module = Module::getInstanceByName('ets_superspeed');
         $quality = (int)Configuration::getGlobalValue('ETS_SPEED_QUALITY_OPTIMIZE') ?: 90;
         if ($all_type)
             $types = array('logo', 'banner', 'themeconfig');
         else
             $types = explode(',', Configuration::getGlobalValue('ETS_SPEED_OPTIMIZE_IMAGE_OTHERS_TYPE'));
-        if ($types && Ets_superspeed_defines::getTotalImage('others', true, false, false, $all_type) - Ets_superspeed_defines::getTotalImage('others', true, true, false, $all_type) > 0) {
+        if (Ets_superspeed_defines::getTotalImage('others', true, false, false, $all_type) - Ets_superspeed_defines::getTotalImage('others', true, true, false, $all_type) > 0) {
             foreach ($types as $type) {
                 $images = array();
                 if ($type == 'logo') {
@@ -1190,7 +1124,7 @@ class Ets_superspeed_compressor_image
                     $languages = Language::getLanguages(false);
                     if ($this->is17) {
                         $path = _PS_MODULE_DIR_ . 'ps_banner/img/';
-                        if (Module::isInstalled('ps_banner') && Module::isEnabled('ps_banner')) {
+                        if (Ets_superspeed_defines::getIDModuleByName('ps_banner')) {
                             foreach ($languages as $language) {
                                 if (($image = Configuration::get('BANNER_IMG', $language['id_lang'])) && !in_array($image, $images))
                                     $images[] = $image;
@@ -1198,7 +1132,7 @@ class Ets_superspeed_compressor_image
                         }
                     } else {
                         $path = _PS_MODULE_DIR_ . 'blockbanner/img/';
-                        if (Module::isInstalled('blockbanner') && Module::isEnabled('blockbanner')) {
+                        if (Ets_superspeed_defines::getIDModuleByName('blockbanner')) {
                             foreach ($languages as $language) {
                                 if (($image = Configuration::get('BLOCKBANNER_IMG', $language['id_lang'])) && !in_array($image, $images))
                                     $images[] = $image;
@@ -1208,7 +1142,7 @@ class Ets_superspeed_compressor_image
                 } elseif ($type == 'themeconfig') {
 
                     $path = _PS_MODULE_DIR_ . 'themeconfigurator/img/';
-                    if (Module::isInstalled('themeconfigurator') && Module::isEnabled('themeconfigurator')) {
+                    if (Ets_superspeed_defines::getIDModuleByName('themeconfigurator')) {
                         $themeconfigurators = Db::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'themeconfigurator` WHERE image!="" GROUP BY image');
                         if ($themeconfigurators) {
                             foreach ($themeconfigurators as $themeconfigurator)
@@ -1287,6 +1221,7 @@ class Ets_superspeed_compressor_image
 
     protected function getPercentageSubmitImageOptimize($optimized_images, $total_optimize_images)
     {
+        /** @var Ets_superspeed $module */
         $module = Module::getInstanceByName('ets_superspeed');
         $total_optimizeed = (int)$total_optimizeed = (int)Configuration::get('ETS_SP_TOTAL_IMAGE_OPTIMIZED');
         if ($total_optimize_images && $total_optimizeed) {
@@ -1408,7 +1343,7 @@ class Ets_superspeed_compressor_image
                 $total['old'] +=$result['total_old'];
                 $total['new'] +=$result['total_new'];
             }
-            if(Module::isInstalled('ybc_blog'))
+            if(Ets_superspeed_defines::getIDModuleByName('ybc_blog'))
             {
                 if($result = Db::getInstance()->getRow('SELECT sum(size_old) as total_old,sum(size_new) as total_new FROM `'._DB_PREFIX_.'ets_superspeed_blog_post_image` WHERE size_new < size_old'.($check_quality ? ' AND quality="'.(int)$quality.'"' :' AND quality!=100')))
                 {
@@ -1531,9 +1466,8 @@ class Ets_superspeed_compressor_image
         );
     }
 
-    public static function getImagesProductUnUsed($delete = false)
+    public static function getImagesProductUnUsed($delete, $shop_id)
     {
-        $shop_id = (int)Context::getContext()->shop->id;
         $sql = 'SELECT i.id_image 
             FROM `' . _DB_PREFIX_ . 'image` i
             INNER JOIN `' . _DB_PREFIX_ . 'image_shop` ims ON (i.id_image = ims.id_image)
@@ -1905,7 +1839,7 @@ class Ets_superspeed_compressor_image
         if(!Cache::isStored($cache_key))
         {
             $total = Db::getInstance()->getValue('SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'image`');
-            if (Module::isInstalled('ets_multilangimages') && Module::isEnabled('ets_multilangimages')) {
+            if (Ets_superspeed_defines::getIDModuleByName('ets_multilangimages')) {
                 $total += Db::getInstance()->getValue('SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'ets_image_lang`');
             }
             Cache::store($cache_key,$total);

@@ -21,13 +21,14 @@
 if (!defined('_PS_VERSION_')) { exit; }
 function upgrade_module_1_2_3($object)
 {
-    if(!Tab::getIdFromClassName('AdminSuperSpeedAjax'))
+    $tab = Tab::getInstanceFromClassName('AdminSuperSpeedAjax');
+    if(!$tab->id)
     {
-        $tab = new Tab();
+        $tabParent = Tab::getInstanceFromClassName('AdminSuperSpeed');
         $tab->class_name = 'AdminSuperSpeedAjax';
         $tab->module = $object->name;
-        $tab->id_parent = (int)Tab::getIdFromClassName('AdminSuperSpeed');
-        $tab->active=0;
+        $tab->id_parent = (int)$tabParent->id;
+        $tab->active = false ;
         foreach (Language::getLanguages(false) as $lang) {
             $tab->name[$lang['id_lang']] = $object->getTextLang('Ajax speed', $lang, 'upgrade-1.2.3') ?: $object->l('Ajax speed','upgrade-1.2.3');
         }

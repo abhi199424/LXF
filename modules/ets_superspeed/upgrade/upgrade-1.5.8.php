@@ -19,25 +19,21 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
-
+/**
+ * @param Ets_superspeed $module
+ * @return true
+ * @throws PrestaShopException
+ */
 function upgrade_module_1_5_8($module)
 {
-    try{
-        Configuration::updateGlobalValue('ETS_AUTO_DELETE_CACHE_WHEN_UPDATE_OBJ',1);
-        $module->registerHook('actionCartUpdateQuantityBefore');
-        $module->registerHook('actionObjectProductInCartDeleteAfter');
-        Db::getInstance()->execute(' ALTER TABLE `ets_superspeed_cache_page` DROP INDEX `date_add`');
-        Ets_superspeed_defines::createIndexDataBase();
-        $module->uninstallOverrides();
-        $module->installOverrides();
-        if(file_exists((__FILE__) . '/../cronjob_log.txt'))
-            @unlink((__FILE__) . '/../cronjob_log.txt');
-        return true;
-    }
-    catch(Exception $ex){
-        if($ex){
-            //
-        }
-    }
+    Configuration::updateGlobalValue('ETS_AUTO_DELETE_CACHE_WHEN_UPDATE_OBJ',1);
+    $module->registerHook('actionCartUpdateQuantityBefore');
+    $module->registerHook('actionObjectProductInCartDeleteAfter');
+    Db::getInstance()->execute(' ALTER TABLE `ets_superspeed_cache_page` DROP INDEX `date_add`');
+    Ets_superspeed_defines::createIndexDataBase();
+    $module->uninstallOverrides();
+    $module->installOverrides();
+    if(file_exists((__FILE__) . '/../cronjob_log.txt'))
+        @unlink((__FILE__) . '/../cronjob_log.txt');
     return true;
 }

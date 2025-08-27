@@ -29,7 +29,6 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
     public function __construct()
     {
        parent::__construct();
-       $this->context= Context::getContext();
        $this->bootstrap = true;
     }
     public function initContent()
@@ -47,7 +46,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                 die(
                     json_encode(
                         array(
-                            'success' => $this->l('Deleted successfully'),
+                            'success' => $this->module->l('Deleted successfully', 'AdminSuperSpeedPageCachesController'),
                         )
                     )
                 );
@@ -60,7 +59,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
             die(
                 json_encode(
                     array(
-                        'success' => $this->l('Updated successfully'),
+                        'success' => $this->module->l('Updated successfully', 'AdminSuperSpeedPageCachesController'),
                     )
                 )
             );
@@ -72,7 +71,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                 die(
                     json_encode(
                         array(
-                            'success' => $this->l('Deleted successfully'),
+                            'success' => $this->module->l('Deleted successfully', 'AdminSuperSpeedPageCachesController'),
                         )
                     )
                 );
@@ -85,19 +84,19 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
             die(
                 json_encode(
                     array(
-                        'success' => $this->l('Updated successfully'),
+                        'success' => $this->module->l('Updated successfully', 'AdminSuperSpeedPageCachesController'),
                     )
                 )
             );
         }
         if(Tools::isSubmit('deleteAllCache'))
         {
-            if(Ets_superspeed_cache_page::deleteAllCache())
+            if(Ets_superspeed_cache_page::deleteAllCache($this->context))
             {
                 die(
                     json_encode(
                         array(
-                            'success' => $this->l('Deleted successfully'),
+                            'success' => $this->module->l('Deleted successfully', 'AdminSuperSpeedPageCachesController'),
                         )
                     )
                 );
@@ -117,7 +116,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                 die(
                     json_encode(
                         array(
-                            'success' => $this->l('Updated successfully')
+                            'success' => $this->module->l('Updated successfully', 'AdminSuperSpeedPageCachesController')
                         )
                     )
                 );
@@ -125,7 +124,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                 die(
                     json_encode(
                         array(
-                            'errors' => $this->l('Exception is not valid'),
+                            'errors' => $this->module->l('Exception is not valid', 'AdminSuperSpeedPageCachesController'),
                         )
                     )
                 );
@@ -141,7 +140,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                 die(
                     json_encode(
                         array(
-                            'success' => $this->module->displaySuccessMessage($this->l('Successfully saved')),
+                            'success' => $this->module->displaySuccessMessage($this->module->l('Successfully saved', 'AdminSuperSpeedPageCachesController')),
                         )
                     )
                 );
@@ -163,7 +162,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
         $fields_form = array(
             'form' => array(
                 'legend' => array(
-                    'title' => $this->l('Page cache'),
+                    'title' => $this->module->l('Page cache', 'AdminSuperSpeedPageCachesController'),
                     'icon' => 'icon-envelope'
                 ),
                 'input' => $inputs,
@@ -217,20 +216,20 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
     {
         $fields_list = array(
             'page_name' => array(
-                'title' => $this->l('Page'),
+                'title' => $this->module->l('Page', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
                 'strip_tag' => false,
             ),
             'reason' => array(
-                'title' => $this->l('Reason'),
+                'title' => $this->module->l('Reason', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
             ),
             'date_add' => array(
-                'title' => $this->l('Date deleted'),
+                'title' => $this->module->l('Date deleted', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'date',
                 'sort' => true,
                 'filter' => true,
@@ -282,9 +281,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
         $sql_sort = $sort . ' ' . $sort_type;
 
         $pagination->url = $this->context->link->getAdminLink('AdminSuperSpeedPageCaches', true) .
-            '&current_tab=page-list-log-clear-history&page=_page_' .
-            ($sort ? '&sort=' . $sort : '') .
-            ($sort_type ? '&sort_type=' . $sort_type : '') .
+            '&current_tab=page-list-log-clear-history&page=_page_&sort=' .$sort. '&sort_type=' .$sort_type.
             $this->module->getFilterParams($fields_list, 'clear_history');
 
         $pagination->limit = 20;
@@ -293,17 +290,17 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
         $pagination->page = $page;
 
         $start = max(0, (int)$pagination->limit * ((int)$page - 1));
-        $pagination->text = $this->l('Showing {start} to {end} of {total} ({pages} Pages)');
+        $pagination->text = $this->module->l('Showing {start} to {end} of {total} ({pages} Pages)', 'AdminSuperSpeedPageCachesController');
         $file_caches = Ets_superspeed_cache_page_log::getListLogs($start, $pagination->limit, $sql_sort, $filter);
         $listData = array(
             'name' => 'clear_history',
             'icon' => 'fa fa-product',
             'actions' => array(),
-            'currentIndex' => Context::getContext()->link->getAdminLink('AdminSuperSpeedPageCaches') . '&current_tab=page-list-log-clear-history',
+            'currentIndex' => $this->context->link->getAdminLink('AdminSuperSpeedPageCaches') . '&current_tab=page-list-log-clear-history',
             'identifier' => 'id_ets_superspeed_cache_page_log',
             'show_toolbar' => true,
             'show_action' => true,
-            'title' => $this->l('Clearing cache history'),
+            'title' => $this->module->l('Clearing cache history', 'AdminSuperSpeedPageCachesController'),
             'fields_list' => $fields_list,
             'field_values' => $file_caches,
             'pagination' => $pagination->render(),
@@ -323,45 +320,45 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
     {
         $fields_list = array(
             'request_uri' => array(
-                'title' => $this->l('URL'),
+                'title' => $this->module->l('URL', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
                 'strip_tag' => false,
             ),
             'lang_name' => array(
-                'title' => $this->l('Language'),
+                'title' => $this->module->l('Language', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
             ),
             'iso_code' => array(
-                'title' => $this->l('Currency'),
+                'title' => $this->module->l('Currency', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => false,
                 'filter' => true,
             ),
             'country_name' => array(
-                'title' => $this->l('Country'),
+                'title' => $this->module->l('Country', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
             ),
             'ip' => array(
-                'title' => $this->l('IP'),
+                'title' => $this->module->l('IP', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
                 'strip_tag' => false,
             ),
             'user_agent' => array(
-                'title' => $this->l('Agent'),
+                'title' => $this->module->l('Agent', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => false,
                 'filter' => false,
             ),
             'has_customer' => array(
-                'title' => $this->l('Sign in'),
+                'title' => $this->module->l('Sign in', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'select',
                 'sort' => true,
                 'filter' => true,
@@ -369,13 +366,13 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                     'id_option' => 'active',
                     'value' => 'title',
                     'list' => array(
-                        array('active' => 0, 'title' => $this->l('No')),
-                        array('active' => 1, 'title' => $this->l('Yes'))
+                        array('active' => 0, 'title' => $this->module->l('No', 'AdminSuperSpeedPageCachesController')),
+                        array('active' => 1, 'title' => $this->module->l('Yes', 'AdminSuperSpeedPageCachesController'))
                     )
                 )
             ),
             'has_cart' => array(
-                'title' => $this->l('Has cart'),
+                'title' => $this->module->l('Has cart', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'select',
                 'sort' => true,
                 'filter' => true,
@@ -383,19 +380,19 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                     'id_option' => 'active',
                     'value' => 'title',
                     'list' => array(
-                        array('active' => 0, 'title' => $this->l('No')),
-                        array('active' => 1, 'title' => $this->l('Yes'))
+                        array('active' => 0, 'title' => $this->module->l('No', 'AdminSuperSpeedPageCachesController')),
+                        array('active' => 1, 'title' => $this->module->l('Yes', 'AdminSuperSpeedPageCachesController'))
                     )
                 )
             ),
             'error' => array(
-                'title' => $this->l('Error'),
+                'title' => $this->module->l('Error', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => false,
             ),
             'date_add' => array(
-                'title' => $this->l('Date created'),
+                'title' => $this->module->l('Date created', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'date',
                 'sort' => true,
                 'filter' => false,
@@ -411,7 +408,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
             $show_reset = true;
         }
 
-        $totalRecords = (int)Ets_superspeed_cache_page_error::getTotalPageNoCaches($filter);
+        $totalRecords = (int)Ets_superspeed_cache_page_error::getTotalPageNoCaches($filter, $this->context);
         $pagination = new Ets_superspeed_pagination_class();
         $pagination->total = $totalRecords;
 
@@ -426,20 +423,20 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
         $page = min($page, $totalPages);
         $pagination->page = $page;
         $start = max(0, (int)$pagination->limit * ((int)$page - 1));
-        $pagination->text = $this->l('Showing {start} to {end} of {total} ({pages} Pages)');
+        $pagination->text = $this->module->l('Showing {start} to {end} of {total} ({pages} Pages)', 'AdminSuperSpeedPageCachesController');
 
-        $file_caches = Ets_superspeed_cache_page_error::getListPageNoCaches($start, $pagination->limit, $sql_sort, $filter);
+        $file_caches = Ets_superspeed_cache_page_error::getListPageNoCaches($start, $pagination->limit, $sql_sort, $filter, $this->context);
         $file_caches = $this->processFileCaches($file_caches);
 
         $listData = array(
             'name' => 'file_no_caches',
             'icon' => 'fa fa-product',
             'actions' => array(),
-            'currentIndex' => Context::getContext()->link->getAdminLink('AdminSuperSpeedPageCaches') . '&current_tab=page-list-no-caches',
+            'currentIndex' => $this->context->link->getAdminLink('AdminSuperSpeedPageCaches') . '&current_tab=page-list-no-caches',
             'identifier' => 'id_cache_page',
             'show_toolbar' => true,
             'show_action' => true,
-            'title' => $this->l('List of cache errors'),
+            'title' => $this->module->l('List of cache errors', 'AdminSuperSpeedPageCachesController'),
             'fields_list' => $fields_list,
             'field_values' => $file_caches,
             'pagination' => $pagination->render(),
@@ -524,17 +521,17 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
         if ($file_caches) {
             foreach ($file_caches as &$file_cache) {
                 $file_cache['date_add'] = Ets_superspeed_defines::displayText(
-                    $this->module->convertTime(strtotime(date('Y-m-d H:i:s')) - strtotime($file_cache['date_add'])) . ' ' . $this->l('ago'),
+                    $this->module->convertTime(strtotime(date('Y-m-d H:i:s')) - strtotime($file_cache['date_add'])) . ' ' . $this->module->l('ago', 'AdminSuperSpeedPageCachesController'),
                     'span',
-                    array('title' => Ets_ss_class_cache::displayDate($file_cache['date_add'], true))
+                    array('title' => Ets_ss_class_cache::displayDate($file_cache['date_add'], true, $this->context))
                 );
                 $file_cache['request_uri'] = Ets_superspeed_defines::displayText(
                     $file_cache['request_uri'],
                     'a',
                     array('href' => '/..' . $file_cache['request_uri'], 'target' => '_blank')
                 );
-                $file_cache['has_cart'] = $file_cache['has_cart'] ? $this->l('Yes') : $this->l('No');
-                $file_cache['has_customer'] = $file_cache['has_customer'] ? $this->l('Yes') : $this->l('No');
+                $file_cache['has_cart'] = $file_cache['has_cart'] ? $this->module->l('Yes', 'AdminSuperSpeedPageCachesController') : $this->module->l('No', 'AdminSuperSpeedPageCachesController');
+                $file_cache['has_customer'] = $file_cache['has_customer'] ? $this->module->l('Yes', 'AdminSuperSpeedPageCachesController') : $this->module->l('No', 'AdminSuperSpeedPageCachesController');
                 $file_cache['ip'] = Ets_superspeed_defines::displayText(
                     $file_cache['ip'],
                     'a',
@@ -548,63 +545,63 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
     {
         $fields_list = array(
             'id_cache_page' => array(
-                'title' => $this->l('ID'),
+                'title' => $this->module->l('ID', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
             ),
             'request_uri' => array(
-                'title' => $this->l('URL'),
+                'title' => $this->module->l('URL', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
                 'strip_tag' => false,
             ),
             'lang_name'=>array(
-                'title' => $this->l('Language'),
+                'title' => $this->module->l('Language', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
             ),
             'iso_code'=>array(
-                'title' => $this->l('Currency'),
+                'title' => $this->module->l('Currency', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => false,
                 'filter' => true,
             ),
             'country_name' => array(
-                'title' => $this->l('Country'),
+                'title' => $this->module->l('Country', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
             ),
             'file_size' => array(
-                'title' => $this->l('Size'),
+                'title' => $this->module->l('Size', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => false,
             ),
             'click' => array(
-                'title' => $this->l('Cache hit'),
+                'title' => $this->module->l('Cache hit', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => false,
             ),
             'ip' => array(
-                'title' => $this->l('IP'),
+                'title' => $this->module->l('IP', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => true,
                 'filter' => true,
                 'strip_tag' => false,
             ),
             'user_agent' => array(
-                'title' => $this->l('Agent'),
+                'title' => $this->module->l('Agent', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'text',
                 'sort' => false,
                 'filter' => false,
             ),
             'has_customer' => array(
-                'title' => $this->l('Sign in'),
+                'title' => $this->module->l('Sign in', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'select',
                 'sort' => true,
                 'filter' => true,
@@ -614,17 +611,17 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                     'list' => array(
                         array(
                             'active' => 0,
-                            'title' => $this->l('No')
+                            'title' => $this->module->l('No', 'AdminSuperSpeedPageCachesController')
                         ),
                         array(
                             'active' => 1,
-                            'title' => $this->l('Yes')
+                            'title' => $this->module->l('Yes', 'AdminSuperSpeedPageCachesController')
                         )
                     )
                 )
             ),
             'has_cart' => array(
-                'title' => $this->l('Has cart'),
+                'title' => $this->module->l('Has cart', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'select',
                 'sort' => true,
                 'filter' => true,
@@ -634,23 +631,23 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                     'list' => array(
                         array(
                             'active' => 0,
-                            'title' => $this->l('No')
+                            'title' => $this->module->l('No', 'AdminSuperSpeedPageCachesController')
                         ),
                         array(
                             'active' => 1,
-                            'title' => $this->l('Yes')
+                            'title' => $this->module->l('Yes', 'AdminSuperSpeedPageCachesController')
                         )
                     )
                 )
             ),
             'date_expired' => array(
-                'title' => $this->l('Date expired'),
+                'title' => $this->module->l('Date expired', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'date',
                 'sort' => true,
                 'filter' => false,
             ),
             'date_add' => array(
-                'title' => $this->l('Date created'),
+                'title' => $this->module->l('Date created', 'AdminSuperSpeedPageCachesController'),
                 'type' => 'date',
                 'sort' => true,
                 'filter' => false,
@@ -696,7 +693,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
             }
         }
 
-        $totalRecords = (int)Ets_superspeed_cache_page::getTotalPageCaches($filter);
+        $totalRecords = (int)Ets_superspeed_cache_page::getTotalPageCaches($filter, $this->context);
         $pagination = new Ets_superspeed_pagination_class();
         $pagination->total = $totalRecords;
 
@@ -736,7 +733,7 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
             $sql_sort .= ' ' . $sort_type;
         }
 
-        $pagination->url = $this->context->link->getAdminLink('AdminSuperSpeedPageCaches', true) . '&current_tab=page-list-caches&page=_page_'.($sort ? '&sort='.$sort: '').($sort_type ? '&sort_type='.$sort_type:'').$this->module->getFilterParams($fields_list, 'file_caches');
+        $pagination->url = $this->context->link->getAdminLink('AdminSuperSpeedPageCaches', true) . '&current_tab=page-list-caches&page=_page_&sort='.$sort.'&sort_type='.$sort_type.$this->module->getFilterParams($fields_list, 'file_caches');
         $pagination->limit = 20;
         $totalPages = ceil($totalRecords / $pagination->limit);
         if ($page > $totalPages) {
@@ -745,9 +742,9 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
         $pagination->page = $page;
         $start = (int)$pagination->limit * ((int)$page - 1);
         $start = max(0, $start);
-        $pagination->text = $this->l('Showing {start} to {end} of {total} ({pages} Pages)');
+        $pagination->text = $this->module->l('Showing {start} to {end} of {total} ({pages} Pages)', 'AdminSuperSpeedPageCachesController');
 
-        $file_caches = Ets_superspeed_cache_page::getListPageCaches($start, $pagination->limit, $sql_sort, $filter);
+        $file_caches = Ets_superspeed_cache_page::getListPageCaches($start, $pagination->limit, $sql_sort, $filter, $this->context);
 
         if ($file_caches) {
             foreach ($file_caches as &$file_cache) {
@@ -757,17 +754,17 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
                 }
                 if ($file_cache['date_expired'] && $file_cache['date_expired'] != '0000-00-00 00:00:00') {
                     $time = strtotime($file_cache['date_expired']) - strtotime(date('Y-m-d H:i:s'));
-                    $file_cache['date_expired'] = Ets_superspeed_defines::displayText(($time > 0 ? $this->module->convertTime($time) : $this->l('Expired')), 'span', array('title' => Ets_ss_class_cache::displayDate($file_cache['date_expired'], true)));
+                    $file_cache['date_expired'] = Ets_superspeed_defines::displayText(($time > 0 ? $this->module->convertTime($time) : $this->module->l('Expired', 'AdminSuperSpeedPageCachesController')), 'span', array('title' => Ets_ss_class_cache::displayDate($file_cache['date_expired'], true, $this->context)));
                     if ($time <= 0) {
                         $file_cache['expired'] = true;
                     }
                 } else {
-                    $file_cache['date_expired'] = $this->l('Forever');
+                    $file_cache['date_expired'] = $this->module->l('Forever', 'AdminSuperSpeedPageCachesController');
                 }
-                $file_cache['date_add'] = Ets_superspeed_defines::displayText($this->module->convertTime(strtotime(date('Y-m-d H:i:s')) - strtotime($file_cache['date_add'])) . ' ' . $this->l('ago'), 'span', array('title' => Ets_ss_class_cache::displayDate($file_cache['date_add'], true)));
+                $file_cache['date_add'] = Ets_superspeed_defines::displayText($this->module->convertTime(strtotime(date('Y-m-d H:i:s')) - strtotime($file_cache['date_add'])) . ' ' . $this->module->l('ago', 'AdminSuperSpeedPageCachesController'), 'span', array('title' => Ets_ss_class_cache::displayDate($file_cache['date_add'], true, $this->context)));
                 $file_cache['request_uri'] = Ets_superspeed_defines::displayText($file_cache['request_uri'], 'a', array('href' => '/..' . htmlspecialchars($file_cache['request_uri'], ENT_QUOTES, 'UTF-8'), 'target' => '_blank'));
-                $file_cache['has_cart'] = $file_cache['has_cart'] ? $this->l('Yes') : $this->l('No');
-                $file_cache['has_customer'] = $file_cache['has_customer'] ? $this->l('Yes') : $this->l('No');
+                $file_cache['has_cart'] = $file_cache['has_cart'] ? $this->module->l('Yes', 'AdminSuperSpeedPageCachesController') : $this->module->l('No', 'AdminSuperSpeedPageCachesController');
+                $file_cache['has_customer'] = $file_cache['has_customer'] ? $this->module->l('Yes', 'AdminSuperSpeedPageCachesController') : $this->module->l('No', 'AdminSuperSpeedPageCachesController');
                 $file_cache['ip'] = Ets_superspeed_defines::displayText($file_cache['ip'], 'a', array('href' => 'https://www.infobyip.com/ip-' . htmlspecialchars($file_cache['ip'], ENT_QUOTES, 'UTF-8') . '.html', 'target' => '_blank'));
             }
         }
@@ -776,11 +773,11 @@ class AdminSuperSpeedPageCachesController extends ModuleAdminController
             'name' => 'file_caches',
             'icon' => 'fa fa-product',
             'actions' => array(),
-            'currentIndex' => Context::getContext()->link->getAdminLink('AdminSuperSpeedPageCaches') . '&current_tab=page-list-caches',
+            'currentIndex' => $this->context->link->getAdminLink('AdminSuperSpeedPageCaches') . '&current_tab=page-list-caches',
             'identifier' => 'id_cache_page',
             'show_toolbar' => true,
             'show_action' => true,
-            'title' => $this->l('Cached urls'),
+            'title' => $this->module->l('Cached urls', 'AdminSuperSpeedPageCachesController'),
             'fields_list' => $fields_list,
             'field_values' => $file_caches,
             'pagination' => $pagination->render(),

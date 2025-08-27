@@ -19,12 +19,16 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
+
+/**
+ * class AdminSuperSpeedGzipController
+ * @property Ets_superspeed $module
+ */
 class AdminSuperSpeedGzipController extends ModuleAdminController
 {
     public function __construct()
     {
        parent::__construct();
-       $this->context= Context::getContext();
        $this->bootstrap = true;
     }
     public function initContent()
@@ -46,12 +50,12 @@ class AdminSuperSpeedGzipController extends ModuleAdminController
         $fields_form = array(
             'form' => array(
                 'legend' => array(
-                    'title' => $this->l('GZIP & browser cache'),
+                    'title' => $this->module->l('GZIP & browser cache', 'AdminSuperSpeedGzipController'),
                     'icon' => 'icon-envelope'
                 ),
                 'input' => $config_gzip,
                 'submit' => array(
-                    'title' => $this->l('Save'),
+                    'title' => $this->module->l('Save', 'AdminSuperSpeedGzipController'),
                 )
             ),
         );

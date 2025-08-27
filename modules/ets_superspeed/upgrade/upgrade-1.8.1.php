@@ -24,20 +24,6 @@ if (!defined('_PS_VERSION_')) { exit; }
  */
 function upgrade_module_1_8_1($module)
 {
-    try{
-
-        $sqls = array(
-            'ALTER TABLE `'._DB_PREFIX_.'ets_superspeed_cache_page_log` CHANGE `page` `page` VARCHAR(200)'
-        );
-        foreach($sqls as $sql)
-        {
-            Db::getInstance()->execute($sql);
-        }
-    }
-    catch(Exception $ex){
-        if($ex){
-            //
-        }
-    }
+    Db::getInstance()->execute('ALTER TABLE `'._DB_PREFIX_.'ets_superspeed_cache_page_log` CHANGE `page` `page` VARCHAR(200)');
     return true;
 }

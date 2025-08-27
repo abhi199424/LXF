@@ -19,12 +19,16 @@
  */
  
 if (!defined('_PS_VERSION_')) { exit; }
+
+/**
+ * class AdminSuperSpeedDatabaseController
+ * @property Ets_superspeed $module
+ */
 class AdminSuperSpeedDatabaseController extends ModuleAdminController
 {
     public function __construct()
     {
        parent::__construct();
-       $this->context= Context::getContext();
        $this->bootstrap = true;
     }
     public function initContent()
@@ -145,7 +149,7 @@ class AdminSuperSpeedDatabaseController extends ModuleAdminController
                 die(
                 json_encode(
                     array(
-                        'success' => $this->module->displaySuccessMessage($this->l('Deleted data successfully')),
+                        'success' => $this->module->displaySuccessMessage($this->module->l('Deleted data successfully', 'AdminSuperSpeedDatabaseController')),
                     )
                 )
                 );
@@ -166,7 +170,7 @@ class AdminSuperSpeedDatabaseController extends ModuleAdminController
             die(
                 json_encode(
                     array(
-                        'success' => $this->module->displaySuccessMessage($this->l('Deleted all data successfully')),
+                        'success' => $this->module->displaySuccessMessage($this->module->l('Deleted all data successfully', 'AdminSuperSpeedDatabaseController')),
                     )
                 )
             );

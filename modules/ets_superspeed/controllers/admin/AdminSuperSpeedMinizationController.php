@@ -19,12 +19,15 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
+/**
+ * Class AdminSuperSpeedMinizationController
+ * @property Ets_superspeed $module;
+ */
 class AdminSuperSpeedMinizationController extends ModuleAdminController
 {
     public function __construct()
     {
        parent::__construct();
-       $this->context= Context::getContext();
        $this->bootstrap = true;
     }
     public function initContent()
@@ -46,12 +49,12 @@ class AdminSuperSpeedMinizationController extends ModuleAdminController
         $fields_form = array(
             'form' => array(
                 'legend' => array(
-                    'title' => $this->l('Server cache and minification'),
+                    'title' => $this->module->l('Server cache and minification', 'AdminSuperSpeedMinizationController'),
                     'icon' => 'icon-envelope'
                 ),
                 'input' => $inputs,
                 'submit' => array(
-                    'title' => $this->l('Save'),
+                    'title' => $this->module->l('Save', 'AdminSuperSpeedMinizationController'),
                 )
             ),
         );

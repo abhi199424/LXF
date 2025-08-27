@@ -7,8 +7,17 @@ html body:not(.adminstockmanagement):not(.adminpsthemecustoconfiguration):not(.a
 html body:not(.adminstockmanagement):not(.adminpsthemecustoconfiguration):not(.adminpsthemecustoadvanced):not(.adminmodulesmanage):not(.adminaccess) .bootstrap .row {
     margin: 0 -15px;
 }
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://fonts.gstatic.com/s/materialicons/v143/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+}
 .form-group.translatable-field {
     width: calc(100% + 30px);
+}
+.breadcrumb-container i.material-icons, .breadcrumb-current i.material-icons {
+    display: none;
 }
 :is(body:not(.no-smb-reskin)) .bootstrap a.btn-default.loading,
 html :is(body:not(.ps-bo-rebrand)):is(body:not(.no-smb-reskin)) .bootstrap a.btn-default.loading,

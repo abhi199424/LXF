@@ -58,11 +58,8 @@ function upgrade_module_1_7_4($module)
         `error` TEXT,
         `date_add` datetime NOT NULL, INDEX(file_cache),
         PRIMARY KEY (`id_ets_superspeed_cache_page_error`))  ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci';
-    if($sqls)
-    {
-        foreach($sqls as $sql)
-            Db::getInstance()->execute($sql);
-    }
+    foreach($sqls as $sql)
+        Db::getInstance()->execute($sql);
     Ets_ss_class_cache::getInstance()->deleteCache();
     $module->uninstallOverrides();
     $module->installOverrides();

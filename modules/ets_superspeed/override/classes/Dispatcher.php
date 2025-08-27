@@ -23,10 +23,9 @@ class Dispatcher extends DispatcherCore
 {
     public function dispatch() {
         if(Module::isEnabled('ets_superspeed')) {
-            $start_time = microtime(true);
-            Context::getContext()->ss_start_time = $start_time;
             if (@file_exists(dirname(__FILE__) . '/../../modules/ets_superspeed/ets_superspeed.php')) {
                 require_once(dirname(__FILE__) . '/../../modules/ets_superspeed/ets_superspeed.php');
+                Ets_superspeed::$start_time = microtime(true);
                 if ($cache = Ets_superspeed::displayContentCache(true)) {
                     echo $cache;
                     exit;

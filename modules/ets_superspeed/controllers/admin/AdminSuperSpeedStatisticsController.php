@@ -29,7 +29,6 @@ class AdminSuperSpeedStatisticsController extends ModuleAdminController
     public function __construct()
     {
        parent::__construct();
-       $this->context= Context::getContext();
        $this->bootstrap = true;
     }
     public function initContent()
@@ -38,7 +37,7 @@ class AdminSuperSpeedStatisticsController extends ModuleAdminController
         if(Tools::isSubmit('getTimeSpeed'))
         {
             $request_time = (float)Tools::getValue('request_time');
-            Ets_superspeed_cache_page::submitTimeSpeed($request_time);
+            Ets_superspeed_cache_page::submitTimeSpeed($request_time, $this->context->shop->id);
             $times= $this->getTimeSpeed(true);
             die(
                 json_encode(
@@ -67,7 +66,7 @@ class AdminSuperSpeedStatisticsController extends ModuleAdminController
     }
     public function getTimeSpeed($first = false)
     {
-        $times = Ets_superspeed_cache_page::getTimeSpeed();
+        $times = Ets_superspeed_cache_page::getTimeSpeed($this->context->shop->id);
         if ($first) {
             if ($times) {
                 return array(
@@ -121,7 +120,7 @@ class AdminSuperSpeedStatisticsController extends ModuleAdminController
     }
     public function getCacheSettingFieldsValues()
     {
-        $file_caches = Ets_superspeed_cache_page::getListFileCache(10);
+        $file_caches = Ets_superspeed_cache_page::getListFileCache($this->context->shop->id, 10);
         if($file_caches)
         {
             foreach($file_caches as &$file_cache)
@@ -172,7 +171,7 @@ class AdminSuperSpeedStatisticsController extends ModuleAdminController
         $total_unoptimized_images = $total_images - $total_optimized_images;
         $percent_optimized_images = $total_images ? Tools::ps_round(($total_optimized_images/$total_images)*100,2) :0;
         $percent_unoptimized_images= Tools::ps_round(100 - $percent_optimized_images,2);
-        $cache = Ets_superspeed_cache_page::getRowCache();
+        $cache = Ets_superspeed_cache_page::getRowCache($this->context->shop->id);
         $total_cache =  $cache && isset($cache['total_cache']) ? $cache['total_cache'] : 0;
         if($total_cache <1024)
         {
@@ -190,11 +189,11 @@ class AdminSuperSpeedStatisticsController extends ModuleAdminController
             }
         }
         $check_points = array();
-        $total_point = Ets_superspeed_defines::getHookTimeByFilter('AND pht.time >1',true);
+        $total_point = Ets_superspeed_defines::getHookTimeByFilter($this->context->shop->id, 'AND pht.time >1',true);
         $check_points[] = array(
-            'check_point' => $this->l('Number of module hooks have execution time greater than 1000 ms'),
+            'check_point' => $this->module->l('Number of module hooks have execution time greater than 1000 ms', 'AdminSuperSpeedStatisticsController'),
             'number_data' => $total_point ,
-            'status' => $total_point ? $this->l('Bad') : $this->l('Good'),
+            'status' => $total_point ? $this->module->l('Bad', 'AdminSuperSpeedStatisticsController') : $this->module->l('Good', 'AdminSuperSpeedStatisticsController'),
             'class_status' => $total_point ? 'status-bad' :'status-good',
         );
         $PS_CSS_THEME_CACHE = (int)Tools::getValue('PS_CSS_THEME_CACHE',Configuration::get('PS_CSS_THEME_CACHE'));

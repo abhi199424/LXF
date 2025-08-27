@@ -19,12 +19,15 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
+/**
+ * Class AdminSuperSpeedHelpsController
+ * @property Ets_superspeed $module;
+ */
 class AdminSuperSpeedHelpsController extends ModuleAdminController
 {
     public function __construct()
     {
        parent::__construct();
-       $this->context= Context::getContext();
        $this->bootstrap = true;
     }
     public function initContent()
@@ -41,7 +44,7 @@ class AdminSuperSpeedHelpsController extends ModuleAdminController
                     die(
                         json_encode(
                             array(
-                                'success' => $this->module->displaySuccessMessage($this->module->l('Secure token updated successfully')),
+                                'success' => $this->module->displaySuccessMessage($this->module->l('Secure token updated successfully', 'AdminSuperSpeedHelpsController')),
                                 'link_cronjob'=> $this->context->link->getAdminLink('AdminSuperSpeedAjax').'&submitRunCronJob=1&token=' . $ETS_SPEED_SUPER_TOCKEN,
                             )
                         )
@@ -52,7 +55,7 @@ class AdminSuperSpeedHelpsController extends ModuleAdminController
                     die(
                         json_encode(
                             array(
-                                'errors' => $this->module->displayError($this->module->l('Secure token is not valid')),
+                                'errors' => $this->module->displayError($this->module->l('Secure token is not valid', 'AdminSuperSpeedHelpsController')),
                             )
                         )
                     );
@@ -63,7 +66,7 @@ class AdminSuperSpeedHelpsController extends ModuleAdminController
                 die(
                     json_encode(
                         array(
-                            'errors' => $this->module->displayError($this->module->l('Token is required')),
+                            'errors' => $this->module->displayError($this->module->l('Token is required', 'AdminSuperSpeedHelpsController')),
                         )
                     )
                 );
@@ -87,16 +90,16 @@ class AdminSuperSpeedHelpsController extends ModuleAdminController
             $time = strtotime(date('Y-m-d H:i:s')) - $last_time;
             if($time  <= 86400) {
                 if ($hours = floor($time / 3600)) {
-                    $cronjob_last .= $hours . ' ' . $this->l('hours') . ' ';
+                    $cronjob_last .= $hours . ' ' . $this->module->l('hours', 'AdminSuperSpeedHelpsController') . ' ';
                     $time = $time % 3600;
                 }
                 if ($minutes = floor($time / 60)) {
-                    $cronjob_last .= $minutes . ' ' . $this->l('minutes') . ' ';
+                    $cronjob_last .= $minutes . ' ' . $this->module->l('minutes', 'AdminSuperSpeedHelpsController') . ' ';
                     $time = $time % 60;
                 }
                 if ($time)
-                    $cronjob_last .= $time . ' ' . $this->l('seconds') . ' ';
-                $cronjob_last .= $this->l('ago');
+                    $cronjob_last .= $time . ' ' . $this->module->l('seconds', 'AdminSuperSpeedHelpsController') . ' ';
+                $cronjob_last .= $this->module->l('ago', 'AdminSuperSpeedHelpsController');
             }
         }
         $this->context->smarty->assign(
@@ -107,7 +110,7 @@ class AdminSuperSpeedHelpsController extends ModuleAdminController
                 'ETS_SPEED_SUPER_TOCKEN' => Configuration::getGlobalValue('ETS_SPEED_SUPER_TOCKEN'),
                 'link_base' => $this->module->getBaseLink(),
                 'cronjob_last' => trim($cronjob_last, ', '),
-                'php_path' => (defined('PHP_BINDIR') && PHP_BINDIR && is_string(PHP_BINDIR) ? PHP_BINDIR.'/' : '').'php',
+                'php_path' => (defined('PHP_BINDIR') ? PHP_BINDIR.'/' : '').'php',
             )
         );
         return $this->module->display(_PS_MODULE_DIR_.$this->module->name.DIRECTORY_SEPARATOR.$this->module->name.'.php', 'helps.tpl');

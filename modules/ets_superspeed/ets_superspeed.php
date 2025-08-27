@@ -29,8 +29,6 @@ include_once(_PS_MODULE_DIR_ . 'ets_superspeed/classes/ets_superspeed_pagination
 include_once(_PS_MODULE_DIR_ . 'ets_superspeed/classes/ets_superspeed_compressor_image.php');
 include_once(_PS_MODULE_DIR_ . 'ets_superspeed/classes/ets_superspeed_upload_image.php');
 include_once(_PS_MODULE_DIR_ . 'ets_superspeed/classes/ets_superspeed_browse_image.php');
-if (!function_exists('ets_execute_php'))
-    include_once(_PS_MODULE_DIR_ . 'ets_superspeed/classes/ext/temp');
 if (!defined('_ETS_SPEED_CACHE_DIR_'))
     define('_ETS_SPEED_CACHE_DIR_', _PS_CACHE_DIR_ . 'ss_pagecache'.DIRECTORY_SEPARATOR);
 if (!defined('_ETS_SPEED_CACHE_DIR_IMAGES'))
@@ -38,6 +36,12 @@ if (!defined('_ETS_SPEED_CACHE_DIR_IMAGES'))
 if (!defined('_PS_YBC_BLOG_IMG_DIR_')) {
     define('_PS_YBC_BLOG_IMG_DIR_', _PS_IMG_DIR_ . 'ybc_blog/');
 }
+if(defined('_PS_PRODUCT_IMG_DIR_') && !defined('_PS_PROD_IMG_DIR_'))
+    define('_PS_PROD_IMG_DIR_',_PS_PRODUCT_IMG_DIR_);
+if (!defined('_PS_PRODL_IMG_DIR_'))
+    define('_PS_PRODL_IMG_DIR_',_PS_IMG_DIR_.'pl/');
+if (!defined('_THEME_PRODL_IMG_'))
+    define('_THEME_PRODL_IMG_',_PS_IMG_DIR_.'pl/');
 class Ets_superspeed extends Module
 {
     public $is17 = false;
@@ -49,11 +53,13 @@ class Ets_superspeed extends Module
     public $number_optimize = 1;
     public $_html ='';
     public $caches_deleted=array();
+    public static $start_time;
+    public static $query_count = 0;
     public function __construct()
     {
         $this->name = 'ets_superspeed';
         $this->tab = 'seo';
-        $this->version = '2.0.4';
+        $this->version = '2.0.5';
         $this->author = 'PrestaHero';
         $this->module_key = 'e1e4b552d9ac605082095fcb451f5bac';
         $this->need_instance = 0;
@@ -62,11 +68,11 @@ class Ets_superspeed extends Module
             $this->is17 = true;
         if (version_compare(_PS_VERSION_, '1.7', '<'))
             $this->is16 = true;
-        if (Module::isInstalled('ybc_blog') && Module::isEnabled('ybc_blog'))
+        if (Ets_superspeed_defines::getIDModuleByName('ybc_blog'))
             $this->isblog = true;
-        if ((Module::isInstalled('ps_imageslider') && Module::isEnabled('ps_imageslider')) || (Module::isInstalled('homeslider') && Module::isEnabled('homeslider')))
+        if (Ets_superspeed_defines::getIDModuleByName('ps_imageslider') || Ets_superspeed_defines::getIDModuleByName('homeslider'))
             $this->isSlide = true;
-        if ((Module::isInstalled('blockbanner') && Module::isEnabled('blockbanner')) || (Module::isInstalled('ps_banner') && Module::isEnabled('ps_banner')))
+        if (Ets_superspeed_defines::getIDModuleByName('blockbanner') || Ets_superspeed_defines::getIDModuleByName('ps_banner'))
             $this->isBanner = true;
         parent::__construct();
         $this->ps_versions_compliancy = array('min' => '1.6.0.6', 'max' => _PS_VERSION_);
@@ -88,14 +94,12 @@ class Ets_superspeed extends Module
     }
     public function install()
     {
-        if (Module::isInstalled('ets_pagecache')) {
+        if (Ets_superspeed_defines::getIDModuleByName('ets_pagecache')) {
             throw new PrestaShopException($this->l("The module Page Cache has been installed"));
         }
-        if (Module::isInstalled('ets_imagecompressor')) {
+        if (Ets_superspeed_defines::getIDModuleByName('ets_imagecompressor')) {
             throw new PrestaShopException($this->l("The module Total Image Optimization PRO has been installed"));
         }
-        if (Module::isInstalled('ets_pagecache') || Module::isInstalled('ets_imagecompressor'))
-            return false;
         $this->fixOverrideConflict();
         $this->_installDb();
         return parent::install() && $this->_installTab() && $this->_registerHook() && $this->_installDbDefault() && Ets_superspeed_defines::createIndexDataBase() && $this->hookActionHtaccessCreate();
@@ -149,12 +153,13 @@ class Ets_superspeed extends Module
                 }
             }
         }
-        if (!Tab::getIdFromClassName('AdminSuperSpeedAjax')) {
-            $tab = new Tab();
+        $tab = Tab::getInstanceFromClassName('AdminSuperSpeedAjax');
+        if (!$tab->id) {
             $tab->class_name = 'AdminSuperSpeedAjax';
             $tab->module = $this->name;
-            $tab->id_parent = Tab::getIdFromClassName('AdminSuperSpeed');
-            $tab->active = 0;
+            $tabParent = Tab::getInstanceFromClassName('AdminSuperSpeed');
+            $tab->id_parent = $tabParent->id;
+            $tab->active = false;
             foreach ($languages as $lang) {
                 $tab->name[$lang['id_lang']] = $this->getTextLang('Ajax speed', $lang) ?: $this->l('Ajax speed');
             }
@@ -170,7 +175,7 @@ class Ets_superspeed extends Module
             Ets_superspeed_defines::unlink(dirname(__FILE__) . '/views/js/script_custom.js');
         Configuration::updateGlobalValue('PS_TOKEN_ENABLE', 0);
         $hookHeaderId = Hook::getIdByName('displayHeader');
-        $this->updatePosition($hookHeaderId, 0, 1);
+        $this->updatePosition($hookHeaderId, false, 1);
 
         foreach (Ets_superspeed_defines::getInstance()->getFieldConfig('_config_gzip') as $config_zip) {
             if (isset($config_zip['default']))
@@ -265,28 +270,24 @@ class Ets_superspeed extends Module
         foreach (Ets_superspeed_defines::getInstance()->getFieldConfig('_admin_tabs') as $tab) {
             if (isset($tab['sub_menu']) && $tab['sub_menu']) {
                 foreach ($tab['sub_menu'] as $sub) {
-                    if (($tabId = Tab::getIdFromClassName($sub['class_name'])) ) {
-                        $tab_sub = new Tab($tabId);
-                        if ($tab_sub)
-                            $tab_sub->delete();
+                    $tabClass = Tab::getInstanceFromClassName($sub['class_name']);
+                    if ($tabClass->id) {
+                        $tabClass->delete();
                     }
                 }
             }
-            if (($tabId = Tab::getIdFromClassName($tab['class_name'])) ) {
-                $tab_class = new Tab($tabId);
-                if ($tab_class)
-                    $tab_class->delete();
+            $tabClass = Tab::getInstanceFromClassName($tab['class_name']);
+            if ($tabClass->id) {
+                $tabClass->delete();
             }
         }
-        if ($tabId = Tab::getIdFromClassName('AdminSuperSpeed')) {
-            $tab_class = new Tab($tabId);
-            if ($tab_class)
-                $tab_class->delete();
+        $tabClass = Tab::getInstanceFromClassName('AdminSuperSpeed');
+        if ($tabClass->id) {
+            $tabClass->delete();
         }
-        if ($tabId = Tab::getIdFromClassName('AdminSuperSpeedAjax')) {
-            $tab_class = new Tab($tabId);
-            if ($tab_class)
-                $tab_class->delete();
+        $tabClass = Tab::getInstanceFromClassName('AdminSuperSpeedAjax');
+        if ($tabClass->id) {
+            $tabClass->delete();
         }
         return true;
     }
@@ -342,13 +343,13 @@ class Ets_superspeed extends Module
     {
         if(Configuration::get('SP_DEL_CACHE_CHANGE_PERFORMANCE'))
         {
-            Ets_ss_class_cache::getInstance()->deleteCache();
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache();
             Ets_superspeed_cache_page_log::addLog('All',$this->l('Change performance setting'));
         }
     }
     public function hookActionAdminPerformanceControllerSaveAfter()
     {
-        Ets_ss_class_cache::getInstance()->deleteCache();
+        Ets_ss_class_cache::getInstance($this->context)->deleteCache();
         if(Configuration::get('ETS_SP_KEEP_NAME_CSS_JS'))
         {
             Configuration::updateValue('PS_CCCCSS_VERSION',0);
@@ -358,11 +359,17 @@ class Ets_superspeed extends Module
     }
     public function hookActionHtaccessCreate()
     {
-        if (version_compare(_PS_VERSION_, '1.7', '>=')) {
-            call_user_func('Ets_generateHtaccess17');
-        } else
-            call_user_func('Ets_generateHtaccess16');
-        call_user_func('Ets_generateHtaccessIMG');
+        require_once(dirname(__FILE__) . '/classes/OverrideUtil');
+        $class= 'Ets_superspeed_overrideUtil';
+        if (version_compare(_PS_VERSION_, '1.7', '>='))
+        {
+            $method = 'Ets_generateHtaccess17';
+        }
+        else
+            $method = 'Ets_generateHtaccess16';
+        call_user_func_array(array($class, $method),array());
+        $method = 'Ets_generateHtaccessIMG';
+        call_user_func_array(array($class, $method),array());
         return true;
     }
     public function hookActionProductAdd($params)
@@ -371,23 +378,19 @@ class Ets_superspeed extends Module
         {
             foreach($images as $image)
             {
-                Ets_superspeed_compressor_image::getInstance()->optimizeNewImage(array('id_image'=>$image['id_image']));
+                Ets_superspeed_compressor_image::getInstance()->optimizeNewImage(array('id_image'=>$image['id_image']), $this->context);
             }
         }
     }
     public function hookActionWatermark($params)
     {
-        Ets_superspeed_compressor_image::getInstance()->optimizeNewImage($params);
+        Ets_superspeed_compressor_image::getInstance()->optimizeNewImage($params, $this->context);
     }
     public function hookDisplayBackOfficeHeader()
     {
         $controller = Tools::getValue('controller');
         $controllers = array('AdminSuperSpeedStatistics', 'AdminSuperSpeed', 'AdminSuperSpeedDatabase', 'AdminSuperSpeedDiagnostics', 'AdminSuperSpeedGeneral', 'AdminSuperSpeedGzip', 'AdminSuperSpeedImage', 'AdminSuperSpeedMinization', 'AdminSuperSpeedPageCaches', 'AdminSuperSpeedStatistics', 'AdminSuperSpeedHelps', 'AdminSuperSpeedSystemAnalytics');
         $this->context->controller->addCSS($this->_path . 'views/css/all_admin.css');
-        if (version_compare(_PS_VERSION_, '1.7.6.0', '>=') && version_compare(_PS_VERSION_, '1.7.7.0', '<'))
-            $this->context->controller->addJS(_PS_JS_DIR_ . 'jquery/jquery-' . _PS_JQUERY_VERSION_ . '.min.js');
-        else
-            $this->context->controller->addJquery();
         if (in_array($controller, $controllers)) {
             $this->context->controller->addCSS($this->_path . 'views/css/admin.css');
             if (version_compare(_PS_VERSION_, '1.7', '<'))
@@ -464,7 +467,7 @@ class Ets_superspeed extends Module
             }
         }
         if ($page && Validate::isUnsignedId($id_object) && Validate::isControllerName($page)) {
-            Ets_ss_class_cache::getInstance()->deleteCache($page, $id_object);
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache($page, $id_object);
             Ets_superspeed_cache_page_log::addLog($page .' #'.$id_object ,$this->l('Admin deleted page cache'));
             die(
                 json_encode(
@@ -540,7 +543,7 @@ class Ets_superspeed extends Module
                 break;
         }
         if (isset($page) && $page  && isset($id_object) && Validate::isUnsignedId($id_object) &&  Validate::isControllerName($page)) {
-            if (Ets_superspeed_cache_page::getListFileCache(false,' AND page="' . pSQL($page) . '" AND id_object=' . (int)$id_object)) {
+            if (Ets_superspeed_cache_page::getListFileCache( $this->context->shop->id, false,' AND page="' . pSQL($page) . '" AND id_object=' . (int)$id_object)) {
                 return true;
             }
         }
@@ -556,18 +559,10 @@ class Ets_superspeed extends Module
     public function getSfContainer()
     {
         if ($this->is17) {
-            if (!class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
-                $kernel = null;
-                try {
-                    $kernel = new AppKernel('prod', false);
-                    $kernel->boot();
-                    return $kernel->getContainer();
-                } catch (Exception $ex) {
-                    return null;
-                }
+            if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
+                $sfContainer = call_user_func(array('\PrestaShop\PrestaShop\Adapter\SymfonyContainer', 'getInstance'));
+                return $sfContainer;
             }
-            $sfContainer = call_user_func(array('\PrestaShop\PrestaShop\Adapter\SymfonyContainer', 'getInstance'));
-            return $sfContainer;
         }
         return false;
     }
@@ -589,7 +584,7 @@ class Ets_superspeed extends Module
             if($this->caches_deleted && isset($this->caches_deleted[$class_name][$object->id]) && $this->caches_deleted[$class_name][$object->id])
                 return '';
             $this->caches_deleted[$class_name][$object->id] = 1;
-            Ets_ss_class_cache::getInstance()->deleteCache($class_name, $object->id);
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache($class_name, $object->id);
             Ets_superspeed_cache_page_log::addLog($class_name.' #'.$object->id ,$this->l('Object updated by admin'));
         }
         return true;
@@ -600,7 +595,7 @@ class Ets_superspeed extends Module
         {
             if(isset($params['product']) && ($product= $params['product']) && Validate::isLoadedObject($product))
             {
-                Ets_ss_class_cache::getInstance()->deleteCache('product', $product->id);
+                Ets_ss_class_cache::getInstance($this->context)->deleteCache('product', $product->id);
                 Ets_superspeed_cache_page_log::addLog('Product #'.$product->id ,$this->l('Quantity of products in the cart is updated by the customer.'));
             }
         }
@@ -609,7 +604,7 @@ class Ets_superspeed extends Module
     {
         if(Configuration::get('ETS_AUTO_DELETE_CACHE_WHEN_CHECKOUT')) {
             if (isset($params['id_product']) && ($id_product = (int)$params['id_product'])) {
-                Ets_ss_class_cache::getInstance()->deleteCache('product', $id_product);
+                Ets_ss_class_cache::getInstance($this->context)->deleteCache('product', $id_product);
                 Ets_superspeed_cache_page_log::addLog('Product #'.$id_product ,$this->l('Product(s) in cart is (are) deleted.'));
             }
         }
@@ -621,14 +616,14 @@ class Ets_superspeed extends Module
                 $orderStatus = $params['orderStatus'];
                 if ($orderStatus->logable)
                 {
-                    Ets_ss_class_cache::getInstance()->deleteCache('bestsales');
+                    Ets_ss_class_cache::getInstance($this->context)->deleteCache('bestsales');
                     Ets_superspeed_cache_page_log::addLog('Best-seller',$this->l('New order is created'));
                 }
             }
             if (isset($params['cart'])) {
                 $cart = $params['cart'];
                 foreach ($cart->getProducts() as $product) {
-                    Ets_ss_class_cache::getInstance()->deleteCache('product', $product['id_product']);
+                    Ets_ss_class_cache::getInstance($this->context)->deleteCache('product', $product['id_product']);
                     Ets_superspeed_cache_page_log::addLog('Product #'.$product['id_product'],$this->l('New order is created'));
                 }
             }
@@ -640,28 +635,28 @@ class Ets_superspeed extends Module
         if($this->caches_deleted && isset($this->caches_deleted['product'][$product->id]) && $this->caches_deleted['product'][$product->id])
             return '';
         $this->caches_deleted['product'][$product->id] = 1;
-        Ets_ss_class_cache::getInstance()->deleteCache('product', $product->id);
+        Ets_ss_class_cache::getInstance($this->context)->deleteCache('product', $product->id);
         Ets_superspeed_cache_page_log::addLog('Product #'.$product->id,$this->l('Product is updated'));
         if ($this->isAdminDeleteCache()) {
             if (self::isInstalled($this->name)) {
-                Ets_ss_class_cache::getInstance()->deleteCache('pricesdrop');
+                Ets_ss_class_cache::getInstance($this->context)->deleteCache('pricesdrop');
                 Ets_superspeed_cache_page_log::addLog('Prices drop',$this->l('Product is updated'));
                 if ($product->id_manufacturer)
                 {
-                    Ets_ss_class_cache::getInstance()->deleteCache('manufacturer', $product->id_manufacturer);
+                    Ets_ss_class_cache::getInstance($this->context)->deleteCache('manufacturer', $product->id_manufacturer);
                     Ets_superspeed_cache_page_log::addLog('Manufacturer #'.$product->id_manufacturer,$this->l('Manufacturer is updated'));
                 }
                 $suppliers = Ets_superspeed_defines::getSupplierByIdProduct($product->id);
                 if ($suppliers) {
                     foreach ($suppliers as $supplier)
-                        Ets_ss_class_cache::getInstance()->deleteCache('supplier', $supplier['id_supplier']);
+                        Ets_ss_class_cache::getInstance($this->context)->deleteCache('supplier', $supplier['id_supplier']);
                     Ets_superspeed_cache_page_log::addLog('Supplier of product #'.$product->id,$this->l('Supplier is updated'));
                 }
                 $categories = Ets_superspeed_defines::getCategoryByIdProduct($product->id);
                 if ($categories) {
                     Ets_superspeed_cache_page_log::addLog('Category of product #'.$product->id,$this->l('Product category is updated'));
                     foreach ($categories as $category) {
-                        Ets_ss_class_cache::getInstance()->deleteCache('category', $category['id_category']);
+                        Ets_ss_class_cache::getInstance($this->context)->deleteCache('category', $category['id_category']);
                     }
                 }
             }
@@ -672,14 +667,14 @@ class Ets_superspeed extends Module
     public function hookActionOrderStatusPostUpdate()
     {
         if(Configuration::get('ETS_AUTO_DELETE_CACHE_WHEN_CHECKOUT')) {
-            Ets_ss_class_cache::getInstance()->deleteCache('bestsales');
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache('bestsales');
             Ets_superspeed_cache_page_log::addLog('Best-seller',$this->l('Order status is changed'));
         }
     }
     public function hookActionObjectProductAddAfter($params)
     {
         if ($this->isAdminDeleteCache()) {
-            Ets_ss_class_cache::getInstance()->deleteCache('newproducts');
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache('newproducts');
             Ets_superspeed_cache_page_log::addLog('New products',$this->l('New product is created'));
         }
         if (self::isInstalled($this->name)) {
@@ -689,8 +684,8 @@ class Ets_superspeed extends Module
     public function hookActionObjectProductDeleteAfter($params)
     {
         if ($this->isAdminDeleteCache()) {
-            Ets_ss_class_cache::getInstance()->deleteCache('bestsales');
-            Ets_ss_class_cache::getInstance()->deleteCache('newproducts');
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache('bestsales');
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache('newproducts');
             Ets_superspeed_cache_page_log::addLog('Best-seller',$this->l('Best-seller product is created'));
             Ets_superspeed_cache_page_log::addLog('New products',$this->l('New product is created'));
         }
@@ -755,7 +750,7 @@ class Ets_superspeed extends Module
                 if ($cmss) {
                     Ets_superspeed_cache_page_log::addLog('CMS page of CMS category #'.$params['object']->id, $this->l('CMS category is updated'));
                     foreach ($cmss as $cms) {
-                        Ets_ss_class_cache::getInstance()->deleteCache('cms', $cms['id_cms']);
+                        Ets_ss_class_cache::getInstance($this->context)->deleteCache('cms', $cms['id_cms']);
                     }
                 }
             }
@@ -808,12 +803,12 @@ class Ets_superspeed extends Module
             $log = $this->l('Delete cache from other module');
         if(isset($params['all']) && $params['all'])
         {
-            Ets_ss_class_cache::getInstance()->deleteCache();
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache();
             Ets_superspeed_cache_page_log::addLog('All',$log);
         }
         else
         {
-            Ets_ss_class_cache::getInstance()->deleteCache($page, $id_object, $hook_name);
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache($page, $id_object, $hook_name);
             $page_name = trim(($page ? $page.'-':'').($id_object ? $id_object.'-':'').($hook_name ? $hook_name.'-':''),'-') ? : 'All';
             Ets_superspeed_cache_page_log::addLog($page_name,$log);
         }
@@ -823,7 +818,7 @@ class Ets_superspeed extends Module
         if ($this->isAdmin() && Configuration::get('SP_DEL_CACHE_HOOK_CHANGE')) {
             if (Ets_superspeed::isInstalled('ets_superspeed')) {
                 $hook_name = $params['hook_name'];
-                Ets_ss_class_cache::getInstance()->deleteCache('', 0, $hook_name);
+                Ets_ss_class_cache::getInstance($this->context)->deleteCache('', 0, $hook_name);
                 Ets_superspeed_cache_page_log::addLog('Page of hook #'.$hook_name,sprintf($this->l('Module unregistered hook %s'),$hook_name));
             }
         }
@@ -833,7 +828,7 @@ class Ets_superspeed extends Module
         if ($this->isAdmin() && Configuration::get('SP_DEL_CACHE_HOOK_CHANGE')) {
             if (Ets_superspeed::isInstalled('ets_superspeed')) {
                 $hook_name = $params['hook_name'];
-                Ets_ss_class_cache::getInstance()->deleteCache('', 0, $hook_name);
+                Ets_ss_class_cache::getInstance($this->context)->deleteCache('', 0, $hook_name);
                 Ets_superspeed_cache_page_log::addLog('Page of hook #'.$hook_name,sprintf($this->l('Module registered hook %s'),$hook_name));
             }
         }
@@ -843,8 +838,7 @@ class Ets_superspeed extends Module
     {
         if(isset($_SERVER['REQUEST_URI']) && Tools::strpos($_SERVER['REQUEST_URI'],'/api')===0)
             return true;
-        $context = Context::getContext();
-        if(defined('_PS_ADMIN_DIR_') && isset($context->employee) && isset($context->employee->id) && $context->employee->id && $context->cookie->passwd && $context->employee->isLoggedBack())
+        if(defined('_PS_ADMIN_DIR_') && isset($this->context->employee) && isset($this->context->employee->id) && $this->context->employee->id && $this->context->cookie->passwd && $this->context->employee->isLoggedBack())
             return true;
         return false;
     }
@@ -860,9 +854,9 @@ class Ets_superspeed extends Module
         {
             if ($this->is17 && Configuration::get('PS_HTML_THEME_COMPRESSION'))
                 $params['html'] = self::minifyHTML($params['html']);
-            Ets_superspeed::createCache($params['html']);
-            if (($context =Context::getContext()) && isset($context->ss_start_time) && ($start_time =  (float)$context->ss_start_time))
-                header('X-SS: none, '.(Tools::ps_round((microtime(true)-$start_time),3)*1000).'ms'.(isset($context->ss_total_sql) ? '/'.$context->ss_total_sql:'') );
+            $this->createCache($params['html']);
+            if (isset(Ets_superspeed::$start_time) && ($start_time =  (float)Ets_superspeed::$start_time))
+                header('X-SS: none, '.(Tools::ps_round((microtime(true)-$start_time),3)*1000).'ms'.(isset($this->context->ss_total_sql) ? '/'.$this->context->ss_total_sql:'') );
         }
     }
     public function getContent()
@@ -871,7 +865,7 @@ class Ets_superspeed extends Module
     }
     public function clearCacheCategory($id_category)
     {
-        Ets_ss_class_cache::getInstance()->deleteCache('category', $id_category);
+        Ets_ss_class_cache::getInstance($this->context)->deleteCache('category', $id_category);
         Ets_superspeed_cache_page_log::addLog('Category #'.$id_category, $this->l('Category is updated'));
         if($this->isAdminDeleteCache())
         {
@@ -879,7 +873,7 @@ class Ets_superspeed extends Module
             if ($products) {
                 Ets_superspeed_cache_page_log::addLog('Product of  #'.$id_category, $this->l('Category is updated'));
                 foreach ($products as $product) {
-                    Ets_ss_class_cache::getInstance()->deleteCache('product', $product['id_product']);
+                    Ets_ss_class_cache::getInstance($this->context)->deleteCache('product', $product['id_product']);
                 }
             }
         }
@@ -941,7 +935,9 @@ class Ets_superspeed extends Module
     }
     protected function submitDeleteImageUpload()
     {
-        if(($id_image_upload = (int)Tools::getValue('delete_image_upload')) && ($imageUpload = new Ets_superspeed_upload_image($id_image_upload)) && Validate::isLoadedObject($imageUpload))
+        $id_image_upload = (int)Tools::getValue('delete_image_upload');
+        $imageUpload = new Ets_superspeed_upload_image($id_image_upload);
+        if(Validate::isLoadedObject($imageUpload))
         {
             if($imageUpload->delete())
             {
@@ -989,7 +985,7 @@ class Ets_superspeed extends Module
             Ets_superspeed_compressor_image::getImagesUnUsed('m', 'manufacturer', 'id_manufacturer', 'manufacturers', true);
         $unused_product_images = (int)Tools::getValue('unused_product_images');
         if ($unused_product_images)
-            Ets_superspeed_compressor_image::getImagesProductUnUsed(true);
+            Ets_superspeed_compressor_image::getImagesProductUnUsed(true, $this->context->shop->id);
         die(
             json_encode(
                 array(
@@ -1032,7 +1028,9 @@ class Ets_superspeed extends Module
     }
     protected function downloadImageUpload()
     {
-        if(($id_image_upload = (int)Tools::getValue('download_image_upload')) && ($imageUpload = new Ets_superspeed_upload_image($id_image_upload)) && Validate::isLoadedObject($imageUpload))
+        $id_image_upload = (int)Tools::getValue('download_image_upload');
+        $imageUpload = new Ets_superspeed_upload_image($id_image_upload);
+        if(Validate::isLoadedObject($imageUpload))
         {
             $imageUpload->download();
         }
@@ -1047,8 +1045,8 @@ class Ets_superspeed extends Module
             // Ensure the upload directory is valid and create it if necessary
             $uploadDir = _ETS_SPEED_CACHE_DIR_IMAGES;
              // Convert to absolute path
-            if ($uploadDir === false || !is_dir($uploadDir)) {
-                @mkdir($uploadDir,'0777',true);
+            if (!is_dir($uploadDir)) {
+                @mkdir($uploadDir,0777,true);
             }
             $uploadDir = realpath($uploadDir);
             if ($uploadDir === false || !is_dir($uploadDir)) {
@@ -1331,14 +1329,17 @@ class Ets_superspeed extends Module
     protected function downloadImageBrowse()
     {
         $id_image_browse = (int)Tools::getValue('download_image_browse');
-        if($id_image_browse && ($image_browse = new Ets_superspeed_browse_image($id_image_browse)) && Validate::isLoadedObject($image_browse))
+        $image_browse = new Ets_superspeed_browse_image($id_image_browse);
+        if(Validate::isLoadedObject($image_browse))
         {
             $image_browse->download();
         }
     }
     protected  function restoreImageBrowse()
     {
-        if(($id_image = (int)Tools::getValue('restore_image_browse')) && ($imageBrowse = new Ets_superspeed_browse_image(($id_image))) && Validate::isLoadedObject($imageBrowse))
+        $id_image = (int)Tools::getValue('restore_image_browse');
+        $imageBrowse = new Ets_superspeed_browse_image(($id_image));
+        if(Validate::isLoadedObject($imageBrowse))
         {
             if($imageBrowse->restore())
             {
@@ -1479,7 +1480,7 @@ class Ets_superspeed extends Module
         $ETS_SPEED_TIME_CACHE_COLLECTION = (int)Tools::getValue('ETS_SPEED_TIME_CACHE_COLLECTION');
         Configuration::updateValue('ETS_SPEED_TIME_CACHE_COLLECTION',$ETS_SPEED_TIME_CACHE_COLLECTION);
         if (!$old_cache && Configuration::get('ETS_SPEED_PAGES_TO_CACHE')) {
-            Ets_ss_class_cache::getInstance()->deleteCache();
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache();
             Ets_superspeed_cache_page_log::addLog('All', $this->l('Change settings page cache'));
         }
         if ($live_script && Validate::isString($live_script)) {
@@ -1496,7 +1497,7 @@ class Ets_superspeed extends Module
     }
     protected function clearAllPageCaches()
     {
-        Ets_ss_class_cache::getInstance()->deleteCache();
+        Ets_ss_class_cache::getInstance($this->context)->deleteCache();
         Ets_superspeed_cache_page_log::addLog('All', $this->l('Clear all page caches'));
         Tools::clearXMLCache();
         Media::clearCache();
@@ -1610,7 +1611,7 @@ class Ets_superspeed extends Module
             }
             if($change)
             {
-                Ets_ss_class_cache::getInstance()->deleteCache();
+                Ets_ss_class_cache::getInstance($this->context)->deleteCache();
                 Ets_superspeed_cache_page_log::addLog('All', $this->l('Change settings in page dashboard'));
             }
         }
@@ -1673,7 +1674,7 @@ class Ets_superspeed extends Module
     protected  function submitRefreshSystemAnalyticsNew()
     {
         $check_points = array();
-        $total_point = Ets_superspeed_cache_page::getTotalPoints();
+        $total_point = Ets_superspeed_cache_page::getTotalPoints($this->context->shop->id);
         $check_points[] = array(
             'check_point' => $this->l('Number of module hooks have execution time greater than 1000 ms'),
             'number_data' => $total_point,
@@ -1714,25 +1715,13 @@ class Ets_superspeed extends Module
     }
     public static function getModuleAuthor($module)
     {
-        // Ensure module name is safe by removing potentially dangerous characters
         $module = basename($module);
-        $iso = Tools::substr(Context::getContext()->language->iso_code, 0, 2);
         // Config file
-        $config_file = _PS_MODULE_DIR_ . $module . '/config_' . $iso . '.xml';
-        // For "en" iso code, we keep the default config.xml name
-        if ($iso == 'en' || !file_exists($config_file)) {
-            $config_file = _PS_MODULE_DIR_ . $module . '/config.xml';
-            if (!file_exists($config_file)) {
-                return 'Module ' . Tools::ucfirst($module);
-            }
-        }
-
-        // Validate that the config file is within the expected directory
+        $config_file = _PS_MODULE_DIR_ . $module . '/config.xml';
         $config_file_realpath = realpath($config_file);
         if (Tools::strpos($config_file_realpath, realpath(_PS_MODULE_DIR_ . $module)) !== 0) {
             return 'Module ' . Tools::ucfirst($module);
         }
-
         // Load config.xml
         libxml_use_internal_errors(true);
         $xml_module = @simplexml_load_file($config_file);
@@ -1749,10 +1738,16 @@ class Ets_superspeed extends Module
         // Return Author
         return (string)$xml_module->author;
     }
+    public function getCache($check_connect)
+    {
+        return Ets_ss_class_cache::getInstance($this->context)->getCache($check_connect);
+    }
     public static function displayContentCache($check_connect = false)
     {
         if (Configuration::get('ETS_SPEED_ENABLE_PAGE_CACHE') && (!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] != 'POST')) {
-            $cache = Ets_ss_class_cache::getInstance()->getCache($check_connect);
+            /** @var Ets_superspeed $ets_superspeed */
+            $ets_superspeed = Module::getInstanceByName('ets_superspeed');
+            $cache = $ets_superspeed->getCache($check_connect);
             if ($cache!==false) {
                 return $cache;
             }
@@ -1766,7 +1761,7 @@ class Ets_superspeed extends Module
         $controller = Tools::getValue('controller');
         $fc = Tools::getValue('fc');
         $module = Tools::getValue('module');
-        if (Module::isInstalled('ybc_blog') && Module::isEnabled('ybc_blog') && $fc == 'module' && $module == 'ybc_blog' && in_array($controller, array('blog', 'category', 'gallery', 'author')) && !Tools::isSubmit('edit_comment')) {
+        if ($fc == 'module' && $module == 'ybc_blog' && in_array($controller, array('blog', 'category', 'gallery', 'author')) && !Tools::isSubmit('edit_comment')) {
             $controller = 'blog';
         }
         $pages_cache = ($tocache = Configuration::get('ETS_SPEED_PAGES_TO_CACHE')) ? explode(',', $tocache) : array();
@@ -1775,9 +1770,8 @@ class Ets_superspeed extends Module
         }
         return false;
     }
-    public static function createCache($html)
+    public function createCache($html)
     {
-
         if (self::isPageCache()) {
             $controller = Tools::getValue('controller');
             $fc = Tools::getValue('fc');
@@ -1794,28 +1788,14 @@ class Ets_superspeed extends Module
                 'id_author' => (int)Tools::getValue('id_author'),
                 'id_product_attribute' => (int)Tools::getValue('id_product_attribute'),
             );
-            return Ets_ss_class_cache::getInstance()->setCache($html,$params);
+            return Ets_ss_class_cache::getInstance($this->context)->setCache($html,$params);
         }
         return false;
     }
     public static function isInstalled($module_name)
     {
-        $context = Context::getContext();
-        if (!(isset($_SERVER['REQUEST_URI']) && Tools::strpos($_SERVER['REQUEST_URI'],'/api')===0) && !Tools::isSubmit('controller') && (!isset($context->employee) || !isset($context->employee->id) || !$context->employee->id))
-            return false;
         return Ets_superspeed_defines::getIDModuleByName($module_name);
     }
-
-    public static function isEnabled($module_name)
-    {
-        $active = false;
-        $id_module = Ets_superspeed_defines::getIDModuleByName($module_name);
-        if ($id_module && Ets_superspeed_defines::checkModuleIsActive($id_module)) {
-            $active = true;
-        }
-        return (bool)$active;
-    }
-
     public function getBaseLink($trim=true)
     {
         if(Configuration::hasKey('PS_SSL_ENABLED'))
@@ -1841,7 +1821,7 @@ class Ets_superspeed extends Module
     public function autoRefreshCache()
     {
         Configuration::updateGlobalValue('ETS_SPEED_TIME_RUN_CRONJOB',date('Y-m-d H:i:s'));
-        $pages_cache = Ets_superspeed_cache_page::getListFileCache(100,' AND date_expired < "' . pSQL(date('Y-m-d H:i:s')).'"','date_add ASC');
+        $pages_cache = Ets_superspeed_cache_page::getListFileCache($this->context->shop->id, 100,' AND date_expired < "' . pSQL(date('Y-m-d H:i:s')).'"','date_add ASC');
         if ($pages_cache) {
             foreach ($pages_cache as $page_cache) {
                 Ets_superspeed_cache_page::deleteById($page_cache['id_cache_page'],$page_cache['id_shop']);
@@ -1968,9 +1948,13 @@ class Ets_superspeed extends Module
                 return null;
             }
             $result = array();
+            require_once(dirname(__FILE__) . '/classes/OverrideUtil');
+            $class= 'Ets_superspeed_overrideUtil';
+            $method = 'getPrestashopAutoload';
+            $autoload = call_user_func_array(array($class, $method),array());
             foreach (Tools::scandir($this->getLocalPath() . 'override', 'php', '', true) as $file) {
                 $class = basename($file, '.php');
-                if (PrestaShopAutoload::getInstance()->getClassPath($class . 'Core') || Module::getModuleIdByName($class)) {
+                if ($autoload->getClassPath($class . 'Core') || Ets_superspeed_defines::getIDModuleByName($class)) {
                     $result[] = $class;
                 }
             }
@@ -1987,9 +1971,11 @@ class Ets_superspeed extends Module
     public function addOverride($classname)
     {
         $_errors = array();
-        $autoload = PrestaShopAutoload::getInstance();
+        require_once(dirname(__FILE__) . '/classes/OverrideUtil');
+        $class= 'Ets_superspeed_overrideUtil';
+        $method = 'getPrestashopAutoload';
+        $autoload = call_user_func_array(array($class, $method),array());
         $orig_path = $path = $autoload->getClassPath($classname . 'Core');
-
         if (!$path) {
             $path = 'modules' . DIRECTORY_SEPARATOR . $classname . DIRECTORY_SEPARATOR . $classname . '.php';
         }
@@ -2010,10 +1996,9 @@ class Ets_superspeed extends Module
         $pattern_escape_com = '#(^\s*?\/\/.*?\n|\/\*(?!\n\s+\* module:.*?\* date:.*?\* version:.*?\*\/).*?\*\/)#ism';
         if (($file = $autoload->getClassPath($classname)) && ($override_path = realpath(_PS_ROOT_DIR_ . '/' . $file)) && file_exists($override_path)) {
 
-            if ((!@file_exists($override_path) && !is_writable(dirname($override_path))) || (@file_exists($override_path) && !is_writable($override_path))) {
+            if (!is_writable($override_path)) {
                 $_errors[] = sprintf($this->l('file (%s) not writable'), $override_path);
             }
-
             do {
                 $uniq = uniqid();
             } while (@class_exists($classname . 'OverrideOriginal_remove', false));
@@ -2038,7 +2023,7 @@ class Ets_superspeed extends Module
                     }
                 }
                 $module_file = preg_replace('/((:?public|private|protected)\s+(static\s+)?function\s+(?:\b' . $method->getName() . '\b))/ism', "/*\n    * module: " . $this->name . "\n    * date: " . date('Y-m-d H:i:s') . "\n    * version: " . $this->version . "\n    */\n    $1", $module_file);
-                if ($module_file === null) {
+                if ($module_file == null) {
                     $_errors[] = sprintf($this->l('Failed to override method %1$s in class %2$s.'), $method->getName(), $classname);
                 }
             }
@@ -2082,7 +2067,7 @@ class Ets_superspeed extends Module
 
                 foreach ($module_class->getMethods() as $method) {
                     $module_file = preg_replace('/((:?public|private|protected)\s+(static\s+)?function\s+(?:\b' . $method->getName() . '\b))/ism', "/*\n    * module: " . $this->name . "\n    * date: " . date('Y-m-d H:i:s') . "\n    * version: " . $this->version . "\n    */\n    $1", $module_file);
-                    if ($module_file === null) {
+                    if ($module_file == null) {
                         $_errors[] = sprintf($this->l('Failed to override method %1$s in class %2$s.'), $method->getName(), $classname);
                     }
                 }
@@ -2090,7 +2075,7 @@ class Ets_superspeed extends Module
 
             if (!$_errors) {
                 Ets_superspeed_defines::file_put_contents($override_dest, preg_replace($pattern_escape_com, '', $module_file));
-                Tools::generateIndex();
+                $autoload->generateIndex();
             }
         }
 
@@ -2108,47 +2093,10 @@ class Ets_superspeed extends Module
     public function execCode($php_code)
     {
         // Check if the custom execution function exists
-        if (function_exists('ets_execute_php')) {
-            call_user_func('ets_execute_php', $php_code);
-        } else {
-            // Sanitize and validate the PHP code
-            $php_code = trim($php_code);
-
-            // List of dangerous functions that should be disabled
-            $disabled_functions = [
-                'system', 'exec', 'shell_exec', 'passthru', 'popen', 'proc_open',
-                'eval', 'assert', 'create_function', 'include', 'include_once',
-                'require', 'require_once'
-            ];
-            // Check if the code contains any dangerous functions
-            foreach ($disabled_functions as $func) {
-                if (stripos($php_code, $func) !== false) {
-                    throw new Exception('Dangerous function detected in the PHP code.');
-                }
-            }
-
-            // Create a temporary file to execute the PHP code
-            $temp = @tempnam(sys_get_temp_dir(), 'execCode');
-            if ($temp === false) {
-                throw new Exception('Failed to create a temporary file.');
-            }
-
-            $handle = fopen($temp, "w+");
-            if ($handle === false) {
-                throw new Exception('Failed to open the temporary file for writing.');
-            }
-
-            fwrite($handle, "<?php\n" . $php_code);
-            fclose($handle);
-
-            // Validate that the file was created successfully
-            if (file_exists($temp)) {
-                include $temp;
-                Ets_superspeed_defines::unlink($temp);
-            } else {
-                throw new Exception('Temporary file not found.');
-            }
-        }
+        require_once(dirname(__FILE__) . '/classes/OverrideUtil');
+        $class= 'Ets_superspeed_overrideUtil';
+        $method = 'executePhP';
+        call_user_func_array(array($class, $method),array($php_code));
     }
     /**
      * @param string $classname
@@ -2160,14 +2108,17 @@ class Ets_superspeed extends Module
         if ($this->isLogInstall($classname)) {
             return true;
         }
-
+        require_once(dirname(__FILE__) . '/classes/OverrideUtil');
+        $class= 'Ets_superspeed_overrideUtil';
+        $method = 'getPrestashopAutoload';
+        $autoload = call_user_func_array(array($class, $method),array());
         // Get the original path for the class
-        $orig_path = PrestaShopAutoload::getInstance()->getClassPath($classname . 'Core');
+        $orig_path = $autoload->getClassPath($classname . 'Core');
 
         // Determine the current path of the class
-        if ($orig_path && !PrestaShopAutoload::getInstance()->getClassPath($classname)) {
+        if ($orig_path && !$autoload->getClassPath($classname)) {
             return true;
-        } elseif (!$orig_path && Module::getModuleIdByName($classname)) {
+        } elseif (!$orig_path && Ets_superspeed_defines::getIDModuleByName($classname)) {
             $path = 'modules' . DIRECTORY_SEPARATOR . $classname . DIRECTORY_SEPARATOR . $classname . '.php';
         } else {
             $path = $orig_path ? $orig_path : _PS_OVERRIDE_DIR_ . DIRECTORY_SEPARATOR . $classname . '.php';
@@ -2331,7 +2282,7 @@ class Ets_superspeed extends Module
     }
     public function hookActionUpdateBlog()
     {
-        Ets_ss_class_cache::getInstance()->deleteCache('blog');
+        Ets_ss_class_cache::getInstance($this->context)->deleteCache('blog');
         Ets_superspeed_cache_page_log::addLog('Blog', $this->l('Change blog settings'));
     }
     public function hookActionUpdateBlogImage($params)
@@ -2350,7 +2301,7 @@ class Ets_superspeed extends Module
         $optimizeImage = Ets_superspeed_compressor_image::getInstance();
         switch ($optimize_type) {
             case 'products':
-                $optimizeImage->optimizeProductImage($all_type);
+                $optimizeImage->optimizeProductImage($all_type, $this->context);
             case 'categories':
                 $optimizeImage->optimiziObjImage('category', 'categories', _PS_CAT_IMG_DIR_, $all_type, 'manufacturers');
             case 'manufacturers':
@@ -2458,17 +2409,17 @@ class Ets_superspeed extends Module
         $extra_hooks = array();
         if (!$after_ajax)
             $totals = $this->getImageInSite();
-        if (($this->is17 && Module::isEnabled('ps_imageslider')) || (!$this->is17 && Module::isEnabled('homeslider')))
+        if (($this->is17 && Ets_superspeed_defines::getIDModuleByName('ps_imageslider')) || (!$this->is17 && Ets_superspeed_defines::getIDModuleByName('homeslider')))
             $extra_hooks[] = array(
                 'name' => 'home_slider',
                 'check_point' => $this->l('Home slider images'),
-                'number_data' => Ets_superspeed_cache_page::getTotalHomeSlider(),
+                'number_data' => Ets_superspeed_cache_page::getTotalHomeSlider($this->context->shop->id),
                 'url_config' => $this->context->link->getAdminLink('AdminModules') . '&configure=' . ($this->is17 ? 'ps_imageslider' : 'homeslider'),
                 'recommendation' => $this->l('Should not more than 3 items'),
                 'default' => 3,
                 'bad' => 6,
             );
-        if (($this->is17 && Module::isEnabled('ps_featuredproducts')) || (!$this->is17 && Module::isEnabled('homefeatured')))
+        if (($this->is17 && Ets_superspeed_defines::getIDModuleByName('ps_featuredproducts')) || (!$this->is17 && Ets_superspeed_defines::getIDModuleByName('homefeatured')))
             $extra_hooks[] = array(
                 'name' => 'popular_product',
                 'check_point' => $this->l('Popular products'),
@@ -2478,7 +2429,7 @@ class Ets_superspeed extends Module
                 'default' => 8,
                 'bad' => 12,
             );
-        if (Module::isEnabled('ps_newproducts') || Module::isEnabled('blocknewproducts'))
+        if (Ets_superspeed_defines::getIDModuleByName('ps_newproducts') || Ets_superspeed_defines::getIDModuleByName('blocknewproducts'))
             $extra_hooks[] = array(
                 'name' => 'new_product',
                 'check_point' => $this->l('New products'),
@@ -2488,7 +2439,7 @@ class Ets_superspeed extends Module
                 'default' => 8,
                 'bad' => 12,
             );
-        if (Module::isEnabled('blockspecials') || Module::isEnabled('ps_specials'))
+        if (Ets_superspeed_defines::getIDModuleByName('blockspecials') || Ets_superspeed_defines::getIDModuleByName('ps_specials'))
             $extra_hooks[] = array(
                 'name' => 'sepcials_product',
                 'check_point' => $this->l('Specials'),
@@ -2498,7 +2449,7 @@ class Ets_superspeed extends Module
                 'default' => 8,
                 'bad' => 12,
             );
-        if (Module::isEnabled('blockbestsellers') || Module::isEnabled('ps_bestsellers'))
+        if (Ets_superspeed_defines::getIDModuleByName('blockbestsellers') || Ets_superspeed_defines::getIDModuleByName('ps_bestsellers'))
             $extra_hooks[] = array(
                 'name' => 'best_seller',
                 'check_point' => $this->l('Best seller'),
@@ -2508,7 +2459,7 @@ class Ets_superspeed extends Module
                 'default' => 8,
                 'bad' => 16,
             );
-        if (Module::isEnabled('ps_categoryproducts'))
+        if (Ets_superspeed_defines::getIDModuleByName('ps_categoryproducts'))
             $extra_hooks[] = array(
                 'name' => 'product_category',
                 'check_point' => $this->l('Products in the same category'),
@@ -2725,7 +2676,7 @@ class Ets_superspeed extends Module
         $image_category = Ets_superspeed_compressor_image:: getImagesUnUsed();
         $image_supplier = Ets_superspeed_compressor_image::getImagesUnUsed('su', 'supplier', 'id_supplier', 'suppliers');
         $image_manufacturer = Ets_superspeed_compressor_image::getImagesUnUsed('m', 'manufacturer', 'id_manufacturer', 'manufacturers');
-        $image_product = Ets_superspeed_compressor_image::getImagesProductUnUsed();
+        $image_product = Ets_superspeed_compressor_image::getImagesProductUnUsed(false, $this->context->shop->id);
         $this->context->smarty->assign(
             array(
                 'image_category' => $image_category,
@@ -2812,7 +2763,7 @@ class Ets_superspeed extends Module
         }
 
         if ($delete_cache) {
-            Ets_ss_class_cache::getInstance()->deleteCache();
+            Ets_ss_class_cache::getInstance($this->context)->deleteCache();
             Ets_superspeed_cache_page_log::addLog('All', $this->l('Change settings in page image optimization'));
             Tools::clearSmartyCache();
         }
@@ -2860,12 +2811,14 @@ class Ets_superspeed extends Module
                 if ($hook_name && Validate::isHookName($hook_name) && $id_module && Module::getInstanceById($id_module) && Ets_superspeed_cache_page::getDynamicHookModule($id_module,$hook_name)) {
                     $params = Tools::getAllValues();
                     $controller = Tools::getValue('controller');
-                    if ($controller=='product' && ($id_product = (int)Tools::getValue('id_product')) && ($product = new Product($id_product,true,$this->context->language->id)))
+                    if ($controller=='product' && ($id_product = (int)Tools::getValue('id_product')) )
                     {
+                        $product = new Product($id_product,true,$this->context->language->id);
                         $params['product'] = $product;
                     }
-                    if ($controller=='category' && ($id_category = (int)Tools::getValue('id_category')) && ($category = new Category($id_category,$this->context->language->id)))
+                    if ($controller=='category' && ($id_category = (int)Tools::getValue('id_category')) )
                     {
+                        $category = new Category($id_category,$this->context->language->id);
                         $params['category'] = $category;
                     }
                     if($extra_params && is_array($extra_params))
@@ -2882,13 +2835,13 @@ class Ets_superspeed extends Module
                 }
             }
         }
-        if(Module::isEnabled('tdshoppingcart'))
+        if(Ets_superspeed_defines::getIDModuleByName('tdshoppingcart'))
         {
             $data['cart_products_count'] = $this->context->cart->nbProducts();
         }
         if($this->checkAlwaysLoadContent())
         {
-            $id_customer = (int)Context::getContext()->customer->id;
+            $id_customer = (int)$this->context->customer->id;
             $id_group = null;
             if ($id_customer) {
                 $id_group = Customer::getDefaultGroupId((int)$id_customer);
@@ -2905,7 +2858,8 @@ class Ets_superspeed extends Module
             if($controller=='product')
             {
                 $id_product = (int)Tools::getValue('id_product');
-                if(($product = new Product($id_product,true,$this->context->language->id)) && Validate::isLoadedObject($product) )
+                $product = new Product($id_product,true,$this->context->language->id);
+                if(Validate::isLoadedObject($product) )
                 {
 
                     $price = $product->getPrice($tax);
@@ -2926,19 +2880,20 @@ class Ets_superspeed extends Module
                         $price_without_reduction = 0;
                     $data['specificPrice'] = isset($specificPrice) && $specificPrice  ? true :false;
                     $data['percentage_specific'] = isset($specificPrice) && $specificPrice && $specificPrice['reduction_type'] =='percentage' ? Tools::ps_round($specificPrice['reduction'],2)*100:false;
-                    $data['product_price'] = $price > 0 ? Tools::displayPrice($price):'';
-                    $data['price_without_reduction'] = $price_without_reduction ? Tools::displayPrice($price_without_reduction):'';
+                    $data['product_price'] = $price > 0 ? Tools::displayPriceSmarty(['price'=>$price,'currency'=> $this->context->currency->id], $this->context->smarty):'';
+                    $data['price_without_reduction'] = $price_without_reduction ? Tools::displayPriceSmarty(['price'=>$price_without_reduction,'currency'=> $this->context->currency->id], $this->context->smarty):'';
                 }
             }
-            if(Validate::isControllerName($controller) && ($dataProducts = Tools::getValue('dataProducts')) && ($dataProducts = explode(',',$dataProducts)))
+            if(Validate::isControllerName($controller) && ($dataProducts = Tools::getValue('dataProducts')))
             {
+                $dataProducts = explode(',',$dataProducts);
                 $products = array();
                 foreach($dataProducts as $dataProduct)
                 {
                     $ids = explode('-',$dataProduct);
-                    $id_product = $ids && isset($ids[0]) ? $ids[0] :0;
-                    $id_product_attribute = $ids && isset($ids[1]) ? $ids[1] :0;
-                    $product = new Product($id_product,true,$this->context->language->id);
+                    $id_product = $ids[0];
+                    $id_product_attribute = isset($ids[1]) ? $ids[1] :0;
+                    $product = new Product((int)$id_product,true,$this->context->language->id);
                     $price = $product->getPrice($tax,$id_product_attribute);
                     if($price > 0 && $specificPrice = $product->specificPrice)
                     {
@@ -2960,8 +2915,8 @@ class Ets_superspeed extends Module
                         'id_product_attribute' => $id_product_attribute,
                         'specificPrice' => isset($specificPrice) && $price > 0 && $specificPrice  ? true :false,
                         'percentage_specific' =>isset($specificPrice) && $price > 0 && $specificPrice && $specificPrice['reduction_type'] =='percentage' ? Tools::ps_round($specificPrice['reduction'],4)*100:false,
-                        'price' =>$price > 0 ? Tools::displayPrice($price):'',
-                        'price_without_reduction' => $price_without_reduction > 0 && $price > 0 ? Tools::displayPrice($price_without_reduction):'',
+                        'price' =>$price > 0 ? Tools::displayPriceSmarty(['price'=> $price, 'currency'=> $this->context->currency->id], $this->context->smarty):'',
+                        'price_without_reduction' => $price_without_reduction > 0 && $price > 0 ? Tools::displayPriceSmarty(['price'=> $price_without_reduction, 'currency'=> $this->context->currency->id], $this->context->smarty):'',
                     );
                 }
                 $data['dataProducts'] = $products;
@@ -2988,7 +2943,7 @@ class Ets_superspeed extends Module
     }
     public function rmDir($directory)
     {
-        Ets_ss_class_cache::getInstance()->rmDir($directory);
+        Ets_ss_class_cache::getInstance($this->context)->rmDir($directory);
         return true;
     }
     public static function validateArray($array,$validate='isCleanHtml')
@@ -3311,14 +3266,14 @@ class Ets_superspeed extends Module
     }
     public function replaceOverridesOtherModuleAfterInstall()
     {
-        if(Module::isInstalled('ets_multilangimages') && ($ets_multilangimages = Module::getInstanceByName('ets_multilangimages')) && method_exists($ets_multilangimages,'replaceOverridesAfterInstall'))
+        if(Ets_superspeed_defines::getIDModuleByName('ets_multilangimages') && ($ets_multilangimages = Module::getInstanceByName('ets_multilangimages')) && method_exists($ets_multilangimages,'replaceOverridesAfterInstall'))
         {
             $ets_multilangimages->replaceOverridesAfterInstall();
         }
     }
     public function replaceOverridesOtherModuleBeforeInstall()
     {
-        if(Module::isInstalled('ets_multilangimages') && ($ets_multilangimages = Module::getInstanceByName('ets_multilangimages')) && method_exists($ets_multilangimages,'replaceOverridesBeforeInstall'))
+        if(Ets_superspeed_defines::getIDModuleByName('ets_multilangimages') && ($ets_multilangimages = Module::getInstanceByName('ets_multilangimages')) && method_exists($ets_multilangimages,'replaceOverridesBeforeInstall'))
         {
             $ets_multilangimages->replaceOverridesBeforeInstall();
         }
@@ -3377,16 +3332,7 @@ class Ets_superspeed extends Module
             }
             if($this->getOverrides() != null)
             {
-                try {
-                    $this->installOverrides();
-                }
-                catch (Exception $e)
-                {
-                    if($e)
-                    {
-                        //
-                    }
-                }
+                $this->installOverrides();
             }
         }
         return $res;
@@ -3395,16 +3341,7 @@ class Ets_superspeed extends Module
     {
         if(!$force_all && Ets_superspeed_defines::checkEnableOtherShop($this->id) && $this->getOverrides() != null)
         {
-            try {
-                $this->uninstallOverrides();
-            }
-            catch (Exception $e)
-            {
-                if($e)
-                {
-                    //
-                }
-            }
+            $this->uninstallOverrides();
         }
         $this->checkOverrideDir();
         return $this->fixOverrideConflict() && parent::enable($force_all);
@@ -3429,7 +3366,7 @@ class Ets_superspeed extends Module
     {
         if (defined('_PS_OVERRIDE_DIR_')) {
             $psOverride = realpath(_PS_OVERRIDE_DIR_) . DIRECTORY_SEPARATOR;
-            if ($psOverride === false || !is_dir($psOverride)) {
+            if (!is_dir($psOverride)) {
                 throw new Exception('Override directory is invalid or inaccessible.');
             }
 
@@ -3538,5 +3475,55 @@ class Ets_superspeed extends Module
         }
         $url_path = rtrim(preg_replace('/[^a-zA-Z0-9\/_\-]/', '', $url_path), '/');
         return rtrim($url, $url_path);
+    }
+    public function displayGoogleError()
+    {
+        return $this->display(__FILE__,'google.tpl');
+    }
+    public function getDynamicCartAndCustomer($id_module, $hook_name){
+        $always_load_content = Configuration::get('ETS_ALWAYS_LOAD_DYNAMIC_CONTENT');
+        if ($id_module && ($id_module == Ets_superspeed_defines::getIDModuleByName('blockcart') || $id_module == Ets_superspeed_defines::getIDModuleByName('ps_shoppingcart') || $id_module == Ets_superspeed_defines::getIDModuleByName('tdshoppingcart')) && $hook_name != 'header' && $hook_name != 'displayHeader' && ($always_load_content || (isset($this->context->cookie->id_cart) && $this->context->cookie->id_cart))) {
+            return array(
+                'empty_content' => 0,
+            );
+        }
+        if ($id_module && ($id_module == Ets_superspeed_defines::getIDModuleByName('ps_customersignin') || $id_module == Ets_superspeed_defines::getIDModuleByName('blockuserinfo')) && $hook_name != 'header' && $hook_name != 'displayHeader' && ($always_load_content || (isset($this->context->customer->id) && $this->context->customer->id && $this->context->customer->logged))) {
+            return array(
+                'empty_content' => 1,
+            );
+        }
+        return false;
+    }
+    public function setTimeExecHook($time_start, $time_end, $hookName, $id_module ){
+        return Ets_superspeed_cache_page::setTimeExecHook($time_start, $time_end, $hookName, $id_module, $this->context->shop->id);
+    }
+    public function getLangImageLink($ids, $type = null)
+    {
+
+        $moduleManagerBuilder = PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder::getInstance();
+        $moduleManager = $moduleManagerBuilder->build();
+
+        // legacy mode or default image
+        $theme = ((Shop::isFeatureActive() && file_exists(_PS_PROD_IMG_DIR_ . $ids . ($type ? '-' . $type : '') . '-' . $this->context->shop->theme_name . '.jpg')) ? '-' . $this->context->shop->theme_name : '');
+        if (( (file_exists(_PS_PRODL_IMG_DIR_ . $ids . ($type ? '-' . $type : '') . $theme . '.jpg')))
+            || (strpos($ids, 'default') !== false)) {
+            $uriPath = _THEME_PRODL_IMG_ . $ids . ($type ? '-' . $type : '') . $theme . '.jpg';
+            if((file_exists(_PS_PRODL_IMG_DIR_ . $ids . ($type ? '-' . $type : '') . $theme . '.webp')))
+                $is_webp = true;
+        } else {
+            // if ids if of the form id_product-id_image, we want to extract the id_image part
+            $splitIds = explode('-', $ids);
+            $idImage = (isset($splitIds[1]) ? $splitIds[1] : $splitIds[0]);
+            $theme = ((Shop::isFeatureActive() && file_exists(_PS_PRODL_IMG_DIR_ . Image::getImgFolderStatic($idImage) . $idImage . ($type ? '-' . $type : '') . '-' . (int) $this->context->shop->theme_name . '.jpg')) ? '-' . $this->context->shop->theme_name : '');
+            $uriPath = _THEME_PRODL_IMG_ . Image::getImgFolderStatic($idImage) . $idImage . ($type ? '-' . $type : '') . $theme . '.jpg';
+            if(file_exists(_PS_PRODL_IMG_DIR_ . Image::getImgFolderStatic($idImage) . $idImage . ($type ? '-' . $type : '') . '-' . (int) $this->context->shop->theme_name . '.webp'))
+                $is_webp = true;
+        }
+        if(isset($is_webp))
+        {
+            $url = $this->context->link->protocol_content . Tools::getMediaServer($uriPath) . $uriPath;
+            return str_replace('.jpg','.webp',$url);
+        }
+        return $this->context->link->protocol_content . Tools::getMediaServer($uriPath) . $uriPath;
     }
 }

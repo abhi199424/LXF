@@ -111,7 +111,7 @@ if (!function_exists('http_build_url')) {
 					parse_str($url['query'], $url_query);
 					parse_str($parts['query'], $parts_query);
 					$url['query'] = http_build_query(
-						Tools::arrayReplaceRecursive(
+                        array_replace_recursive(
 							$url_query,
 							$parts_query
 						)

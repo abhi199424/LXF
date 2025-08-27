@@ -19,6 +19,10 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
+/**
+ * Class Ets_superspeedCronModuleFrontController
+ * @property Ets_superspeed $module;
+ */
 class Ets_superspeedCronModuleFrontController extends ModuleFrontController
 {
     public function __construct()

@@ -59,23 +59,8 @@ function upgrade_module_1_0_4($object)
           `new_size` float(10,2) NOT NULL,
           `date_add` datetime NOT NULL,
         PRIMARY KEY (`id_ets_superspeed_browse_image`))  ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci';
-    if($sqls)
-        foreach($sqls as $sql)
-            Db::getInstance()->execute($sql);
-    $tabId = Tab::getIdFromClassName('AdminSuperSpeed');
-    if($tabId)
-    {
-        $tab = new Tab();
-        $tab->class_name = 'AdminSuperSpeedSystemAnalytics';
-        $tab->module = $object->name;
-        $tab->id_parent = $tabId; 
-        $tab->icon='icon icon-analytics'; 
-        $languages = Language::getLanguages(false);          
-        foreach($languages as $lang){
-                $tab->name[$lang['id_lang']] = 'System Analytics';
-        }
-        $tab->save();               
-    } 
+    foreach($sqls as $sql)
+        Db::getInstance()->execute($sql);
     $object->registerHook('displayImagesBrowse');
     $object->registerHook('displayImagesUploaded');
     $object->registerHook('displayImagesCleaner');

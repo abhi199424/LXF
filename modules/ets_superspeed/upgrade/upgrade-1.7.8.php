@@ -19,9 +19,6 @@
  */
 
 if (!defined('_PS_VERSION_')) { exit; }
-/**
- * @param Ets_superspeed $module
- */
 function upgrade_module_1_7_8()
 {
     Db::getInstance()->execute('CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'ets_superspeed_cache_page_log` (

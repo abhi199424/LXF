@@ -19,7 +19,19 @@
 var editor_script=false;
 var total_optimize_images=0;
 $(document).ready(function(){
+    var headerInfosHeight = $('#header_infos').outerHeight(true) || 0;
+    var pageHeadHeight = $('.page-head').outerHeight(true) || 0;
+    var totalHeight = headerInfosHeight + pageHeadHeight;
+    $('.sp_block_left').css('top', totalHeight + 'px');
 
+    $(window).on('load', function() {
+        setTimeout(function(e){
+            var headerInfosHeight = $('#header_infos').outerHeight(true) || 0;
+            var pageHeadHeight = $('.page-head').outerHeight(true) || 0;
+            var totalHeight = headerInfosHeight + pageHeadHeight;
+            $('.sp_block_left').css('top', totalHeight + 'px');
+        },300);
+    });
     $('input[name="btnSubmitPageCache"]').remove();
     $('.filter input[type="text"]').attr('autocomplete','off');
     if ($(".ets_sp_datepicker input").length > 0) {

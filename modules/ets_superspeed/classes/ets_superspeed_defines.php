@@ -33,11 +33,11 @@ class Ets_superspeed_defines
             $this->is17 = true;
         if (version_compare(_PS_VERSION_, '1.7', '<'))
             $this->is16 = true;
-        if (Module::isInstalled('ybc_blog') && Module::isEnabled('ybc_blog'))
+        if (Ets_superspeed_defines::getIDModuleByName('ybc_blog') && Module::isEnabled('ybc_blog'))
             $this->isblog = true;
-        if ((Module::isInstalled('ps_imageslider') && Module::isEnabled('ps_imageslider')) || (Module::isInstalled('homeslider') && Module::isEnabled('homeslider')))
+        if ((Ets_superspeed_defines::getIDModuleByName('ps_imageslider') && Module::isEnabled('ps_imageslider')) || (Ets_superspeed_defines::getIDModuleByName('homeslider') && Module::isEnabled('homeslider')))
             $this->isSlide = true;
-        if ((Module::isInstalled('blockbanner') && Module::isEnabled('blockbanner')) || (Module::isInstalled('ps_banner') && Module::isEnabled('ps_banner')))
+        if ((Ets_superspeed_defines::getIDModuleByName('blockbanner') && Module::isEnabled('blockbanner')) || (Ets_superspeed_defines::getIDModuleByName('ps_banner') && Module::isEnabled('ps_banner')))
             $this->isBanner = true;
     }
     public static function getInstance()
@@ -871,7 +871,7 @@ class Ets_superspeed_defines
                         ),
 
                     );
-                    if($render_form && !self::getIDModuleByName('ets_crosssell') && isset(self::$inputs['ETS_SP_CLEAR_CACHE_CRS']))
+                    if($render_form && !self::getIDModuleByName('ets_crosssell'))
                     {
                         unset(self::$inputs['ETS_SP_CLEAR_CACHE_CRS']);
                     }
@@ -1012,7 +1012,7 @@ class Ets_superspeed_defines
                     'label' => $this->l('Home banner')
                 );
             }
-            if(Module::isInstalled('themeconfigurator') && Module::isEnabled('themeconfigurator'))
+            if(Ets_superspeed_defines::getIDModuleByName('themeconfigurator') && Module::isEnabled('themeconfigurator'))
             {
                 $lazys[] = array(
                     'value' => 'home_themeconfig',
@@ -1344,11 +1344,6 @@ class Ets_superspeed_defines
             self::$config_images = $config_images;
         }
         return self::$config_images;
-    }
-    public static function getBaseLink()
-    {
-        $context = Context::getContext();
-        return (Configuration::get('PS_SSL_ENABLED_EVERYWHERE')?'https://':'http://').$context->shop->domain.$context->shop->getBaseURI();
     }
     public function getImageTypes($type='',$string=false,$get_total=false)
     {
@@ -1709,7 +1704,7 @@ class Ets_superspeed_defines
         if (isset(self::$_total_image[$key]) && self::$_total_image[$key] !== null) {
             return self::$_total_image[$key];
         }
-        if(!Module::isInstalled('ets_superspeed'))
+        if(!Ets_superspeed_defines::getIDModuleByName('ets_superspeed'))
             return 1;
         if (in_array($type, array('blog_post','blog_category','blog_gallery','blog_slide'))) {
             $ybc_blog = Module::getInstanceByName('ybc_blog');
@@ -1821,7 +1816,7 @@ class Ets_superspeed_defines
                         SELECT COUNT(pm.id_image) FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image` pm
                         INNER JOIN `' . _DB_PREFIX_ . 'image` m ON (pm.id_image= m.id_image)
                         WHERE 1' . ($all_type && $product_type && !$noconfig ? ' AND pm.type_image IN ("' . implode('","', array_map('pSQL', $product_type)) . '")' : '') . ($type_image ? ' AND pm.type_image="' . pSQL($type_image) . '"' : '') . ($check_quality ? ' AND pm.quality = "' . (int)$quality . '"' : ' AND pm.quality!=100') . ($check_optimize_script ? 'AND optimize_type="' . pSQL($optimize_script) . '"' : ''));
-                    if (Module::isInstalled('ets_multilangimages') && Module::isEnabled('ets_multilangimages')) {
+                    if (Ets_superspeed_defines::getIDModuleByName('ets_multilangimages') && Module::isEnabled('ets_multilangimages')) {
                         $total += Db::getInstance()->getValue('
                         SELECT COUNT(pm.id_image_lang) FROM `' . _DB_PREFIX_ . 'ets_superspeed_product_image_lang` pm
                         INNER JOIN `' . _DB_PREFIX_ . 'ets_image_lang` m ON (pm.id_image_lang = m.id_image_lang)
@@ -1973,7 +1968,7 @@ class Ets_superspeed_defines
                         $total += (Configuration::get('PS_LOGO') ? 1 : 0);
                     if (in_array('banner', $orther_type) || $noconfig) {
                         if (version_compare(_PS_VERSION_, '1.7', '>=')) {
-                            if (Module::isInstalled('ps_banner') && Module::isEnabled('ps_banner')) {
+                            if (Ets_superspeed_defines::getIDModuleByName('ps_banner') && Module::isEnabled('ps_banner')) {
                                 $languages = Language::getLanguages(false);
                                 $banners = array();
                                 foreach ($languages as $language) {
@@ -1984,7 +1979,7 @@ class Ets_superspeed_defines
                                 }
                             }
                         } else {
-                            if (Module::isInstalled('blockbanner') && Module::isEnabled('blockbanner')) {
+                            if (Ets_superspeed_defines::getIDModuleByName('blockbanner') && Module::isEnabled('blockbanner')) {
                                 $languages = Language::getLanguages(false);
                                 $banners = array();
                                 foreach ($languages as $language) {
@@ -1998,7 +1993,7 @@ class Ets_superspeed_defines
                     }
                     if (in_array('themeconfig', $orther_type) || $noconfig) {
 
-                        if (Module::isInstalled('themeconfigurator') && Module::isEnabled('themeconfigurator')) {
+                        if (Ets_superspeed_defines::getIDModuleByName('themeconfigurator') && Module::isEnabled('themeconfigurator')) {
                             $themeconfigurators = Db::getInstance()->executeS('SELECT image FROM `' . _DB_PREFIX_ . 'themeconfigurator` WHERE image!="" GROUP BY image');
                             $themes = array();
                             if ($themeconfigurators) {
@@ -2014,7 +2009,7 @@ class Ets_superspeed_defines
                         $total++;
                     elseif ($type_image == 'banner') {
                         if (version_compare(_PS_VERSION_, '1.7', '>=')) {
-                            if (Module::isInstalled('ps_banner') && Module::isEnabled('ps_banner')) {
+                            if (Ets_superspeed_defines::getIDModuleByName('ps_banner') && Module::isEnabled('ps_banner')) {
                                 $languages = Language::getLanguages(false);
                                 $banners = array();
                                 foreach ($languages as $language) {
@@ -2025,7 +2020,7 @@ class Ets_superspeed_defines
                                 }
                             }
                         } else {
-                            if (Module::isInstalled('blockbanner') && Module::isEnabled('blockbanner')) {
+                            if (Ets_superspeed_defines::getIDModuleByName('blockbanner') && Module::isEnabled('blockbanner')) {
                                 $languages = Language::getLanguages(false);
                                 $banners = array();
                                 foreach ($languages as $language) {
@@ -2037,7 +2032,7 @@ class Ets_superspeed_defines
                             }
                         }
                     } elseif ($type_image == 'themeconfig') {
-                        if (Module::isInstalled('themeconfigurator') && Module::isEnabled('themeconfigurator')) {
+                        if (Ets_superspeed_defines::getIDModuleByName('themeconfigurator') && Module::isEnabled('themeconfigurator')) {
                             $themeconfigurators = Db::getInstance()->executeS('SELECT image FROM `' . _DB_PREFIX_ . 'themeconfigurator` WHERE image!="" GROUP BY image');
                             $themes = array();
                             if ($themeconfigurators) {
@@ -2070,6 +2065,7 @@ class Ets_superspeed_defines
         self::$_total_image[$key] = $total;
         return $total;
     }
+
     public function l($string)
     {
         return Translate::getModuleTranslation('ets_superspeed', $string, pathinfo(__FILE__, PATHINFO_FILENAME));
@@ -2085,6 +2081,8 @@ class Ets_superspeed_defines
         WHERE m.name!="' . pSQL($customerSignin) . '" AND m.name!="' . pSQL($shoppingcart) . '" AND m.name!="blockcart" AND m.name!="blockuserinfo" AND h.name IN ("' . implode('","', array_map('pSQL', $dynamic_hooks)) . '") GROUP BY m.name';
         $modules = Db::getInstance()->executeS($sql);
         if ($modules) {
+            /** @var Ets_superspeed $ets_superspeed */
+            $ets_superspeed = Module::getInstanceByName('ets_superspeed');
             foreach ($modules as $key=> &$module) {
                 if(!file_exists(_PS_MODULE_DIR_.$module['name'].'/'.$module['name'].'.php'))
                     unset($modules[$key]);
@@ -2101,7 +2099,7 @@ class Ets_superspeed_defines
                             $hook['dynamic'] = $hook['id_module'] ? array('id_module' => $hook['id_module'],'empty_content' => $hook['empty_content']): array();
                         }
                     }
-                    $module['logo'] = self::getBaseLink() . '/modules/' . $module['name'] . '/logo.png';
+                    $module['logo'] = $ets_superspeed->getBaseLink(true) . '/modules/' . $module['name'] . '/logo.png';
                 }
 
             }
@@ -2385,62 +2383,37 @@ class Ets_superspeed_defines
         }
         return Cache::retrieve($cache_key);
     }
-    public static function checkModuleIsActive($id_module)
+    public static function checkModuleIsActive($id_module, $id_shop)
     {
-        return Db::getInstance()->getValue('SELECT `id_module` FROM `' . _DB_PREFIX_ . 'module_shop` WHERE `id_module` = ' . (int)$id_module . ' AND `id_shop` = ' . (int)Context::getContext()->shop->id);
+        return Db::getInstance()->getValue('SELECT `id_module` FROM `' . _DB_PREFIX_ . 'module_shop` WHERE `id_module` = ' . (int)$id_module . ' AND `id_shop` = ' . (int)$id_shop);
     }
     public static function getColumnTable($table)
     {
-        try {
-            return Db::getInstance()->ExecuteS('DESCRIBE ' . _DB_PREFIX_ . bqSQL($table));
-        }
-        catch(Exception $ex){
-            if($ex){
-                return false;
-            }
-        }
-        return false;
+        return Db::getInstance()->ExecuteS('DESCRIBE ' . _DB_PREFIX_ . bqSQL($table));
     }
     public static function getTotalRowTable($table,$where,$count = true)
     {
-        try {
-            if($count)
-                return Db::getInstance()->getValue('SELECT COUNT(*) FROM `' . _DB_PREFIX_ . bqSQL($table) . '`' . (string)$where);
-            else
-                return Db::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . bqSQL($table) . '`' . (string)$where);
-        }
-        catch(Exception $ex){
-            if($ex){
-                return false;
-            }
-        }
-        return false;
+        if($count)
+            return Db::getInstance()->getValue('SELECT COUNT(*) FROM `' . _DB_PREFIX_ . bqSQL($table) . '`' . (string)$where);
+        else
+            return Db::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . bqSQL($table) . '`' . (string)$where);
     }
     public static function deleteRowTable($table,$where)
     {
-        try {
-            Db::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . bqSQL($table) . '`' . (string)$where);
-        }
-        catch(Exception $ex){
-            if($ex){
-                return false;
-            }
-        }
-        return false;
-
+        Db::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . bqSQL($table) . '`' . (string)$where);
     }
     public static function deleteHookTime()
     {
         return Db::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'ets_superspeed_hook_time`');
     }
-    public static function getHookTimeByFilter($filter='',$total=false,$orderby='',$orderway='',$start=0,$limit=20)
+    public static function getHookTimeByFilter($id_shop, $filter='',$total=false,$orderby='',$orderway='',$start=0,$limit=20)
     {
         $sql = 'SELECT '.($total ? 'COUNT(*)':'DISTINCT pht.*, phm.id_module as disabled').' FROM `' . _DB_PREFIX_ . 'ets_superspeed_hook_time` pht
             INNER JOIN `' . _DB_PREFIX_ . 'module` m ON (m.id_module=pht.id_module)
             INNER JOIN `' . _DB_PREFIX_ . 'module_shop` ms ON (pht.id_module = ms.id_module)
             LEFT JOIN `' . _DB_PREFIX_ . 'ets_superspeed_hook_module` phm ON phm.id_module= pht.id_module
             LEFT JOIN `' . _DB_PREFIX_ . 'hook` h ON h.id_hook= phm.id_hook
-            WHERE ms.id_shop="' . (int)Context::getContext()->shop->id . '" AND pht.id_module!= "'.(int)Module::getInstanceByName('ets_superspeed')->id.'" AND pht.id_shop="' . (int)Context::getContext()->shop->id . '" '.($filter ? (string)$filter :'');
+            WHERE ms.id_shop="' . (int)$id_shop . '" AND pht.id_module!= "'.(int)Module::getInstanceByName('ets_superspeed')->id.'" AND pht.id_shop="' . (int)$id_shop . '" '.($filter ? (string)$filter :'');
         if($total)
             return Db::getInstance()->getValue($sql);
         else
@@ -2452,14 +2425,14 @@ class Ets_superspeed_defines
             return Db::getInstance()->executeS($sql);
         }
     }
-    public static function changeRegisterHook($change_register_option,$hook_name,$id_module,$id_hook)
+    public static function changeRegisterHook($change_register_option,$hook_name,$id_module,$id_hook, $context)
     {
         $module = Module::getInstanceById($id_module);
         if($module->id)
         {
             if(Configuration::get('SP_DEL_CACHE_HOOK_CHANGE'))
             {
-                Ets_ss_class_cache::getInstance()->deleteCache('', 0, $hook_name);
+                Ets_ss_class_cache::getInstance($context)->deleteCache('', 0, $hook_name);
                 Ets_superspeed_cache_page_log::addLog('Page of hook #'.$hook_name,'Change register hook');
             }
             if($change_register_option)
@@ -2467,11 +2440,11 @@ class Ets_superspeed_defines
                 if(!$module->isRegisteredInHook($hook_name))
                 {
                     $module->registerHook($hook_name);
-                    $module_hook_old = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'ets_superspeed_hook_module` WHERE id_module="'.(int)$id_module.'" AND id_hook="'.(int)$id_hook.'" AND id_shop='.(int)Context::getContext()->shop->id);
+                    $module_hook_old = Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'ets_superspeed_hook_module` WHERE id_module="'.(int)$id_module.'" AND id_hook="'.(int)$id_hook.'" AND id_shop='.(int)$context->shop->id);
                     if($module_hook_old)
                         $module->updatePosition($id_hook,false,$module_hook_old['position']);
                 }
-                Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'ets_superspeed_hook_module` WHERE id_module="'.(int)$id_module.'" AND id_hook="'.(int)$id_hook.'" AND id_shop="'.(int)Context::getContext()->shop->id.'"');
+                Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'ets_superspeed_hook_module` WHERE id_module="'.(int)$id_module.'" AND id_hook="'.(int)$id_hook.'" AND id_shop="'.(int)$context->shop->id.'"');
             }
             else
             {
@@ -2482,7 +2455,7 @@ class Ets_superspeed_defines
                 }
                 else
                     $postion=0;
-                Db::getInstance()->execute('INSERT INTO `'._DB_PREFIX_.'ets_superspeed_hook_module`(id_module,id_hook,position,id_shop) values("'.(int)$id_module.'","'.(int)$id_hook.'","'.(int)$postion.'","'.(int)Context::getContext()->shop->id.'")');
+                Db::getInstance()->execute('INSERT INTO `'._DB_PREFIX_.'ets_superspeed_hook_module`(id_module,id_hook,position,id_shop) values("'.(int)$id_module.'","'.(int)$id_hook.'","'.(int)$postion.'","'.(int)$context->shop->id.'")');
             }
             return true;
         }
@@ -2552,7 +2525,7 @@ class Ets_superspeed_defines
                 return false;
             }
 
-            if (!self::isAllowedDomain($url,$allowed_domains)) {
+            if ($allowed_domains && !self::isAllowedDomain($url,$allowed_domains)) {
                 return false;
             }
         } else {
@@ -2620,9 +2593,6 @@ class Ets_superspeed_defines
 
     public static function isAllowedDomain($url, $allowed_domains = [])
     {
-        if (empty($allowed_domains)) {
-            $allowed_domains = [Context::getContext()->shop->domain];
-        }
         $host = parse_url($url, PHP_URL_HOST);
         return in_array($host, $allowed_domains);
     }

@@ -133,9 +133,8 @@ class Ets_superspeed_cache_page extends ObjectModel
 
         return Tools::ps_round(@filesize($cache_file) / 1024, 2);
     }
-    public static function getCacheContent($file_name)
+    public static function getCacheContent($file_name, $context)
     {
-        $context = Context::getContext();
         $shop_id = (int)$context->shop->id;
         $base_dir = realpath(_ETS_SPEED_CACHE_DIR_ . $shop_id) ?: _ETS_SPEED_CACHE_DIR_ . $shop_id;
         $file_dir = $base_dir . DIRECTORY_SEPARATOR . self::getFolderStatic($file_name);
@@ -151,10 +150,11 @@ class Ets_superspeed_cache_page extends ObjectModel
         if (Configuration::get('ETS_SPEED_COMPRESS_CACHE_FIIE') && class_exists('ZipArchive')) {
             if (is_dir($file_dir)) {
                 foreach (glob($file_dir . $file_name . '*.zip') as $filename) {
-                    if (($time = str_replace('.zip', '', Tools::substr(basename($filename), 64)))) {
-                        if ($time >= time() && ($zip = new ZipArchive()) && $zip->open($filename)) {
+                    if (($time = (int)str_replace('.zip', '', Tools::substr(basename($filename), 64)))) {
+                        $zip = new ZipArchive();
+                        if ($time >= time() && $zip->open($filename)) {
                             return array(
-                                'date_add' => Ets_ss_class_cache::displayDate(date('Y-m-d H:i:s', filemtime($filename)), true),
+                                'date_add' => Ets_ss_class_cache::displayDate(date('Y-m-d H:i:s', filemtime($filename)), true, $context),
                                 'cache_content' => $zip->getFromName(str_replace('.zip', '', basename($filename))),
                             );
                         } else {
@@ -163,7 +163,7 @@ class Ets_superspeed_cache_page extends ObjectModel
                         }
                     } elseif (($zip = new ZipArchive()) && $zip->open($filename)) {
                         return array(
-                            'date_add' => Ets_ss_class_cache::displayDate(date('Y-m-d H:i:s', filemtime($filename)), true),
+                            'date_add' => Ets_ss_class_cache::displayDate(date('Y-m-d H:i:s', filemtime($filename)), true, $context),
                             'cache_content' => $zip->getFromName(str_replace('.zip', '', basename($filename))),
                         );
                     }
@@ -172,10 +172,10 @@ class Ets_superspeed_cache_page extends ObjectModel
         } else {
             if (is_dir($file_dir)) {
                 foreach (glob($file_dir . $file_name . '*.html') as $filename) {
-                    if (($time = str_replace('.html', '', Tools::substr(basename($filename), 64)))) {
+                    if (($time = (int)str_replace('.html', '', Tools::substr(basename($filename), 64)))) {
                         if ($time >= time()) {
                             return array(
-                                'date_add' => Ets_ss_class_cache::displayDate(date('Y-m-d H:i:s', filemtime($filename)), true),
+                                'date_add' => Ets_ss_class_cache::displayDate(date('Y-m-d H:i:s', filemtime($filename)), true, $context),
                                 'cache_content' => Tools::file_get_contents($filename),
                             );
                         } else {
@@ -184,7 +184,7 @@ class Ets_superspeed_cache_page extends ObjectModel
                         }
                     }
                     return array(
-                        'date_add' => Ets_ss_class_cache::displayDate(date('Y-m-d H:i:s', filemtime($filename)), true),
+                        'date_add' => Ets_ss_class_cache::displayDate(date('Y-m-d H:i:s', filemtime($filename)), true, $context),
                         'cache_content' => Tools::file_get_contents($filename),
                     );
                 }
@@ -267,63 +267,57 @@ class Ets_superspeed_cache_page extends ObjectModel
         }
         return true;
     }
-    public static function getTotalPageCaches($filter='')
+    public static function getTotalPageCaches($filter, $context)
     {
         $sql ='SELECT COUNT(cache.id_cache_page) FROM `' . _DB_PREFIX_ . 'ets_superspeed_cache_page` cache';
         if($filter)
         {
             $sql .=' LEFT JOIN `'._DB_PREFIX_.'currency` currency ON (cache.id_currency = currency.id_currency)
             LEFT JOIN `'._DB_PREFIX_.'country` country ON (country.id_country=cache.id_country)
-            LEFT JOIN `'._DB_PREFIX_.'country_lang` country_lang ON (country_lang.id_country = country.id_country AND country_lang.id_lang="'.(int)Context::getContext()->language->id.'")
+            LEFT JOIN `'._DB_PREFIX_.'country_lang` country_lang ON (country_lang.id_country = country.id_country AND country_lang.id_lang="'.(int)$context->language->id.'")
             LEFT JOIN `'._DB_PREFIX_.'lang` lang ON (lang.id_lang=cache.id_lang)';
     }
-        $sql .=' WHERE cache.id_shop=' . (int)Context::getContext()->shop->id.($filter ? (string)$filter:'');
+        $sql .=' WHERE cache.id_shop=' . (int)$context->shop->id.($filter ? (string)$filter:'');
         return (int)Db::getInstance()->getValue($sql);
     }
-    public static function getListPageCaches($start=0,$limit=20,$sql_sort='',$filter='')
+    public static function getListPageCaches($start, $limit , $sql_sort , $filter, $context)
     {
         $sql ='SELECT cache.*,currency.iso_code,country_lang.name as country_name,lang.name as lang_name FROM `' . _DB_PREFIX_ . 'ets_superspeed_cache_page` cache
         LEFT JOIN `'._DB_PREFIX_.'currency` currency ON (cache.id_currency = currency.id_currency)
         LEFT JOIN `'._DB_PREFIX_.'country` country ON (country.id_country=cache.id_country)
-        LEFT JOIN `'._DB_PREFIX_.'country_lang` country_lang ON (country_lang.id_country = country.id_country AND country_lang.id_lang="'.(int)Context::getContext()->language->id.'")
+        LEFT JOIN `'._DB_PREFIX_.'country_lang` country_lang ON (country_lang.id_country = country.id_country AND country_lang.id_lang="'.(int)$context->language->id.'")
         LEFT JOIN `'._DB_PREFIX_.'lang` lang ON (lang.id_lang=cache.id_lang)
-        WHERE cache.id_shop="' . (int)Context::getContext()->shop->id . '"'.($filter ? (string)$filter:'') .($sql_sort ? ' ORDER BY '.bqSQL($sql_sort) : '').' LIMIT ' . (int)$start . ',' . (int)$limit;
+        WHERE cache.id_shop="' . (int)$context->shop->id . '"'.($filter ? (string)$filter:'') .($sql_sort ? ' ORDER BY '.bqSQL($sql_sort) : '').' LIMIT ' . (int)$start . ',' . (int)$limit;
         return Db::getInstance()->executeS($sql);
     }
-    public static function getListFileCache($limit = 10,$filter='',$sort= '')
+    public static function getListFileCache($id_shop,$limit = 10,$filter='',$sort= '')
     {
-        return Db::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_cache_page` WHERE 1 '.($filter ? (string)$filter:' AND id_shop="' . (int)Context::getContext()->shop->id . '"').' ORDER BY '.($sort  ? bqSQL($sort) : 'date_add desc').($limit ? ' LIMIT 0,'.(int)$limit:''));
+        return Db::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_cache_page` WHERE 1 '.($filter ? (string)$filter:' AND id_shop="' . (int)$id_shop . '"').' ORDER BY '.($sort  ? bqSQL($sort) : 'date_add desc').($limit ? ' LIMIT 0,'.(int)$limit:''));
     }
-    public static function getRowCache()
+    public static function getRowCache($id_shop)
     {
-        return Db::getInstance()->getRow('SELECT SUM(file_size) as total_cache,COUNT(file_cache) as total_file FROM `'._DB_PREFIX_.'ets_superspeed_cache_page` WHERE id_shop='.(int)Context::getContext()->shop->id);
+        return Db::getInstance()->getRow('SELECT SUM(file_size) as total_cache,COUNT(file_cache) as total_file FROM `'._DB_PREFIX_.'ets_superspeed_cache_page` WHERE id_shop='.(int)$id_shop);
     }
-    public static function getTotalHomeSlider()
+    public static function getTotalHomeSlider($id_shop)
     {
         return Db::getInstance()->getValue('SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'homeslider_slides` hs
                 INNER JOIN `' . _DB_PREFIX_ . 'homeslider` h ON (hs.id_homeslider_slides = h.id_homeslider_slides)
-                WHERE hs.active=1 AND h.id_shop=' . (int)Context::getContext()->shop->id);
+                WHERE hs.active=1 AND h.id_shop=' . (int)$id_shop);
     }
-    public static function getTotalPoints()
+    public static function getTotalPoints($id_shop)
     {
         return (int)Db::getInstance()->getValue('SELECT COUNT(*) FROM `' . _DB_PREFIX_ . 'ets_superspeed_hook_time` pht
             INNER JOIN `' . _DB_PREFIX_ . 'hook` h ON (pht.hook_name = h.name)
             INNER JOIN `' . _DB_PREFIX_ . 'hook_module` hm ON (hm.id_hook=h.id_hook AND hm.id_module=pht.id_module)
-            WHERE hm.id_shop="' . (int)Context::getContext()->shop->id . '" AND pht.time >1');
+            WHERE hm.id_shop="' . (int)$id_shop . '" AND pht.time >1');
     }
     public static function getDynamicHookModule($id_module, $hook_name)
     {
-        $context = Context::getContext();
-        $always_load_content = Configuration::get('ETS_ALWAYS_LOAD_DYNAMIC_CONTENT');
-        if ($id_module && ($id_module == Module::getModuleIdByName('blockcart') || $id_module == Module::getModuleIdByName('ps_shoppingcart') || $id_module == Module::getModuleIdByName('tdshoppingcart')) && $hook_name != 'header' && $hook_name != 'displayHeader' && ($always_load_content || (isset($context->cookie->id_cart) && $context->cookie->id_cart))) {
-            return array(
-                'empty_content' => 0,
-            );
-        }
-        if ($id_module && ($id_module == Module::getModuleIdByName('ps_customersignin') || $id_module == Module::getModuleIdByName('blockuserinfo')) && $hook_name != 'header' && $hook_name != 'displayHeader' && ($always_load_content || (isset($context->customer->id) && $context->customer->id && $context->customer->logged))) {
-            return array(
-                'empty_content' => 1,
-            );
+        /** @var Ets_superspeed $module */
+        $module = Module::getInstanceByName('ets_superspeed');
+        if($dynamic = $module->getDynamicCartAndCustomer($id_module, $hook_name))
+        {
+            return $dynamic;
         }
         if(($hooks = Ets_superspeed_defines::getInstance()->getFieldConfig('_dynamic_hooks'))  && ($hooks = array_map('strtolower',$hooks)) && in_array(Tools::strtolower($hook_name),$hooks))
         {
@@ -350,8 +344,7 @@ class Ets_superspeed_cache_page extends ObjectModel
         }
         return true;
     }
-    public static function submitTimeSpeed($request_time){
-        $id_shop = Context::getContext()->shop->id;
+    public static function submitTimeSpeed($request_time, $id_shop){
         if($request_time)
         {
             $request_time = Tools::ps_round($request_time/1000,2);
@@ -364,15 +357,15 @@ class Ets_superspeed_cache_page extends ObjectModel
             }
         }
     }
-    public static function getTimeSpeed()
+    public static function getTimeSpeed($id_shop)
     {
-        return Db::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_time` WHERE id_shop="' . (int)Context::getContext()->shop->id . '" AND `date`<="' . pSQL(date('Y-m-d H:i:s')) . '" ORDER BY `date` DESC LIMIT 0,150');
+        return Db::getInstance()->executeS('SELECT * FROM `' . _DB_PREFIX_ . 'ets_superspeed_time` WHERE id_shop="' . (int)$id_shop . '" AND `date`<="' . pSQL(date('Y-m-d H:i:s')) . '" ORDER BY `date` DESC LIMIT 0,150');
     }
-    public static function deleteAllCache()
+    public static function deleteAllCache($context)
     {
         Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'ets_superspeed_cache_page`');
         Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'ets_superspeed_cache_page_hook`');
-        Ets_ss_class_cache::getInstance()->rmDir(_ETS_SPEED_CACHE_DIR_);
+        Ets_ss_class_cache::getInstance($context)->rmDir(_ETS_SPEED_CACHE_DIR_);
         return true;
     }
     public static function isAjax()
@@ -428,5 +421,17 @@ class Ets_superspeed_cache_page extends ObjectModel
             return false;
         }
         return true;
+    }
+    public static function setTimeExecHook($time_start, $time_end, $hookName, $id_module, $id_shop)
+    {
+        $time= $time_end-$time_start;
+        if(Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'ets_superspeed_hook_time` WHERE id_module="'.(int)$id_module.'" AND hook_name="'.pSQL($hookName).'" AND id_shop='.(int)$id_shop))
+        {
+            Db:: getInstance()->execute('UPDATE `'._DB_PREFIX_.'ets_superspeed_hook_time` SET page="'.pSQL($_SERVER['REQUEST_URI']).'",time="'.(float)$time.'",date_add ="'.pSQL(date('Y-m-d H:i:s')).'" WHERE id_module="'.(int)$id_module.'" AND hook_name="'.pSQL($hookName).'" AND id_shop='.(int)$id_shop);
+        }
+        else
+        {
+            Db::getInstance()->execute('INSERT INTO `'._DB_PREFIX_.'ets_superspeed_hook_time`(id_module,hook_name,page,time,date_add,id_shop) VALUES("'.(int)$id_module.'","'.pSQL($hookName).'","'.pSQL($_SERVER['REQUEST_URI']).'","'.(float)$time.'","'.pSQL(date('Y-m-d H:i:s')).'","'.(int)$id_shop.'")');
+        }
     }
 }

@@ -77,9 +77,8 @@ function upgrade_module_1_0_3($object)
           `optimize_type` VARCHAR(8),
           PRIMARY KEY(`type_image`,`image`)
         )  ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci';
-    if($sqls)
-        foreach($sqls as $sql)
-            Db::getInstance()->execute($sql);
+    foreach($sqls as $sql)
+        Db::getInstance()->execute($sql);
     $object->registerHook('actionUpdateBlog');
     $object->registerHook('actionUpdateBlogImage');
     return true;

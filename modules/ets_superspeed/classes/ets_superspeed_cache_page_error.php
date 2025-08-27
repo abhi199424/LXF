@@ -60,27 +60,27 @@ class Ets_superspeed_cache_page_error extends ObjectModel
             'date_add' => array('type' => self::TYPE_STRING, 'validate' => 'isCleanHtml'),
         )
     );
-    public static function getTotalPageNoCaches($filter='')
+    public static function getTotalPageNoCaches($filter, $context)
     {
         $sql ='SELECT COUNT(cache.id_ets_superspeed_cache_page_error) FROM `' . _DB_PREFIX_ . 'ets_superspeed_cache_page_error` cache';
         if($filter)
         {
             $sql .=' LEFT JOIN `'._DB_PREFIX_.'currency` currency ON (cache.id_currency = currency.id_currency)
             LEFT JOIN `'._DB_PREFIX_.'country` country ON (country.id_country=cache.id_country)
-            LEFT JOIN `'._DB_PREFIX_.'country_lang` country_lang ON (country_lang.id_country = country.id_country AND country_lang.id_lang="'.(int)Context::getContext()->language->id.'")
+            LEFT JOIN `'._DB_PREFIX_.'country_lang` country_lang ON (country_lang.id_country = country.id_country AND country_lang.id_lang="'.(int)$context->language->id.'")
             LEFT JOIN `'._DB_PREFIX_.'lang` lang ON (lang.id_lang=cache.id_lang)';
         }
-        $sql .=' WHERE cache.id_shop=' . (int)Context::getContext()->shop->id.($filter ? (string)$filter:'');
+        $sql .=' WHERE cache.id_shop=' . (int)$context->shop->id.($filter ? (string)$filter:'');
         return (int)Db::getInstance()->getValue($sql);
     }
-    public static function getListPageNoCaches($start=0,$limit=20,$sql_sort='',$filter='')
+    public static function getListPageNoCaches($start, $limit, $sql_sort, $filter, $context)
     {
         $sql ='SELECT cache.*,currency.iso_code,country_lang.name as country_name,lang.name as lang_name FROM `' . _DB_PREFIX_ . 'ets_superspeed_cache_page_error` cache
         LEFT JOIN `'._DB_PREFIX_.'currency` currency ON (cache.id_currency = currency.id_currency)
         LEFT JOIN `'._DB_PREFIX_.'country` country ON (country.id_country=cache.id_country)
-        LEFT JOIN `'._DB_PREFIX_.'country_lang` country_lang ON (country_lang.id_country = country.id_country AND country_lang.id_lang="'.(int)Context::getContext()->language->id.'")
+        LEFT JOIN `'._DB_PREFIX_.'country_lang` country_lang ON (country_lang.id_country = country.id_country AND country_lang.id_lang="'.(int)$context->language->id.'")
         LEFT JOIN `'._DB_PREFIX_.'lang` lang ON (lang.id_lang=cache.id_lang)
-        WHERE cache.id_shop = "' . (int)Context::getContext()->shop->id . '" '.($filter ? (string)$filter:'').($sql_sort ? ' ORDER BY '.bqSQL($sql_sort) : '').' LIMIT ' . (int)$start . ',' . (int)$limit;
+        WHERE cache.id_shop = "' . (int)$context->shop->id . '" '.($filter ? (string)$filter:'').($sql_sort ? ' ORDER BY '.bqSQL($sql_sort) : '').' LIMIT ' . (int)$start . ',' . (int)$limit;
         return Db::getInstance()->executeS($sql);
     }
     public static function deleteAllLog()

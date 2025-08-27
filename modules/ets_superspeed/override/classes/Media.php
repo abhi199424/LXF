@@ -24,6 +24,8 @@ class Media extends MediaCore
     public static function clearCache()
     {
         parent::clearCache();
-        Module::getInstanceByName('ets_superspeed')->hookActionAdminPerformanceControllerSaveAfter();
+        /** @var Ets_superspeed $module */
+        $module = Module::getInstanceByName('ets_superspeed');
+        $module->hookActionAdminPerformanceControllerSaveAfter();
     }
 }
