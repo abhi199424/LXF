@@ -22,16 +22,15 @@ abstract class Db extends DbCore
 {
     /*
     * module: ets_superspeed
-    * date: 2025-05-21 05:16:41
-    * version: 2.0.4
+    * date: 2025-08-04 17:27:06
+    * version: 2.0.5
     */
     public function query($sql)
     {
-        $context = Context::getContext();
-        if(isset($context->ss_total_sql))
-            $context->ss_total_sql++;
-        else
-            $context->ss_total_sql=1;
+        if (!class_exists('Ets_superspeed')) {
+            require_once(dirname(__FILE__) . '/../../../modules/ets_superspeed/ets_superspeed.php');
+        }
+        Ets_superspeed::$query_count++;
         return parent::query($sql);
     }
 }

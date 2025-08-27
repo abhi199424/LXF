@@ -18,18 +18,16 @@
  * @license    Valid for 1 website (or project) for each purchase of license
  */
 if (!defined('_PS_VERSION_')) { exit; }
-class Media extends MediaCore
+class HelperList extends HelperListCore
 {
     /*
-    * module: ets_superspeed
-    * date: 2025-08-04 17:27:06
-    * version: 2.0.5
+    * module: ets_delete_order
+    * date: 2025-08-06 09:39:17
+    * version: 1.0.6
     */
-    public static function clearCache()
+    public function displayRestoreLink($token, $id)
     {
-        parent::clearCache();
-        
-        $module = Module::getInstanceByName('ets_superspeed');
-        $module->hookActionAdminPerformanceControllerSaveAfter();
+        $ets_delete_order = Module::getInstanceByName('ets_delete_order');
+        return $ets_delete_order->displayRestoreLink($this->currentIndex,$this->identifier,$id,$this->table,$token != null ? $token : $this->token);
     }
 }

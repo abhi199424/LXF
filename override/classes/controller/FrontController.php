@@ -1,29 +1,14 @@
 <?php
-/**
- * Copyright ETS Software Technology Co., Ltd
- *
- * NOTICE OF LICENSE
- *
- * This file is not open source! Each license that you purchased is only available for 1 website only.
- * If you want to use this file on more websites (or projects), you need to purchase additional licenses.
- * You are not allowed to redistribute, resell, lease, license, sub-license or offer our resources to any third party.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future.
- *
- * @author ETS Software Technology Co., Ltd
- * @copyright  ETS Software Technology Co., Ltd
- * @license    Valid for 1 website (or project) for each purchase of license
- */
-if (!defined('_PS_VERSION_')) { exit; }
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class FrontController extends FrontControllerCore
 {
+    
     /*
     * module: ets_superspeed
-    * date: 2025-05-21 05:16:41
-    * version: 2.0.4
+    * date: 2025-08-04 17:27:06
+    * version: 2.0.5
     */
     public function initContent()
     {
@@ -36,8 +21,8 @@ class FrontController extends FrontControllerCore
     }
     /*
     * module: ets_superspeed
-    * date: 2025-05-21 05:16:41
-    * version: 2.0.4
+    * date: 2025-08-04 17:27:06
+    * version: 2.0.5
     */
     protected function smartyOutputContent($content)
     {
@@ -50,5 +35,24 @@ class FrontController extends FrontControllerCore
             echo $html;
         } else
             return parent::smartyOutputContent($content);
+    }
+    
+    /*
+    * module: ets_seo
+    * date: 2025-08-04 17:34:40
+    * version: 3.0.6
+    */
+    protected $redirectionExtraExcludedKeys = ['rewrite', 'category'];
+    /*
+    * module: ets_seo
+    * date: 2025-08-04 17:34:40
+    * version: 3.0.6
+    */
+    protected function redirect()
+    {
+        if (Module::isEnabled('ets_seo')) {
+            Hook::exec('actionFrontControllerRedirectBefore', ['redirect_after' => $this->redirect_after, 'controller' => $this]);
+        }
+        parent::redirect();
     }
 }

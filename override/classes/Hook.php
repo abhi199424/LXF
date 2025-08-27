@@ -22,8 +22,8 @@ class Hook extends HookCore
 {
     /*
     * module: ets_superspeed
-    * date: 2025-05-21 05:16:41
-    * version: 2.0.4
+    * date: 2025-08-04 17:27:06
+    * version: 2.0.5
     */
     public static function getMethodName(string $hookName): string
     {
@@ -31,32 +31,27 @@ class Hook extends HookCore
     }
     /*
     * module: ets_superspeed
-    * date: 2025-05-21 05:16:41
-    * version: 2.0.4
+    * date: 2025-08-04 17:27:06
+    * version: 2.0.5
     */
     public static function callHookOn_parent(Module $module, string $hookName, array $hookArgs)
     {
-        try {
-            $methodName = self::getMethodName($hookName);
+        $methodName = self::getMethodName($hookName);
+        if (is_callable([$module, $methodName])) {
+            return static::coreCallHook($module, $methodName, $hookArgs);
+        }
+        foreach (static::getAllKnownNames($hookName) as $hook) {
+            $methodName = self::getMethodName($hook);
             if (is_callable([$module, $methodName])) {
                 return static::coreCallHook($module, $methodName, $hookArgs);
             }
-            foreach (static::getAllKnownNames($hookName) as $hook) {
-                $methodName = self::getMethodName($hook);
-                if (is_callable([$module, $methodName])) {
-                    return static::coreCallHook($module, $methodName, $hookArgs);
-                }
-            }
-        } catch (Exception $e) {
-            if($e)
-                return true;
         }
         return '';
     }
     /*
     * module: ets_superspeed
-    * date: 2025-05-21 05:16:41
-    * version: 2.0.4
+    * date: 2025-08-04 17:27:06
+    * version: 2.0.5
     */
     public static function getDynamicHook($module,$hookName,$hookArgs)
     {
@@ -102,78 +97,66 @@ class Hook extends HookCore
     }
     /*
     * module: ets_superspeed
-    * date: 2025-05-21 05:16:41
-    * version: 2.0.4
+    * date: 2025-08-04 17:27:06
+    * version: 2.0.5
     */
     public static function callHookOn(Module $module, string $hookName, array $hookArgs)
     {
         require_once(dirname(__FILE__).'/../../modules/ets_superspeed/ets_superspeed.php');
+        $time_start = microtime(true);
         $content =self::callHookOn_parent($module,$hookName,$hookArgs);
+        if(Configuration::get('ETS_SPEED_RECORD_MODULE_PERFORMANCE'))
+        {
+            $time_end = microtime(true);
+            
+            $ets_superspeed = Module::getInstanceByName('ets_superspeed');
+            $ets_superspeed->setTimeExecHook($time_start, $time_end, $hookName, $module->id);
+        }
         if(is_array($content) || is_object($content)  || Tools::strtolower($hookName)=='header' || Tools::strtolower($hookName)=='displayheader' || !Module::isEnabled('ets_superspeed'))
             return $content;
         $html ='';
-        $time_start = microtime(true);
         $dynamicHook = self::getDynamicHook($module,$hookName,$hookArgs);
         if($dynamicHook)
             $html .= $dynamicHook['html_before'];
-        if(!$dynamicHook || ($dynamicHook && !$dynamicHook['empty_content'])) {
+        if(!$dynamicHook || !$dynamicHook['empty_content']) {
             $html .= $content;
         }
         if($dynamicHook)
         {
             $html .='</div>';
-        }
-        if(Configuration::get('ETS_SPEED_RECORD_MODULE_PERFORMANCE'))
-        {
-            $time_end = microtime(true);
-            $time= $time_end-$time_start;
-            if(Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'ets_superspeed_hook_time` WHERE id_module="'.(int)$module->id.'" AND hook_name="'.pSQL($hookName).'" AND id_shop='.(int)Context::getContext()->shop->id))
-            {
-                Db:: getInstance()->execute('UPDATE `'._DB_PREFIX_.'ets_superspeed_hook_time` SET page="'.pSQL($_SERVER['REQUEST_URI']).'",time="'.(float)$time.'",date_add ="'.pSQL(date('Y-m-d H:i:s')).'" WHERE id_module="'.(int)$module->id.'" AND hook_name="'.pSQL($hookName).'" AND id_shop='.(int)Context::getContext()->shop->id);
-            }
-            else
-            {
-                Db::getInstance()->execute('INSERT INTO `'._DB_PREFIX_.'ets_superspeed_hook_time`(id_module,hook_name,page,time,date_add,id_shop) VALUES("'.(int)$module->id.'","'.pSQL($hookName).'","'.pSQL($_SERVER['REQUEST_URI']).'","'.(float)$time.'","'.pSQL(date('Y-m-d H:i:s')).'","'.(int)Context::getContext()->shop->id.'")');
-            }
         }
         return $html;
     }
     /*
     * module: ets_superspeed
-    * date: 2025-05-21 05:16:41
-    * version: 2.0.4
+    * date: 2025-08-04 17:27:06
+    * version: 2.0.5
     */
     public static function coreRenderWidget($module, $hookName, $hookArgs)
     {
+        $time_start = microtime(true);
         $content = parent::coreRenderWidget($module,$hookName,$hookArgs);
-        if(is_array($content) || is_object($content) || Tools::strtolower($hookName)=='header' || Tools::strtolower($hookName)=='displayheader' || !Module::isEnabled('ets_superspeed'))
+        if(Configuration::get('ETS_SPEED_RECORD_MODULE_PERFORMANCE'))
+        {
+            $time_end = microtime(true);
+            
+            $ets_superspeed = Module::getInstanceByName('ets_superspeed');
+            $ets_superspeed->setTimeExecHook($time_start, $time_end, $hookName, $module->id);
+        }
+        if(is_array($content) || is_object($content) || Tools::strtolower($hookName)=='header' || Tools::strtolower($hookName)=='displayheader')
             return $content;
-        if(Tools::strtolower($hookName)=='header' || Tools::strtolower($hookName)=='displayheader' || !Module::isEnabled('ets_superspeed'))
+        if(Tools::strtolower($hookName)=='header' || Tools::strtolower($hookName)=='displayheader')
             return $content;
         $html ='';
-        $time_start = microtime(true);
         $dynamicHook = self::getDynamicHook($module,$hookName,$hookArgs);
         if($dynamicHook)
             $html .= $dynamicHook['html_before'];
-        if(!$dynamicHook || ($dynamicHook && !$dynamicHook['empty_content'])) {
+        if(!$dynamicHook || !$dynamicHook['empty_content']) {
             $html .= $content;
         }
         if($dynamicHook)
         {
             $html .='</div>';
-        }
-        if(Configuration::get('ETS_SPEED_RECORD_MODULE_PERFORMANCE'))
-        {
-            $time_end = microtime(true);
-            $time= $time_end-$time_start;
-            if(Db::getInstance()->getRow('SELECT * FROM `'._DB_PREFIX_.'ets_superspeed_hook_time` WHERE id_module="'.(int)$module->id.'" AND hook_name="'.pSQL($hookName).'" AND id_shop='.(int)Context::getContext()->shop->id))
-            {
-                Db:: getInstance()->execute('UPDATE `'._DB_PREFIX_.'ets_superspeed_hook_time` SET page="'.pSQL($_SERVER['REQUEST_URI']).'",time="'.(float)$time.'",date_add ="'.pSQL(date('Y-m-d H:i:s')).'" WHERE id_module="'.(int)$module->id.'" AND hook_name="'.pSQL($hookName).'" AND id_shop='.(int)Context::getContext()->shop->id);
-            }
-            else
-            {
-                Db::getInstance()->execute('INSERT INTO `'._DB_PREFIX_.'ets_superspeed_hook_time`(id_module,hook_name,page,time,date_add,id_shop) VALUES("'.(int)$module->id.'","'.pSQL($hookName).'","'.pSQL($_SERVER['REQUEST_URI']).'","'.(float)$time.'","'.pSQL(date('Y-m-d H:i:s')).'","'.(int)Context::getContext()->shop->id.'")');
-            }
         }
         return $html;
     }
