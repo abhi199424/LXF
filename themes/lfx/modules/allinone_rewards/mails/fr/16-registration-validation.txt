@@ -1,0 +1,8 @@
+Félicitations {customer_firstname} {customer_lastname} !
+
+Suite à votre inscription, une récompense de {customer_reward} est maintenant disponible dans votre compte récompenses.
+
+
+
+{shop_name}
+{shop_url}

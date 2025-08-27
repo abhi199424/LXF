@@ -124,7 +124,7 @@
    <div class="bottom_total_amount">Sous- total: <span style="color: #d10404">{$cart.totals.total_including_tax.value}</span></div>
    <div class="cart-popup-bottom-btn_group">
       <a href="{$base_url}" class="btn btn-dark-outline">Continuer vos achats</a>
-      <a href="{$cart_url}" class="btn btn-primary"><img src="/themes/lfx/assets/img/check.png" alt="cart-btn" class="btn-ticker"> Voir le panier</a>
+      <a href="{$cart_url}" class="btn btn-primary"><img src="/themes/lfx/assets/img/check.svg" alt="cart-btn" class="btn-ticker"> Voir le panier</a>
    </div>
 </div>
 </div>

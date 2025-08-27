@@ -47,7 +47,7 @@
       </header>
 
     <main>
-      {if $smarty.get.ret == 'rr'}
+      {if $page.page_name == 'category' && $category['custom_switch']}
         {widget name='partsstructformation' category=$category}
       {else}
       {block name='product_activation'}

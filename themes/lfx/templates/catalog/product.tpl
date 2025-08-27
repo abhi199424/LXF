@@ -310,7 +310,11 @@
                   {block name='product_discounts'}
                     {include file='catalog/_partials/product-discounts.tpl'}
                   {/block}
-                  {widget name='chtmlmanager' id_product=$product.id}
+                  {if $smarty.get.liv}
+                      {widget name='listcontent' id_product=$product.id id_category=$product.id_category_default}
+                  {else}
+                    {widget name='chtmlmanager' id_product=$product.id}
+                  {/if}
 
                   {block name='product_add_to_cart'}
                     {include file='catalog/_partials/product-add-to-cart.tpl'}

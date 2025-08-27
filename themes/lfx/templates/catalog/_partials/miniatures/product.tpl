@@ -159,6 +159,8 @@
   <article class="product-miniature js-product-miniature" data-id-product="{$product.id_product}" data-id-product-attribute="{$product.id_product_attribute}">
     <div class="p_box">
       <div class="thumbnail-container">
+        
+        <div class="thumbnail_right_cont">
       {if $product.has_discount}
         {if $product.discount_type === 'percentage'}
           <span class="discount-percentage discount-product">{$product.discount_percentage}</span>
@@ -169,6 +171,9 @@
           <span class="discount-amount discount-product amount-amp" style="display: none;">{$product.discount_amount_to_display}</span>
         {/if}
       {/if}
+      {hook h='displayLiveVersionBanner' id_category=$product.id_category_default id_product=$product.id_product}
+      </div>
+
         {block name='product_thumbnail'}
           <div class="thumbnail-wrapper">
           {*{if $product.cover}
@@ -348,7 +353,11 @@
             <p>Payer en 3 versements de 400,00 €,  sans frais. <img src="/img/klarma.png">  <a href="#">En savoir plus</a></p>
           </div>
           <div class="right_cont">
+          {if $smarty.get.liv}
+              {widget name='listcontent' id_product=$product.id id_category=$product.id_category_default}
+          {else}
             {widget name='chtmlmanager' id_product=$product.id}
+          {/if}
           </div>
         </div>
         

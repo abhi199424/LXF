@@ -34,7 +34,7 @@
     {hook h="displayHeaderCategory"}
     
     <section id="products">
-      <button class="btn btn-dark btn-mobile-filter" type="button" onclick="TestsFunction()">Trier <img src="/img/filter-icon.svg" width="20px" height="auto"></button>
+      <button class="btn btn-dark btn-mobile-filter" type="button" onclick="TestsFunction()">Trier <img src="/img/filter-icon-2.svg" width="20px" height="auto"></button>
       
       {if $listing.products|count}
 

@@ -64,10 +64,10 @@ Mon compte</a>
       </a>
         <div class="dropdown-menu" aria-labelledby="dropdownAccount">
     <div class="compte-login" rel="fr" title="Connexion"> 
-    <a class="compte-login-boutton"  href="https://lxfstore.fr/connectez-vousmaintenant"
+    <a class="compte-login-boutton"  href="https://lxfstore.fr/connexion-inscription"
             title="{l s='Log in to your customer account' d='Shop.Theme.Customeraccount'}"
             rel="nofollow">Connexion</a>
-    <div class="compte-news">Nouveau client ? <a href="https://lxfstore.fr/connectez-vousmaintenant" data-link-action="display-register-form"> Créer un compte</a></div>
+    <div class="compte-news">Nouveau client ? <a href="https://lxfstore.fr/connexion-inscription" data-link-action="display-register-form"> Créer un compte</a></div>
     </div>
     </div>
     <div id="screen-overlay" style="display:none;"></div>                     
