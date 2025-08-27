@@ -620,4 +620,192 @@ $(document).ready(function () {
             $input.val(currentVal - 1);
         }
     });
+
+    $('.PartsTop .search-input').on('input', function () {
+        var termsearch = $(this).val();
+        setTimeout(function () {
+            var $dfdInput = $('.dfd-searchbox-main input');
+
+            if ($dfdInput.length === 0) {
+                console.warn('Doofinder input not found');
+                return;
+            }
+
+            // Append 'asa' to the current term
+            var appendedVal = termsearch;
+            $dfdInput.val(appendedVal);
+
+            var inputEl = $dfdInput[0];
+            if (inputEl && inputEl.setSelectionRange) {
+                inputEl.setSelectionRange(appendedVal.length, appendedVal.length);
+            }
+
+            // Trigger native events so Doofinder reacts
+            inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+            inputEl.dispatchEvent(new KeyboardEvent('keyup', {
+                bubbles: true,
+                key: appendedVal.slice(-1) || 'a'
+            }));
+
+            console.log('Appended & triggered:', appendedVal);
+        }, 1600); // Adjust delay to match when Doofinder opens
+    });
+
+    $(document).ready(function () {
+      function updateTooltipPosition(e) {
+        const tooltip = $('.preview-tooltip');
+        const tooltipWidth = tooltip.outerWidth();
+        const windowWidth = $(window).width();
+        let left = e.pageX;
+
+        if (left < tooltipWidth / 2) {
+          left = tooltipWidth / 2 + 10;
+        } else if (left + tooltipWidth / 2 > windowWidth) {
+          left = windowWidth - tooltipWidth / 2 - 10;
+        }
+
+        tooltip.css({
+          top: e.pageY - tooltip.outerHeight() - 20,
+          left: left
+        });
+      }
+
+      function showTooltip(imgSrc, x, y) {
+        $('body').append(`
+          <div class="preview-tooltip">
+            <div class="tooltip-close">&times;</div>
+            <img src="${imgSrc}" />
+          </div>
+        `);
+
+        const tooltip = $('.preview-tooltip');
+        const tooltipWidth = tooltip.outerWidth();
+        const windowWidth = $(window).width();
+        let left = x;
+
+        if (left < tooltipWidth / 2) {
+          left = tooltipWidth / 2 + 10;
+        } else if (left + tooltipWidth / 2 > windowWidth) {
+          left = windowWidth - tooltipWidth / 2 - 10;
+        }
+
+        tooltip.css({
+          top: y - tooltip.outerHeight() - 20,
+          left: left
+        }).fadeIn(200);
+      }
+
+      // Handle hover for desktop
+      $('.preview-target').on('mouseenter', function (e) {
+        if ($(window).width() > 768) {
+          const largeImg = $(this).data('large');
+          showTooltip(largeImg, e.pageX, e.pageY);
+        }
+      }).on('mouseleave', function () {
+        if ($(window).width() > 768) {
+          $('.preview-tooltip').remove();
+        }
+      }).on('mousemove', function (e) {
+        if ($(window).width() > 768) {
+          updateTooltipPosition(e);
+        }
+      });
+
+      // Handle click for mobile/touch
+      $('.preview-target').on('click', function (e) {
+        if ($(window).width() <= 768) {
+          e.preventDefault();
+          $('.preview-tooltip').remove(); // remove existing
+          const largeImg = $(this).data('large');
+          showTooltip(largeImg, e.pageX, e.pageY);
+        }
+      });
+
+      // Close button handler
+      $(document).on('click', '.tooltip-close', function () {
+        $('.preview-tooltip').fadeOut(200, function () {
+          $(this).remove();
+        });
+      });
+    });
+
+
+    $(document).ready(function () {
+      function updateTooltipPosition(e) {
+        const tooltip = $('.preview-tooltip');
+        const tooltipWidth = tooltip.outerWidth();
+        const windowWidth = $(window).width();
+        let left = e.pageX;
+
+        if (left < tooltipWidth / 2) {
+          left = tooltipWidth / 2 + 10;
+        } else if (left + tooltipWidth / 2 > windowWidth) {
+          left = windowWidth - tooltipWidth / 2 - 10;
+        }
+
+        tooltip.css({
+          top: e.pageY - tooltip.outerHeight() - 20,
+          left: left
+        });
+      }
+
+      function showTooltip(imgSrc, x, y) {
+        $('body').append(`
+          <div class="preview-tooltip-left">
+            <div class="tooltip-close-left">&times;</div>
+            <img src="${imgSrc}" />
+          </div>
+        `);
+
+        const tooltip = $('.preview-tooltip-left');
+        const tooltipWidth = tooltip.outerWidth();
+        const windowWidth = $(window).width();
+        let left = x;
+
+        if (left < tooltipWidth / 2) {
+          left = tooltipWidth / 2 + 10;
+        } else if (left + tooltipWidth / 2 > windowWidth) {
+          left = windowWidth - tooltipWidth / 2 - 10;
+        }
+
+        tooltip.css({
+          top: y - tooltip.outerHeight() - 20,
+          left: left
+        }).fadeIn(200);
+      }
+
+      // Handle hover for desktop
+      $('.preview-target-left').on('mouseenter', function (e) {
+        if ($(window).width() > 768) {
+          const largeImg = $(this).data('large');
+          showTooltip(largeImg, e.pageX, e.pageY);
+        }
+      }).on('mouseleave', function () {
+        if ($(window).width() > 768) {
+          $('.preview-tooltip-left').remove();
+        }
+      }).on('mousemove', function (e) {
+        if ($(window).width() > 768) {
+          updateTooltipPosition(e);
+        }
+      });
+
+      // Handle click for mobile/touch
+      $('.preview-target-left').on('click', function (e) {
+        if ($(window).width() <= 768) {
+          e.preventDefault();
+          $('.preview-tooltip-left').remove(); // remove existing
+          const largeImg = $(this).data('large');
+          showTooltip(largeImg, e.pageX, e.pageY);
+        }
+      });
+
+      // Close button handler
+      $(document).on('click', '.tooltip-close-left', function () {
+        $('.preview-tooltip-left').fadeOut(200, function () {
+          $(this).remove();
+        });
+      });
+    });
+
 });
