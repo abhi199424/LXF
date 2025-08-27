@@ -1,0 +1,71 @@
+/*******************************************************
+  SP CustomHTML
+********************************************************/
+.promotion {
+  border: solid 1px #ddd;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 20px 0 0;
+  padding: 20px 0; }
+  .promotion .item {
+    float: left;
+    width: 33.3333%;
+    min-height: 50px;
+    border-right: solid 1px #ddd;
+    padding: 0 30px; }
+    .promotion .item .icon {
+      display: block;
+      float: left;
+      margin: 0 30px 0 0;
+      height: 44px;
+      width: 44px;
+      background-image: url(../img/icon_promotion.png);
+      background-repeat: no-repeat;
+      font-size: 0;
+      opacity: 0.4;
+      transition: 0.3s all ease 0s; }
+    .promotion .item.item1 .icon {
+      background-position: 0 0; }
+    .promotion .item.item2 .icon {
+      background-position: -52px 0;
+      width: 49px; }
+    .promotion .item.item3 {
+      border-right: none; }
+      .promotion .item.item3 .icon {
+        background-position: right center; }
+    .promotion .item .text h2 {
+      margin: 0 0 5px; }
+      .promotion .item .text h2 a {
+        color: #222;
+        font-size: 16px;
+        font-weight: 600; }
+    .promotion .item .text p {
+      margin: 0;
+      font-size: 12px;
+      color: #888; }
+    .promotion .item:hover .icon {
+      opacity: 1; }
+
+.download label {
+  padding: 0;
+  margin: 0 25px 0 0;
+  display: inline-block;
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 600;
+  vertical-align: middle; }
+.download .button {
+  display: inline-block;
+  background-image: url(../img/icon_download.png);
+  background-repeat: no-repeat;
+  font-size: 0;
+  height: 40px;
+  vertical-align: middle;
+  margin: 0 3px; }
+  .download .button.appstore {
+    width: 117px;
+    background-position: left center; }
+  .download .button.googleplay {
+    width: 119px;
+    background-position: right center; }
